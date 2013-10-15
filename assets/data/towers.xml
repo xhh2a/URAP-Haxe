@@ -8,22 +8,24 @@
 		<enemypassthrough>0</enemypassthrough>
 		<friendlypassthrough>1</friendlypassthrough>
 		<firetype>Aura</firetype>
-		<levels>
-			<level>
+		<variations>
+			<variation>
+				<id>1</id>
 				<damage>15</damage>
 				<durability>360</durability>
 				<cost>10</cost>
 				<range>10</range>
 				<firerate>1</firerate>
-			</level>
-			<level>
+			</variation>
+			<variation>
+				<id>2</id>
 				<longname>Pesticide Treated Mosquito Net</longname>
 				<shortname>Imp Net</shortname>
 				<damage>25</damage>
 				<cost>30</cost>
 				<range>10</range>
 				<firerate>1</firerate>
-			</level>
-		</levels>
+			</variation>
+		</variations>
 	</tower>
 </data>
