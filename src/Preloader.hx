@@ -2,7 +2,7 @@ package ;
 import awe6.core.APreloader;
 
 /**
- * ...
+ * 
  * @author UC Berkeley
  */
 

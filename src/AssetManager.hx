@@ -31,7 +31,12 @@ class AssetManager extends AAssetManager
 	public var overlayUnpauseOver( default, null ):IView;
 	public var overlayUnpauseUp( default, null ):IView;
 	public var font( default, null ):Font;
-		
+	/**
+	 * Contains a list of all entity objects initialized based on values from assets. New instances of an object should be copied
+	 * from this list. The first level KEY is the TYPE of an entity. The second level is a map where the KEY is the ID of the variant.
+	 */
+	public var entityTemplates:Map<String, Map<String, CustomEntity>>;
+
 	private var _html5AudioExtension:String;
 	
 	override private function _init():Void 
@@ -49,6 +54,7 @@ class AssetManager extends AAssetManager
 		overlayUnpauseUp = _createView( OVERLAY_UNPAUSE_UP );
 		overlayUnpauseOver = _createView( OVERLAY_UNPAUSE_OVER );
 		loadLanguage(Globals.SELECTEDLANGUAGE, Globals.LANGUAGEDIRECTORY);
+		entityTemplates = new Map < String, Map < String, CustomEntity >> ();
 		font = Assets.getFont( "assets/fonts/orbitron.ttf" );
 		#if js
 		_html5AudioExtension = untyped flash.media.Sound.nmeCanPlayType( "ogg" ) ? ".ogg" : ".mp3";

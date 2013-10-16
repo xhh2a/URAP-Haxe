@@ -21,10 +21,11 @@ class XmlLoader
 	 * VALIDATOR is an optional function that takes the XML file (<data> tag is the top level) found and validates it, returning true if it validates and false if not.
 	 */
 	public static function loadFile(xmlSubdirectory:String, xmlName:String, manager:AssetManager, ?validator:Xml->Bool) {
-		public var globalData : Map < String, List<Dynamic> > = new Map < String, List<Dynamic> > ();
+		var globalData : Map < String, List<Dynamic> > = new Map < String, List<Dynamic> > ();
 		/**
 		 * Helper function that does the actual XML parsing.
 		 */
+		/*
 		var parseFile = function (xmlElement: Xml) {
 			var defaultValues: Map<String, Dynamic> = new Map<String, Dynamic>();
 			var variationSubElement :Null<Xml> = null; //There can only ever be one of these in an XML!
@@ -57,12 +58,14 @@ class XmlLoader
 				throw "Invalid XML";
 			}
 		}
-
-		var temp:Xml = Xml.parse(manager.getAsset(xmlName, xmlSubdirectory));
+		*/
+		//var temp:Xml = Xml.parse(manager.getAsset(xmlName, xmlSubdirectory));
 		if (validator != null) {
-			validator(temp);
+			//validator(temp);
 		}
-		parseFile(temp.firstElement());
+		//parseFile(temp.firstElement());
+		trace("Test File Name: " + xmlName + " Test Subdirectory: " + xmlSubdirectory);
 	}
+
 	
 }
