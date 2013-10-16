@@ -177,6 +177,7 @@ class AssetManager extends AAssetManager
 	 * *List is faster than Array if the iterable needs to be modified. However, it uses Arrays as the undelying implementation.
 	 * *Array<Dynamic> is required if the elements inside are of different types. Therefore, this must be List<Dynamic>
 	 * *See SugarList and FastList for potential optimizations.
+	 * 
 	 */
 	public function getText(key:String, ?args:Array<String>) {
 		var fringe:List<Dynamic> = new List<Dynamic>();

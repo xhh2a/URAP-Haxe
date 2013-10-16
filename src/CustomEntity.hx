@@ -11,11 +11,11 @@ import XmlLoader;
  */
 class CustomEntity extends Entity
 {
-	public var _assetManager : AssetManager;
+	private var _assetManager : AssetManager;
 	public var _attribute: Map<String, Dynamic>;
-	public var _filename:String;
-	public var _filedirectory:String;
-	public var _validator:Null < Xml->Bool >;
+	private var _filename:String;
+	private var _filedirectory:String;
+	private var _validator:Null < Xml->Bool >;
 
 	/** This is the proper constructor for an entity. If you need to overwrite the constructor, use this as a template. */
 	public function new(p_kernel:IKernel, ?p_id:String, ?p_context:Context)
@@ -24,7 +24,7 @@ class CustomEntity extends Entity
 		super(p_kernel, p_id, p_context);
 	}
 
-	/** Returns a copy of this with the existing _attribute, or the passed in ATTRIBUTE*/
+	/** Returns a copy of this with the existing _attribute, or the passed in ATTRIBUTE. */
 	public function getCopy(?attribute:Map < String, Dynamic>) {
 		if (attribute == null) {
 			var newattribute:Map<String, Dynamic> = new Map<String, Dynamic>();
@@ -40,7 +40,7 @@ class CustomEntity extends Entity
 	 *	     _filename = BAR;
 	 *	     super();
 	 *    }
-	}*/
+	 */
 	public function __init__() {
 		var result = XmlLoader.loadFile(_filedirectory, _filename, _assetManager, _validator);
 		for (entityType in result.keys()) {

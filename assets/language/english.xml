@@ -3,6 +3,7 @@
 	<xmlloader>
 		<exception>
 			<invalidvariation>[FATAL] Invalid $1 XML file in $2 : There can only be one variations section</invalidvariation>
+			<invalidid>[FATAL] Invalid $1 XML file in $2 : There can only be one id per variation</invalidid>
 		</exception>
 	</xmlloader>
 </data>
