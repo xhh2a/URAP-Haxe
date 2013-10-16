@@ -27,7 +27,7 @@ class CustomEntity extends Entity
 	/** Returns a copy of this with the existing _attribute, or the passed in ATTRIBUTE*/
 	public function getCopy(?attribute:Map < String, Dynamic>) {
 		if (attribute == null) {
-			newattribute:Map<String, Dynamic> = new Map<String, Dynamic>();
+			var newattribute:Map<String, Dynamic> = new Map<String, Dynamic>();
 			//TODO: deepcopy our current _attribute.
 		}
 		//TODO: Complete reflection code to create a new instance of the current class.
@@ -44,9 +44,15 @@ class CustomEntity extends Entity
 	public function __init__() {
 		var result = XmlLoader.loadFile(_filedirectory, _filename, _assetManager, _validator);
 		for (entityType in result.keys()) {
+			var variantMap;
+			if (!_assetManager.entityTemplates.exists(entityType)) {
+				variantMap = new Map<String, CustomEntity>();
+			} else {
+				variantMap = _assetManager.entityTemplates[entityType];
+			}
 			var variants = result[entityType];
 			for (variantID in variants.keys()) {
-				_assetManager.entityTemplates[entityType][variantID] = getCopy(variants[variantID]);
+				variantMap[variantID] = getCopy(variants[variantID]);
 			}
 		}
 	}
