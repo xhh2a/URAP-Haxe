@@ -1,5 +1,5 @@
 <data>
-	<tower>
+	<entity>
 		<type>Net</type>
 		<longname>Mosquito Net</longname>
 		<shortname>Net</shortname>
@@ -27,5 +27,5 @@
 				<firerate>1</firerate>
 			</variation>
 		</variations>
-	</tower>
+	</entity>
 </data>

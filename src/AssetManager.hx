@@ -8,6 +8,8 @@ import flash.display.Bitmap;
 import flash.display.BitmapData;
 import openfl.Assets;
 import flash.text.Font;
+//import flash.Lib.trace;
+import Utils;
 
 /**
  * ...
@@ -46,6 +48,7 @@ class AssetManager extends AAssetManager
 		overlayPauseOver = _createView( OVERLAY_PAUSE_OVER );
 		overlayUnpauseUp = _createView( OVERLAY_UNPAUSE_UP );
 		overlayUnpauseOver = _createView( OVERLAY_UNPAUSE_OVER );
+		loadLanguage(Globals.SELECTEDLANGUAGE, Globals.LANGUAGEDIRECTORY);
 		font = Assets.getFont( "assets/fonts/orbitron.ttf" );
 		#if js
 		_html5AudioExtension = untyped flash.media.Sound.nmeCanPlayType( "ogg" ) ? ".ogg" : ".mp3";
@@ -143,48 +146,74 @@ class AssetManager extends AAssetManager
 	}
 
 	/**
-	 * This should be initialized by the preloader. See LanguageLoader.hx 
+	 * This should be initialized by the preloader.
 	 */
 	public var loadedLanguageStrings:Null<Xml> = null;
-	
+
+	/** 
+	 * Load the language from XMLLOCATION to the current ASSETMANAGER instance.
+	 */
+	public function loadLanguage(xmlFile:String, xmlSubdirectory:String) {
+		loadedLanguageStrings = Xml.parse(getAsset(xmlFile, xmlSubdirectory)); //Strip the top level mandatory tag.
+	}
 
 	/**
 	 * Returns the text from the currently loaded language file corresponding to KEY.
 	 * KEY will be split by the '.' character to filter sub elements of the XML language file.
+	 * You do not need to add data to this string, this function will add it automatically to the search if missing.
 	 * This function uses an iterative tree search.
+	 * 
+	 * Since Haxe doesn't support a good built in string formatter function, you can pass in the arguments to this function.
+	 * Ex in your language XML, define: "Print $1 and print $2". Pass in an Array<String> of ["a", "b"], and you will get out:
+     * "Print a and print b"
 	 * 
 	 * Implementation details for future maintainers:
 	 * *List is faster than Array if the iterable needs to be modified. However, it uses Arrays as the undelying implementation.
 	 * *Array<Dynamic> is required if the elements inside are of different types. Therefore, this must be List<Dynamic>
 	 * *See SugarList and FastList for potential optimizations.
 	 */
-	public function getText(key:String) {
+	public function getText(key:String, ?args:Array<String>) {
 		var fringe:List<Dynamic> = new List<Dynamic>();
 		if (loadedLanguageStrings == null) {
 			throw "[FATAL] Attempted to get a string prior to loading the language files.";
 		}
-		var searchfor:List<String> = new List<String>();
-		for (el in key.split(".")) {
-			searchfor.add(el);
+		var searchfor:List<String> = Utils.arrayToList(key.split("."));
+		if (searchfor.first().toLowerCase() != "data") {
+			searchfor.push("data");
 		}
 		var nextEle:TextFringeElement = { xmlElement: loadedLanguageStrings, searchfor: searchfor };
 		fringe.push( nextEle );
 		var result:String = key + ": UNDEFINED";
 		/**
+		 * Custom copy method
+		 */
+		var listCopy = function (aList:List<String>):List<String> {
+			var output:List<String> = new List<String>();
+			for (el in aList) {
+				output.add(new String(el));
+			}
+			return output;
+		}
+		/**
 		 * The iterative helper.
 		 */
 		var treesearch = function(thefringe:List<Dynamic> ) {
 			var nextElement:TextFringeElement = fringe.pop();
-			var nextTarget:String = nextElement.searchfor.first();
-			var remainingTargets:List<String> = Reflect.copy(nextElement.searchfor);
+			var nextTarget:Null<String> = nextElement.searchfor.first();
+			var temp:List<String> = nextElement.searchfor;
+			var remainingTargets:List<String> = listCopy(temp);
 			remainingTargets.remove(nextTarget);
-			if (nextElement.searchfor.isEmpty()) {
+			if (nextTarget == null) {
 				result = nextElement.xmlElement.firstChild().nodeValue;
 			} else {
-				if (nextElement.xmlElement.nodeName.toLowerCase() == nextTarget.toLowerCase()) {
-					for (foundChild in nextElement.xmlElement.elementsNamed(nextTarget)) {
-						var childEle:TextFringeElement = { xmlElement: foundChild, searchfor: remainingTargets };
-						fringe.push(childEle);
+				if (nextElement.xmlElement.firstElement().nodeName.toLowerCase() == nextTarget.toLowerCase()) {
+					for (foundChild in nextElement.xmlElement.elements()) { //ElementsNamed is broken.
+						if (remainingTargets.first() == null) {
+							result = foundChild.firstChild().nodeValue;
+						} else if (foundChild.firstElement().nodeName.toLowerCase() == remainingTargets.first().toLowerCase()) {
+							var childEle:TextFringeElement = { xmlElement: foundChild, searchfor: remainingTargets };
+							fringe.push(childEle);
+						}
 					}
 				}
 			}
@@ -192,7 +221,15 @@ class AssetManager extends AAssetManager
 		while (!fringe.isEmpty()) {
 			treesearch(fringe);
 		}
+		if (args != null) {
+			var i:Int = 1;
+			for (stringarg in args) {
+				result = result.split("$" + i).join(stringarg);
+				i += 1;
+			}
+		}
 		return result;
+
 	}
 }
 

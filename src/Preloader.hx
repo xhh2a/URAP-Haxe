@@ -1,8 +1,5 @@
 package ;
 import awe6.core.APreloader;
-import flash.utils.ByteArray;
-import openfl.Assets;
-import flash.Lib;
 
 /**
  * ...
@@ -11,5 +8,8 @@ import flash.Lib;
 
 class Preloader extends APreloader 
 {
-
+	override private function _init():Void
+	{
+		super._init();
+	}
 }

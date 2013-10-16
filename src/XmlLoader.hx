@@ -1,7 +1,6 @@
 package ;
 
 import AssetManager;
-import flash.Lib;
 import Globals;
 /**
  * ...
@@ -29,7 +28,7 @@ class XmlLoader
 					defaultValues.set(tagAttrib, child.firstChild().nodeValue);
 				} else {
 					if (vairationSubElement != null) {
-						throw "[FATAL] Invalid " + xmlName + " XML file in " + xmlSubDirectory + ": There can only be one variations section";
+						throw manager.getText("xmlloader.exception.invalidvariation");
 					}
 					variationSubElement = child;
 				}
@@ -53,15 +52,11 @@ class XmlLoader
 			}
 		}
 
-		var temp = Xml.parse(AssetManager);
-		for (entry in temp.firstElement().elements()) {
-			if (entry.nodeName == "tower") {
-				parseTower(entry);
-			} else {
-				throw "Invalid Tower XML in assets/config/towers.xml: unrecognized child tag under data";
-			}
+		var temp:Xml = Xml.parse(manager.getAsset(xmlName, xmlSubdirectory));
+		if (validator != null) {
+			validator(temp);
 		}
-		Lib.trace("Done");
+		parseFile(temp.firstElement());
 	}
 	
 }
