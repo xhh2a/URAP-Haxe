@@ -10,17 +10,17 @@ class XmlLoader
 {
 
 	/**
-	 * Loads information from XMLNAME located in XMLSUBDIRECTORY to MANAGER. Returns a HashMap<String, HashMap<String, HashMap<String, Dynamic>>>.
+	 * Loads information from XMLNAME located in XMLSUBDIRECTORY to MANAGER. Returns a Map<String, Map<String, Map<String, Dynamic>>>.
 	 * 
-	 * The first level of the HashMap has the Entity TYPE as the key for each Entity defined in an XML.
+	 * The first level of the Map has the Entity TYPE as the key for each Entity defined in an XML.
 	 * 
-	 * The second level of the HashMap has the Variation ID as the key for each Variation of an entity defined in an XML.
+	 * The second level of the Map has the Variation ID as the key for each Variation of an entity defined in an XML.
 	 * 
-	 * The third level of the HashMap has the Attribute STRING as they key and the Dynamic value as the value.
+	 * The third level of the Map has the Attribute STRING as they key and the Dynamic value as the value.
 	 * 
 	 * VALIDATOR is an optional function that takes the XML file (<data> tag is the top level) found and validates it, returning true if it validates and false if not.
 	 */
-	public static function loadFile(xmlSubdirectory:String, xmlName:String, manager:AssetManager, ?validator:Xml->Bool) {
+	public static function loadFile(xmlSubdirectory:String, xmlName:String, manager:AssetManager, ?validator:Xml->Bool):Map<String, Map<String, Map<String, Dynamic>>> {
 		var globalData : Map < String, List<Dynamic> > = new Map < String, List<Dynamic> > ();
 		/**
 		 * Helper function that does the actual XML parsing.

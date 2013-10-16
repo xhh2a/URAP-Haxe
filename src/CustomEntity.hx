@@ -28,7 +28,7 @@ class CustomEntity extends Entity
 	public function getCopy(?attribute:Map < String, Dynamic>) {
 		if (attribute == null) {
 			newattribute:Map<String, Dynamic> = new Map<String, Dynamic>();
-			//deepcopy our current _attribute.
+			//TODO: deepcopy our current _attribute.
 		}
 		//TODO: Complete reflection code to create a new instance of the current class.
 	}
@@ -42,9 +42,12 @@ class CustomEntity extends Entity
 	 *    }
 	}*/
 	public function __init__() {
-		variations = XmlLoader.loadFile(_filedirectory, _filename, _assetManager, _validator);
-		for (avariation in variations) {
-			//_assetManager.entityTemplates[''] = //Create a new entity
+		var result = XmlLoader.loadFile(_filedirectory, _filename, _assetManager, _validator);
+		for (entityType in result.keys()) {
+			var variants = result[entityType];
+			for (variantID in variants.keys()) {
+				_assetManager.entityTemplates[entityType][variantID] = getCopy(variants[variantID]);
+			}
 		}
 	}
 
