@@ -56,6 +56,9 @@ class AssetManager extends AAssetManager
 		loadLanguage(Globals.SELECTEDLANGUAGE, Globals.LANGUAGEDIRECTORY);
 		entityTemplates = new Map < String, Map < String, CustomEntity >> ();
 		font = Assets.getFont( "assets/fonts/orbitron.ttf" );
+		//Test Code
+		CustomEntity.setAssetManager(this);
+		var a:CustomEntity = new CustomEntity(this._kernel);
 		#if js
 		_html5AudioExtension = untyped flash.media.Sound.nmeCanPlayType( "ogg" ) ? ".ogg" : ".mp3";
 		#end

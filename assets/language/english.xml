@@ -4,6 +4,9 @@
 		<exception>
 			<invalidvariation>[FATAL] Invalid $1 XML file in $2 : There can only be one variations section</invalidvariation>
 			<invalidid>[FATAL] Invalid $1 XML file in $2 : There can only be one id per variation</invalidid>
+			<missingid>[FATAL] Invalid $1 XML file in $2 : There is a variation missing an id</missingid>
+			<invalidtype>[FATAL] Invalid $1 XML file in $2 : There can only be one type per entity</invalidtype>
+			<missingtype>[FATAL] Invalid $1 XML file in $2 : There is an entity missing an type</missingtype>
 		</exception>
 	</xmlloader>
 </data>

@@ -11,17 +11,21 @@ import XmlLoader;
  */
 class CustomEntity extends Entity
 {
-	private var _assetManager : AssetManager;
+	private static var _assetManager : AssetManager;
 	public var _attribute: Map<String, Dynamic>;
-	private var _filename:String;
-	private var _filedirectory:String;
-	private var _validator:Null < Xml->Bool >;
+	private static var _filename:String;
+	private static var _filedirectory:String;
+	private static var _validator:Null < Xml->Bool >;
 
 	/** This is the proper constructor for an entity. If you need to overwrite the constructor, use this as a template. */
 	public function new(p_kernel:IKernel, ?p_id:String, ?p_context:Context)
 	{
-		_assetManager = cast p_kernel.assets;
 		super(p_kernel, p_id, p_context);
+	}
+
+	/** This is called by the init function in AssetManager.hx */
+	public static function setAssetManager(manager:AssetManager) {
+		_assetManager = manager;
 	}
 
 	/** Returns a copy of this with the existing _attribute, or the passed in ATTRIBUTE. */
@@ -35,26 +39,27 @@ class CustomEntity extends Entity
 
 	/** Overwrite this method with something that sets _filename and _firedirectory to what they should be, then call super()
 	 *   Example:
-	 * 	  public override function __init__() {
+	 * 	  public static override function __init__() {
 	 *	     _filedirectory = FOO;
 	 *	     _filename = BAR;
 	 *	     super();
 	 *    }
 	 */
-	public function __init__() {
+	public static function __init__() {
 		var result = XmlLoader.loadFile(_filedirectory, _filename, _assetManager, _validator);
-		for (entityType in result.keys()) {
+/*		for (entityType in result.keys()) {
 			var variantMap;
 			if (!_assetManager.entityTemplates.exists(entityType)) {
 				variantMap = new Map<String, CustomEntity>();
 			} else {
 				variantMap = _assetManager.entityTemplates[entityType];
 			}
-			var variants = result[entityType];
+			var variants = result.get(entityType);
 			for (variantID in variants.keys()) {
-				variantMap[variantID] = getCopy(variants[variantID]);
+				variantMap.set(variantID, getCopy(variants.get(variantID)));
 			}
-		}
+		}*/
+		trace(result);
 	}
 
 }
