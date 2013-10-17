@@ -60,7 +60,7 @@ class XmlLoader
 			var overwriteArray: Map<String, Dynamic> = new Map<String, Dynamic>();
 			var id:Null<Dynamic> = null;
 		 	for (key in defaults.keys()) {
-				overwriteArray[key] = defaults[key];
+				overwriteArray.set(key, defaults.get(key));
 			}
 			for (overwriteAttribute in xmlVariant.elements()) {
 				var key:String = overwriteAttribute.nodeName;
@@ -81,11 +81,11 @@ class XmlLoader
 		}
 		var parseFile = function (xmlRoot: Xml) {
 			var outMap: Map < String, Map < String, Map < String, Dynamic >>> = new Map < String, Map < String, Map < String, Dynamic >>> ();
-			for (entity in xmlRoot) {
+			for (entity in xmlRoot.elements()) {
 				var entityOutMap: Map < String, Map < String, Dynamic >> = new Map < String, Map < String, Dynamic >> ();
-				var entityResult:ENTITYRESULT = parseEntity(xmlRoot);
-				for (variation in entityResult.variationRoot) {
-					var variantresult:VARIANTRESULT = parseVariation(entityResult.variationRoot, entityResult.entityMap);
+				var entityResult:ENTITYRESULT = parseEntity(entity);
+				for (variation in entityResult.variationRoot.elements()) {
+					var variantresult:VARIANTRESULT = parseVariation(variation, entityResult.entityMap);
 					entityOutMap.set(variantresult.id, variantresult.attributeMap);
 				}
 				outMap.set(entityResult.type, entityOutMap);

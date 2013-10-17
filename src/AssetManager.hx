@@ -8,6 +8,8 @@ import flash.display.Bitmap;
 import flash.display.BitmapData;
 import openfl.Assets;
 import flash.text.Font;
+import CustomEntity.ACustomEntity;
+
 //import flash.Lib.trace;
 import Utils;
 
@@ -35,7 +37,7 @@ class AssetManager extends AAssetManager
 	 * Contains a list of all entity objects initialized based on values from assets. New instances of an object should be copied
 	 * from this list. The first level KEY is the TYPE of an entity. The second level is a map where the KEY is the ID of the variant.
 	 */
-	public var entityTemplates:Map<String, Map<String, CustomEntity>>;
+	public var entityTemplates:Map<String, Map<String, ACustomEntity>>;
 
 	private var _html5AudioExtension:String;
 	
@@ -54,7 +56,7 @@ class AssetManager extends AAssetManager
 		overlayUnpauseUp = _createView( OVERLAY_UNPAUSE_UP );
 		overlayUnpauseOver = _createView( OVERLAY_UNPAUSE_OVER );
 		loadLanguage(Globals.SELECTEDLANGUAGE, Globals.LANGUAGEDIRECTORY);
-		entityTemplates = new Map < String, Map < String, CustomEntity >> ();
+		entityTemplates = new Map < String, Map < String, ACustomEntity >> ();
 		//TODO: Put static entity preload calls here (NOT in Preloader.hx), reason is because of multi-threading, we cannot be guarenteed the preloader runs after the AssetManager is initialized.
 		font = Assets.getFont( "assets/fonts/orbitron.ttf" );
 		#if js
@@ -157,10 +159,12 @@ class AssetManager extends AAssetManager
 	 */
 	public var loadedLanguageStrings:Null<Xml> = null;
 
+	private var cachedLanguageStrings:Map<String, String>;
 	/** 
 	 * Load the language from XMLLOCATION to the current ASSETMANAGER instance.
 	 */
 	public function loadLanguage(xmlFile:String, xmlSubdirectory:String) {
+		cachedLanguageStrings = new Map<String, String>();
 		loadedLanguageStrings = Xml.parse(getAsset(xmlFile, xmlSubdirectory)); //Strip the top level mandatory tag.
 	}
 
@@ -185,6 +189,21 @@ class AssetManager extends AAssetManager
 		if (loadedLanguageStrings == null) {
 			throw "[FATAL] Attempted to get a string prior to loading the language files.";
 		}
+		var replace = function(input:String):String {
+			var printf:String = input;
+			if (args != null) {
+				var i:Int = 1;
+				for (stringarg in args) {
+					printf = printf.split("$" + i).join(stringarg);
+					i += 1;
+				}
+			}
+			return printf;
+		}
+		if (cachedLanguageStrings.exists(key)) {
+			return replace(cachedLanguageStrings.get(key));
+		}
+		
 		var searchfor:List<String> = Utils.arrayToList(key.split("."));
 		if (searchfor.first().toLowerCase() != "data") {
 			searchfor.push("data");
@@ -211,17 +230,13 @@ class AssetManager extends AAssetManager
 			var temp:List<String> = nextElement.searchfor;
 			var remainingTargets:List<String> = listCopy(temp);
 			remainingTargets.remove(nextTarget);
-			if (nextTarget == null) {
-				result = nextElement.xmlElement.firstChild().nodeValue;
-			} else {
-				if (nextElement.xmlElement.firstElement().nodeName.toLowerCase() == nextTarget.toLowerCase()) {
-					for (foundChild in nextElement.xmlElement.elements()) { //ElementsNamed is broken.
-						if (remainingTargets.first() == null) {
-							result = foundChild.firstChild().nodeValue;
-						} else if (foundChild.firstElement().nodeName.toLowerCase() == remainingTargets.first().toLowerCase()) {
-							var childEle:TextFringeElement = { xmlElement: foundChild, searchfor: remainingTargets };
-							fringe.push(childEle);
-						}
+			for (foundChild in nextElement.xmlElement.elements()) { //ElementsNamed is broken.
+				if (foundChild.nodeName.toLowerCase() == nextTarget.toLowerCase()) {
+					if (remainingTargets.first() == null) {
+						result = foundChild.firstChild().nodeValue;
+					} else {
+						var childEle:TextFringeElement = { xmlElement: foundChild, searchfor: remainingTargets };
+						fringe.push(childEle);
 					}
 				}
 			}
@@ -229,14 +244,8 @@ class AssetManager extends AAssetManager
 		while (!fringe.isEmpty()) {
 			treesearch(fringe);
 		}
-		if (args != null) {
-			var i:Int = 1;
-			for (stringarg in args) {
-				result = result.split("$" + i).join(stringarg);
-				i += 1;
-			}
-		}
-		return result;
+		cachedLanguageStrings.set(key, result);
+		return replace(result);
 
 	}
 }
