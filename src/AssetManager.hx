@@ -55,9 +55,8 @@ class AssetManager extends AAssetManager
 		overlayUnpauseOver = _createView( OVERLAY_UNPAUSE_OVER );
 		loadLanguage(Globals.SELECTEDLANGUAGE, Globals.LANGUAGEDIRECTORY);
 		entityTemplates = new Map < String, Map < String, CustomEntity >> ();
+		//TODO: Put static entity preload calls here (NOT in Preloader.hx), reason is because of multi-threading, we cannot be guarenteed the preloader runs after the AssetManager is initialized.
 		font = Assets.getFont( "assets/fonts/orbitron.ttf" );
-		//Test Code
-		//var a:TestEntity = new TestEntity(this._kernel);
 		#if js
 		_html5AudioExtension = untyped flash.media.Sound.nmeCanPlayType( "ogg" ) ? ".ogg" : ".mp3";
 		#end

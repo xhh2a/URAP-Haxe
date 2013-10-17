@@ -27,8 +27,9 @@ interface ICustomEntity
 	function getCopy(?attribute:Map < String, Dynamic>):ICustomEntity /*{
 	} */
 
-	/** If you want to run setup code, below is an example call to get the results from a XML file */
-	/* public static	function __init__() {
+	/** If you want to run setup code, below is an example call to get the results from a XML file parsing. You then need to parse
+	 *  those results to get what you want. See XmlLoader for details on what the call returns. */
+	/* public staticn function __init__() {
 		//var result = XmlLoader.loadFile(FILEDIRECTORY, FILENAME, _assetManager, ?_validator());
 	}*/
 
