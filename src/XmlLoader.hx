@@ -1,6 +1,6 @@
 package ;
 
-import AssetManager;
+import core.AssetManager;
 import Globals;
 /**
  * ...

@@ -3,7 +3,6 @@ package ;
 import awe6.core.Context;
 import awe6.core.Entity;
 import awe6.interfaces.IKernel;
-import XmlLoader;
 
 /**
  * All Entity classes should implement this!
@@ -37,6 +36,7 @@ interface ICustomEntity
 }
 
 /** Abstract Class */
+/*
 class ACustomEntity extends Entity implements ICustomEntity {
 	public var _attribute: Map<String, Dynamic>;
 	public var _type:String;
@@ -44,3 +44,4 @@ class ACustomEntity extends Entity implements ICustomEntity {
 		return new ACustomEntity(_kernel);
 	}
 }
+*/
