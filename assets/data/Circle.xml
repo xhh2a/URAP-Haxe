@@ -1,0 +1,12 @@
+<data>
+	<entity>
+		<type>Circle</type>
+		<variations>
+			<variation>
+				<id>Placeholder</id>
+				<fileDirectory>assets.sprites</fileDirectory>
+				<fileName>circle.png</fileName>
+			</variation>
+		</variations>
+	</entity>
+</data>
