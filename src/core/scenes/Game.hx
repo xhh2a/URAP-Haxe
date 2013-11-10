@@ -1,11 +1,11 @@
-package awe6test2.scenes;
+package core.scenes;
 
 /**
  * ...
  * @author Kevin
  */
 
-import awe6test2.Character; 
+import core.Character; 
  
 class Game extends AScene 
 {

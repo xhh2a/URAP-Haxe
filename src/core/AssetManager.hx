@@ -35,7 +35,7 @@ class AssetManager extends AAssetManager
 	 * Contains a list of all entity objects initialized based on values from assets. New instances of an object should be copied
 	 * from this list. The first level KEY is the TYPE of an entity. The second level is a map where the KEY is the ID of the variant.
 	 */
-	public var entityTemplates:Map<String, Map<String, ACustomEntity>>;	
+	public var entityTemplates:Map<String, Map<String, ICustomEntity>>;	
 	public var circle(default, null):BitmapData;
 
 	private var _html5AudioExtension:String;

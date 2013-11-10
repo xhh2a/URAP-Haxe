@@ -92,8 +92,7 @@ class Character extends Entity implements ICustomEntity
 		super._updater( p_deltaTime );
 		// extend here
 		
-		#if 
-		
+	
 		_xCoordinate = _imageContainer.x;
 		_yCoordinate = _imageContainer.y;
 		

@@ -1,8 +1,8 @@
-package awe6test2.gui;
+package core.gui;
 import awe6.core.BasicButton;
 import awe6.interfaces.EOverlayButton;
 import awe6.interfaces.IKernel;
-import awe6test2.AssetManager;
+import core.AssetManager;
 
 /**
  * ...

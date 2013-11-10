@@ -1,4 +1,4 @@
-import Factory;
+import core.Factory;
 import flash.Lib;
 import haxe.Log;
 import haxe.PosInfos;

@@ -1,4 +1,4 @@
-package awe6test2.scenes;
+package core.scenes;
 
 /**
  * ...

@@ -1,9 +1,9 @@
-package awe6test2.scenes;
+package core.scenes;
 import awe6.core.Scene;
 import awe6.extras.gui.Text;
 import awe6.interfaces.ETextStyle;
-import awe6test2.AssetManager;
-import awe6test2.Session;
+import core.AssetManager;
+import core.Session;
 
 /**
  * ...
