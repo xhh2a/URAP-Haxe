@@ -140,7 +140,7 @@ class Character extends Entity implements ICustomEntity
 		// extend here
 		
 		#if html5
-			//Apparently debugging statements don't work for
+			//Apparently debugging statements (including all variations of trace) don't work for HTML5, even in debug mode
 			//still figuring out what to put here...
 		#end
 		
