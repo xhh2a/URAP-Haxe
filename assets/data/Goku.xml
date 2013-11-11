@@ -5,8 +5,8 @@
 			<variation>
 				<id>Default</id>
 				<fileDirectory>assets.sprites</fileDirectory>
-				<fileName>circle.png</fileName>
-			</variation>
+				<fileName>goku.png</fileName>
+			</variation>		
 		</variations>
 	</entity>
 </data>

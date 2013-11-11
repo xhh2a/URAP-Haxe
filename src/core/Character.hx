@@ -6,13 +6,10 @@ import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.Sprite;
 import flash.events.MouseEvent;
+import flash.filters.GlowFilter;
+import flash.geom.Rectangle;
 import ICustomEntity;
 import XmlLoader;
-
-//just trying to see if these might solve our dragging problem in the HTML5 platform... still testing...
-import js.html.EventListener;
-import js.html.Image;
-import js.html.ImageData;
 
 /**
  * ...
@@ -33,11 +30,7 @@ class Character extends Entity implements ICustomEntity
 	var _characterImage:Bitmap; //the image to be "contained" within _imageContainer
 	var _characterImageData:BitmapData; //info about the image in _characterImage (ie. dimensions, its current location, etc.)
 	
-	//might have to use these javascript classes? not sure yet though...
-	var _jsImage:Image;
-	var _jsImageData:ImageData;
-	
-	//Apparently, these two are needed in order to set the initial position of our Character and make dragging work
+	//The (x,y) coordinates of our Character
 	var _xCoordinate:Null<Float>;
 	var _yCoordinate:Null<Float>;
 	
@@ -65,7 +58,7 @@ class Character extends Entity implements ICustomEntity
 		//If we decided NOT to pass in one of the initial coordinates, we'll use a default of 0.0
 		if (xCoordinate == null)
 		{
-			_xCoordinate = 0.0;
+			_xCoordinate = 0.0;			
 		}
 		else
 		{
@@ -78,7 +71,7 @@ class Character extends Entity implements ICustomEntity
 		else
 		{
 			_yCoordinate = yCoordinate;
-		}
+		}		
 		
 		super( p_kernel, _imageContainer );
 	}
@@ -95,7 +88,7 @@ class Character extends Entity implements ICustomEntity
 		if (_fileDirectory != null && _fileName != null)
 		{
 			var result:Map<String, Map<String, Map<String, Dynamic>>> = XmlLoader.loadFile(_fileDirectory, _fileName, _assetManager);
-			_attribute = result.get("Circle").get("Placeholder");
+			_attribute = result.get("Character").get("Default");
 			_characterImageData = _assetManager.getAsset(_attribute.get("fileName"), _attribute.get("fileDirectory"));
 		}
 		
@@ -106,27 +99,12 @@ class Character extends Entity implements ICustomEntity
 		_imageContainer.addChild(_characterImage);
 		_imageContainer.x = _xCoordinate;
 		_imageContainer.y = _yCoordinate;
-		
-		//These two lines are what will handle the dragging of our Character
-		//For the HTML5 platform, these event listeners won't work, and instead, dragging for HTML5 will be dealt with below
-		//Also note that dragging ignores transparent pixels, so even if you click on a transparent portion of the image,
-		//the image will still drag
-		_imageContainer.addEventListener(MouseEvent.MOUSE_DOWN, dragStart); //starts dragging when the mouse is held down
-		_imageContainer.addEventListener(MouseEvent.MOUSE_UP, dragStop); //stops dragging when you release the mouse
-		
-	}
-
-	function dragStart(event:MouseEvent)
-	{
-		_imageContainer.startDrag();
 	}
 	
-	function dragStop(event:MouseEvent)
-	{
-		_imageContainer.stopDrag();
-	}
-	
-	public function getCopy(?attribute:Map < String, Dynamic>):ICustomEntity
+	/**
+	 * Creates a new Character with the same _characterImageData as this one
+	 */
+	public function getCopy(?attribute:Map<String, Dynamic>):ICustomEntity
 	{
 		var copiedCharacter = new Character(_kernel, _assetManager);
 		copiedCharacter._characterImageData = _characterImageData;
@@ -139,24 +117,17 @@ class Character extends Entity implements ICustomEntity
 		super._updater( p_deltaTime );
 		// extend here
 		
-		#if html5
-			//Apparently debugging statements (including all variations of trace) don't work for HTML5, even in debug mode
-			//still figuring out what to put here...
-		#end
+		_xCoordinate = _imageContainer.x;
+		_yCoordinate = _imageContainer.y;
 		
-		//ignore these next commented out lines for now
-		
-/*		if (_kernel.inputs.mouse.getIsButtonDown())
-		{
+		if (this._kernel.inputs.mouse.getIsButtonDown() && (_characterImageData.getPixel32(_kernel.inputs.mouse.x - cast(_xCoordinate, Int), _kernel.inputs.mouse.y - cast(_yCoordinate, Int)) != 0))
+		{			
 			_imageContainer.startDrag();
 		}
 		else
 		{
 			_imageContainer.stopDrag();
-		}*/
-		
-		_xCoordinate = _imageContainer.x;
-		_yCoordinate = _imageContainer.y;
+		}	
 	}
 	
 	override private function _disposer():Void 
