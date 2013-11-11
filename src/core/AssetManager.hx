@@ -36,7 +36,6 @@ class AssetManager extends AAssetManager
 	 * from this list. The first level KEY is the TYPE of an entity. The second level is a map where the KEY is the ID of the variant.
 	 */
 	public var entityTemplates:Map<String, Map<String, ICustomEntity>>;	
-	public var circle(default, null):BitmapData;
 
 	private var _html5AudioExtension:String;
 	

@@ -16,9 +16,8 @@ class Game extends AScene
 		// extend / addentities
 		_title.text = "GAME";
 		
-		//addEntity(new Character(_kernel, _assetManager.circle, 100.0, 100.0), true);
-		
-		addEntity(new Character(_kernel, _assetManager, "assets.data", "Circle.xml", _assetManager.circle, 100.0, 100.0), true);
+		//The boolean "true" at the end controls whether or not to show the entity (in this case, the Character)
+		addEntity(new Character(_kernel, _assetManager, "assets.data", "Circle.xml", 100.0, 100.0), true);
 	}
 
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="awe6" package="" version="1.0.0" company="UC Berkeley" />
+	<meta title="The Ultimate Health Game of Awesomeness" package="" version="1.0.0" company="UC Berkeley" />
 	<app main="Main" path="export" file="awe6" />
 	
 	<window width="600" height="400" fps="20" orientation="landscape" resizable="true" if="target_flash" />
