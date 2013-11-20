@@ -5,11 +5,13 @@ import awe6.interfaces.IKernel;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.Sprite;
-import flash.events.MouseEvent;
-import flash.filters.GlowFilter;
-import flash.geom.Rectangle;
+
 import ICustomEntity;
 import XmlLoader;
+
+import flash.events.Event;
+import flash.events.MouseEvent;
+
 
 /**
  * ...
@@ -34,6 +36,19 @@ class Character extends Entity implements ICustomEntity
 	var _xCoordinate:Null<Float>;
 	var _yCoordinate:Null<Float>;
 	
+	//Calculation of the x and y components
+	//of the distance between the current mouse position and the top-left corner of our image
+	//These will be used in when we do dragging
+	//The reason why we care about the distance between the mouse position and the top-left corner of the image
+	//is because when we do dragging, the distance between the mouse position and top-left corner of the image
+	//should remain the same throughout the drag
+	var _distanceFromTopLeftCornerOfImageX:Null<Float>;
+	var _distanceFromTopLeftCornerOfImageY:Null<Float>;
+	
+	//Set to true when our image is being dragged and set to false when our image is not being dragged
+	var _isBeingDragged:Bool;
+	
+	
 	/**
 	 * Initializes a Character, which is essentially a sprite, but I can't call name it Sprite because Sprite is already a built-in class
 	 * Parameters with the question mark in front means it is optional
@@ -55,7 +70,7 @@ class Character extends Entity implements ICustomEntity
 		_fileDirectory = fileDirectory;
 		_fileName = fileName;		
 
-		//If we decided NOT to pass in one of the initial coordinates, we'll use a default of 0.0
+		//If we decided NOT to pass in one of the initial coordinates, we'll use a default of 0.0 for that coordinate
 		if (xCoordinate == null)
 		{
 			_xCoordinate = 0.0;			
@@ -71,7 +86,14 @@ class Character extends Entity implements ICustomEntity
 		else
 		{
 			_yCoordinate = yCoordinate;
-		}		
+		}
+		
+		_isBeingDragged = false;
+		
+		#if !html5
+			//_imageContainer.addEventListener(MouseEvent.MOUSE_DOWN, dragStart);
+			//_imageContainer.addEventListener(MouseEvent.MOUSE_UP, dragStop);
+		#end
 		
 		super( p_kernel, _imageContainer );
 	}
@@ -99,15 +121,33 @@ class Character extends Entity implements ICustomEntity
 		_imageContainer.addChild(_characterImage);
 		_imageContainer.x = _xCoordinate;
 		_imageContainer.y = _yCoordinate;
+		
+		_distanceFromTopLeftCornerOfImageX = null;
+		_distanceFromTopLeftCornerOfImageY = null;
 	}
-	
+
+
+	public function dragStart(e:Event):Void
+	{
+		if (_characterImageData.getPixel32(_kernel.inputs.mouse.x - cast(_xCoordinate, Int), _kernel.inputs.mouse.y - cast(_yCoordinate, Int)) != 0)
+		{
+			_imageContainer.startDrag();
+		}
+	}
+	public function dragStop(e:Event):Void
+	{
+		_imageContainer.stopDrag();
+	}
+
 	/**
-	 * Creates a new Character with the same _characterImageData as this one
+	 * Creates a new Character with the same _characterImageData and XML file as this one
 	 */
 	public function getCopy(?attribute:Map<String, Dynamic>):ICustomEntity
 	{
 		var copiedCharacter = new Character(_kernel, _assetManager);
 		copiedCharacter._characterImageData = _characterImageData;
+		copiedCharacter._fileName = _fileName;
+		copiedCharacter._fileDirectory = _fileDirectory;
 		
 		return new Character(_kernel, _assetManager);
 	}
@@ -119,14 +159,27 @@ class Character extends Entity implements ICustomEntity
 		
 		_xCoordinate = _imageContainer.x;
 		_yCoordinate = _imageContainer.y;
-		
-		if (this._kernel.inputs.mouse.getIsButtonDown() && (_characterImageData.getPixel32(_kernel.inputs.mouse.x - cast(_xCoordinate, Int), _kernel.inputs.mouse.y - cast(_yCoordinate, Int)) != 0))
-		{			
-			_imageContainer.startDrag();
+
+		if (_kernel.inputs.mouse.getIsButtonDown())
+		{
+			if (_isBeingDragged || (_characterImageData.getPixel32(_kernel.inputs.mouse.x - cast(_xCoordinate, Int), _kernel.inputs.mouse.y - cast(_yCoordinate, Int)) != 0))
+			{
+				if (!_isBeingDragged)
+				{
+					_distanceFromTopLeftCornerOfImageX = _kernel.inputs.mouse.x - _imageContainer.x;
+					_distanceFromTopLeftCornerOfImageY = _kernel.inputs.mouse.y - _imageContainer.y;
+				}
+				_isBeingDragged = true;
+				
+				_imageContainer.x = _kernel.inputs.mouse.x - _distanceFromTopLeftCornerOfImageX;
+				_imageContainer.y = _kernel.inputs.mouse.y - _distanceFromTopLeftCornerOfImageY;
+			}
 		}
 		else
 		{
-			_imageContainer.stopDrag();
+			_isBeingDragged = false;
+			_distanceFromTopLeftCornerOfImageX = null;
+			_distanceFromTopLeftCornerOfImageY = null;
 		}	
 	}
 	
