@@ -12,5 +12,9 @@ class Globals
 	public static inline var XMLENTITYTYPE:String = "type";
 	public static inline var LANGUAGEDIRECTORY:String = "assets.language";
 	public static var SELECTEDLANGUAGE:String = "english.xml";
+	public static var MAXX:Float = 1280; //TODO: Should be updated by the scene manager.
+	public static var MINX:Float = 0;
+	public static var MAXY:Float = 1024;
+	public static var MINY:Float = 0;
 
 }

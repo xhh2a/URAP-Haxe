@@ -23,7 +23,6 @@ class Character extends Entity implements ICustomEntity
 	//Stuff that will be used with XmlLoader
 	public var _attribute: Map<String, Dynamic>; //Map that stores the attributes stored within a given variation in the XML
 	public var _type:String; //the type specified in the type tag in the XML file
-	
 	var _assetManager:AssetManager;
 	var _fileDirectory:Null<String>; //file directory as specified in the XML file
 	var _fileName:Null<String>; //file name as specified in the XML file
@@ -149,14 +148,42 @@ class Character extends Entity implements ICustomEntity
 		copiedCharacter._fileName = _fileName;
 		copiedCharacter._fileDirectory = _fileDirectory;
 		
-		return new Character(_kernel, _assetManager);
+		return copiedCharacter;
+	}
+
+	/** Attempts to convert the value associated with KEY in _attribute to a Float if it exists. */
+	private function attributeToFloat(key:String):Void {
+		if (_attribute.exists(key)) {
+			_attribute.set(key, Std.parseFloat(_attribute.get(key)));
+		}
+	}
+
+	/** Attempts to convert the value associated with KEY in _attribute to a Int if it exists. */
+	private function attributeToInt(key:String):Void {
+		if (_attribute.exists(key)) {
+			_attribute.set(key, Std.parseInt(_attribute.get(key)));
+		}
+	}
+
+	private function attributeToBool(key:String):Void {
+		//TODO: Figure out what String representation of Bool is, to reverse convert back.
+	}
+
+	/** Returns a copy of _attribute with all values converted to a new String. */
+	private function getStringAttributeMap():Map<String, Dynamic> {
+		var out:Map<String, Dynamic> = new Map<String, Dynamic>();
+		for (akey in this._attribute.keys()) {
+			var copyKey:String = new String(akey);
+			var copyValue:String = Std.string(this._attribute[akey]);
+			out.set(copyKey, copyValue);
+		}
+		return out;
 	}
 	
 	override private function _updater( p_deltaTime:Int = 0 ):Void 
 	{
 		super._updater( p_deltaTime );
 		// extend here
-		
 		_xCoordinate = _imageContainer.x;
 		_yCoordinate = _imageContainer.y;
 
