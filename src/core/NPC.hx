@@ -7,6 +7,7 @@ class NPC extends Character
 
 	public function new(p_kernel:IKernel, assetManager:AssetManager, ?fileDirectory:String, ?fileName:String, ?xCoordinate:Float, ?yCoordinate:Float )
 	{
+		//TODO: Test if this throws Null Exceptions if one of the optionals is not given, SHOULD not occur.
 		super(p_kernel, assetManager, fileDirectory, fileName, xCoordinate, yCoordinate);
 	}
 
@@ -46,7 +47,11 @@ class NPC extends Character
 	override public function getCopy(?attribute:Map<String, Dynamic>):ICustomEntity
 	{
 		var copiedNPC = new core.NPC(_kernel, _assetManager);
-		copiedNPC._attribute = this.getStringAttributeMap();
+		if (attribute == null) {
+			copiedNPC._attribute = this.getStringAttributeMap();
+		} else {
+			copiedNPC._attribute = attribute;
+		}
 		copiedNPC.updateAttributes();
 		//TODO: Deep copy image data (wait for implementation in Character).
 		return copiedNPC;
