@@ -18,8 +18,8 @@ class Game extends AScene
 		
 		//The boolean "true" at the end controls whether or not to show the entity (in this case, the Character)
 
-		addEntity(new Character(_kernel, _assetManager, "assets.data", "Goku.xml"), true);
-		addEntity(new Character(_kernel, _assetManager, "assets.data", "Circle.xml", 100.0, 100.0), true);
+		addEntity(new Character(_kernel, _assetManager, "assets.data", "Goku.xml"), true, 1);
+		addEntity(new Character(_kernel, _assetManager, "assets.data", "Circle.xml", 100.0, 100.0), true, 2);
 	}
 
 }

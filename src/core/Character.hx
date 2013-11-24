@@ -49,6 +49,8 @@ class Character extends Entity implements ICustomEntity
 	
 	static var _characterList:List<String>;
 	
+	var _scene:Scene;
+	
 	/**
 	 * Initializes a Character, which is essentially a sprite, but I can't call name it Sprite because Sprite is already a built-in class
 	 * Parameters with the question mark in front means it is optional
@@ -132,6 +134,7 @@ class Character extends Entity implements ICustomEntity
 	public function addCharacterToScene(scene:Scene):Void
 	{
 		scene.addEntity(this, true, 1);
+		_scene = scene;
 	}
 	
 	/**
