@@ -18,22 +18,30 @@ import XmlLoader;
 class Character extends Entity implements ICustomEntity
 {
 	//Stuff that will be used with XmlLoader
-	public var _attribute: Map<String, Dynamic>; //Map that stores the attributes stored within a given variation in the XML
+	public var _attribute:Map<String, Dynamic>; //Map that stores the attributes stored within a given variation in the XML
 	public var _type:String; //the type specified in the type tag in the XML file
+	public var _variationId:String; //the String contained within the id tag in one of the variations in the XML file
+	public var _loadedXmlInfo:Map < String, Map < String, Map < String, Dynamic > > >;
 	
-	var _loadedXmlInfo:Map < String, Map < String, Map < String, Dynamic > > >;
+	public var _assetManager:AssetManager;
+	public var _fileDirectory:Null<String>; //file directory as specified in the XML file
+	public var _fileName:Null<String>; //file name as specified in the XML file
 	
-	var _assetManager:AssetManager;
-	var _fileDirectory:Null<String>; //file directory as specified in the XML file
-	var _fileName:Null<String>; //file name as specified in the XML file
-	
-	var _imageContainer:Sprite; //the Sprite class is technically just a container that holds an image to be displayed
-	var _characterImage:Bitmap; //the image to be "contained" within _imageContainer
-	var _characterImageData:BitmapData; //info about the image in _characterImage (ie. dimensions, its current location, etc.)
+	public var _imageContainer:Sprite; //the Sprite class is technically just a container that holds an image to be displayed
+	public var _characterImage:Bitmap; //the image to be "contained" within _imageContainer
+	public var _characterImageData:BitmapData; //info about the image in _characterImage (ie. dimensions, its current location, etc.)
 	
 	//The (x,y) coordinates of our Character
-	var _xCoordinate:Null<Float>;
-	var _yCoordinate:Null<Float>;
+	public var _xCoordinate:Null<Float>;
+	public var _yCoordinate:Null<Float>;
+	
+	//The x and y components of this Character's speed (how much we add/subtract to the character's position on each update)
+	public var _speedX:Float;
+	public var _speedY:Float;
+	
+	//Whether we are able to drag this character or not
+	//Set to true if we can drag this character, set to false otherwise
+	public var _draggable:Bool;
 	
 	//Calculation of the x and y components
 	//of the distance between the current mouse position and the top-left corner of our image
@@ -41,15 +49,34 @@ class Character extends Entity implements ICustomEntity
 	//The reason why we care about the distance between the mouse position and the top-left corner of the image
 	//is because when we do dragging, the distance between the mouse position and top-left corner of the image
 	//should remain the same throughout the drag
-	var _distanceFromTopLeftCornerOfImageX:Null<Float>;
-	var _distanceFromTopLeftCornerOfImageY:Null<Float>;
+	public var _distanceFromTopLeftCornerOfImageX:Null<Float>;
+	public var _distanceFromTopLeftCornerOfImageY:Null<Float>;
 	
 	//Set to true when our image is being dragged and set to false when our image is not being dragged
-	var _isBeingDragged:Bool;
+	public var _isBeingDragged:Bool;
+
+	//The scene that this Character is currently in
+	public var _scene:Scene;
 	
-	static var _characterList:List<String>;
+	//A Map of all Characters that have been initialized (including this Character)
+	//This Map is organized by the Character _type and _variationId
+	public static var _allCharacters:Map<String, Map<String, MapList<Character>>>;
 	
-	var _scene:Scene;
+	//The index of this Character in its corresponding MapList in _allCharacters
+	public var _index:Int;
+	
+	//This tells you "how much in front" this Character is
+	//The higher the value of this frontness, the more in front this Character will be
+	//For example, a Character with a frontness of 5 will be more in front than Characters with frontnesses 1 or 2
+	//If you're still confused, think of it this way: If Character A stands in front of Character B,
+	//then Character A will have a greater frontness value than Character B
+	//The smallest frontness possible is 1 (a frontness of 1 means that the Character will show up most behind, as in behind EVERYTHING)
+	public var _frontness:Null<Int>;
+	
+	//The default value for _frontness that this Character will have when it is added
+	//The default value will increase every time a Character is added
+	//So by default, every new Character you add appear in front of the other Characters you previously added
+	public static var _defaultFrontness:Null<Int>;
 	
 	/**
 	 * Initializes a Character, which is essentially a sprite, but I can't call name it Sprite because Sprite is already a built-in class
@@ -90,7 +117,24 @@ class Character extends Entity implements ICustomEntity
 			_yCoordinate = yCoordinate;
 		}
 		
+		//Initially, we'll have this character NOT moving
+		_speedX = 0.0;
+		_speedY = 0.0;
+		
+		_draggable = true;
 		_isBeingDragged = false;
+		
+		if (_allCharacters == null)
+		{			
+			_allCharacters = new Map<String, Map<String, MapList<Character>>>();
+		}
+		
+		_frontness = null;
+		
+		if (_defaultFrontness == null)
+		{
+			_defaultFrontness = 1;
+		}
 		
 		super( p_kernel, _imageContainer );
 	}
@@ -103,15 +147,15 @@ class Character extends Entity implements ICustomEntity
 		super._init();
 		// extend here
 		
-		//Checking to see whether the file directory and name was actually passed in
+		//Checking to see whether the file directory and name was actually passed in (or set)
 		if (_fileDirectory != null && _fileName != null)
 		{
 			//Loading the XML file and then retrieving the information we want from it
 			_loadedXmlInfo = XmlLoader.loadFile(_fileDirectory, _fileName, _assetManager);
 			_type = _loadedXmlInfo.keys().next();
-			_attribute = _loadedXmlInfo.get(_type).get("Default");
+			_variationId = _loadedXmlInfo.get(_type).keys().next();
+			_attribute = _loadedXmlInfo.get(_type).get(_variationId);
 			_characterImageData = _assetManager.getAsset(_attribute.get("fileName"), _attribute.get("fileDirectory"));
-		
 		
 			//These lines "create the image" based on _characterImageData (the information about the image)
 			//then adds this created image into our image container
@@ -119,22 +163,76 @@ class Character extends Entity implements ICustomEntity
 			_imageContainer.addChild(_characterImage);
 		}
 		
+		//If our _allCharacters Map does not already contain a key for this Character's _type, then we create it
+		if (!_allCharacters.exists(_type))
+		{
+			_allCharacters.set(_type, new Map < String, MapList<Character> > () );			
+		}
+		//If our _allCharacters Map does not already contain a key for this Character's _variationId under its _type,
+		//then we create it
+		if (!_allCharacters.get(_type).exists(_variationId))
+		{
+			_allCharacters.get(_type).set(_variationId, new MapList<Character>());
+		}
+		
+		//Now that we insured that our _allCharacters Map contains a key for this Character's _type and _variationId,
+		//we store the _index number for this Character
+		//then add this Character to _allCharacters into
+		//the MapList reserved for Characters of this Character's _type and _variationId
+		_index = _allCharacters.get(_type).get(_variationId).size();
+		_allCharacters.get(_type).get(_variationId).add(this);
+		
+		
 		//Sets the position of the image container to the initialized coordinates
 		_imageContainer.x = _xCoordinate;
 		_imageContainer.y = _yCoordinate;
 		
+		//Setting these to null because we don't care about these at this point
+		//We will start caring about these when dragging happens
 		_distanceFromTopLeftCornerOfImageX = null;
 		_distanceFromTopLeftCornerOfImageY = null;
 	}
 
 	/**
-	 * 
-	 * @param	scene	The specific scene that we want to add this Character to
+	 * Adds this Character to a Scene that we pass in
+	 * If you decide not to pass in a frontness value, it will by default make this Character in front of everything
+	 * @param	scene	The specific Scene that we want to add this Character to
+	 * @param	?frontness	The frontness value that you want to set
 	 */
-	public function addCharacterToScene(scene:Scene):Void
+	public function addCharacterToScene(scene:Scene, ?frontness:Int):Void
 	{
-		scene.addEntity(this, true, 1);
+		if (frontness != null)
+		{
+			_frontness = frontness;
+		}
+		else
+		{
+			_frontness = _defaultFrontness;
+		}
+		scene.addEntity(this, true, _frontness);
 		_scene = scene;
+		_defaultFrontness++;
+	}
+	
+	//Has not been fully implemented yet
+	public function checkCollision():List<Character>
+	{
+		var collisions:List<Character> = new List<Character>();
+		
+		return collisions;
+	}
+	
+	/**
+	 * Sets a specific speed for this Character
+	 * Default values are 0.0 for speedX and speedY
+	 * If you don't pass in any arguments, this will set the speed to 0.0 for both directions, stopping our Character movement
+	 * @param	speedX	The x-component of the speed
+	 * @param	speedY	The y-component of the speed
+	 */
+	public function setSpeed(speedX:Float = 0.0, speedY:Float = 0.0):Void
+	{
+		_speedX = speedX;
+		_speedY = speedY;
 	}
 	
 	/**
@@ -148,8 +246,11 @@ class Character extends Entity implements ICustomEntity
 		copiedCharacter._fileName = new String(_fileName);
 		copiedCharacter._fileDirectory = new String(_fileDirectory);
 		copiedCharacter._type = new String(_type);
-		copiedCharacter._attribute = _loadedXmlInfo.get(_type).get("Default");
+		copiedCharacter._variationId = new String(_variationId);		
+		copiedCharacter._attribute = _loadedXmlInfo.get(_type).get(_variationId);
 		copiedCharacter._characterImageData = copiedCharacter._assetManager.getAsset(_attribute.get("fileName"), _attribute.get("fileDirectory"));
+		
+		copiedCharacter._draggable = _draggable;
 		
 		copiedCharacter._characterImage = new Bitmap(_characterImageData);
 		copiedCharacter._imageContainer.addChild(copiedCharacter._characterImage);
@@ -157,7 +258,7 @@ class Character extends Entity implements ICustomEntity
 		return copiedCharacter;
 	}
 	
-		/** Attempts to convert the value associated with KEY in _attribute to a Float if it exists. */
+	/** Attempts to convert the value associated with KEY in _attribute to a Float if it exists. */
 	private function attributeToFloat(key:String):Void
 	{
 		if (_attribute.exists(key)) {
@@ -197,6 +298,9 @@ class Character extends Entity implements ICustomEntity
 	{
 		super._updater( p_deltaTime );
 		// extend here
+
+		_imageContainer.x += _speedX;
+		_imageContainer.y += _speedY;
 		
 		_xCoordinate = _imageContainer.x;
 		_yCoordinate = _imageContainer.y;
@@ -227,12 +331,16 @@ class Character extends Entity implements ICustomEntity
 	
 	/**
 	 * Disposes (removes) our Character
-	 * Currently, this does nothing
+	 * Currently, this has not been tested yet
 	 */
 	override private function _disposer():Void 
 	{
 		// extend here
-		super._disposer();		
+		
+		_allCharacters.get(_type).get(_variationId).removeItemAt(_index);
+		
+		removeEntity(this, true);
+		super._disposer();
 	}
 	
 }
