@@ -1,9 +1,9 @@
 <data>
 	<entity>
-		<type>Character</type>
+		<type>Goku</type>
 		<variations>
 			<variation>
-				<id>Default</id>
+				<id>Adult Goku</id>
 				<fileDirectory>assets.sprites</fileDirectory>
 				<fileName>goku.png</fileName>
 			</variation>		

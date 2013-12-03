@@ -6,6 +6,7 @@ import awe6.interfaces.IKernel;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.Sprite;
+import flash.geom.Point;
 
 import ICustomEntity;
 import XmlLoader;
@@ -32,12 +33,12 @@ class Character extends Entity implements ICustomEntity
 	public var _characterImageData:BitmapData; //info about the image in _characterImage (ie. dimensions, its current location, etc.)
 	
 	//The (x,y) coordinates of our Character
-	public var _xCoordinate:Null<Float>;
-	public var _yCoordinate:Null<Float>;
+	public var _xCoordinate:Null<Int>;
+	public var _yCoordinate:Null<Int>;
 	
 	//The x and y components of this Character's speed (how much we add/subtract to the character's position on each update)
-	public var _speedX:Float;
-	public var _speedY:Float;
+	public var _speedX:Int;
+	public var _speedY:Int;
 	
 	//Whether we are able to drag this character or not
 	//Set to true if we can drag this character, set to false otherwise
@@ -60,10 +61,16 @@ class Character extends Entity implements ICustomEntity
 	
 	//A Map of all Characters that have been initialized (including this Character)
 	//This Map is organized by the Character _type and _variationId
+	//This is good for when you only want to pick out Characters that have a certain _type and/or _variationId
 	public static var _allCharacters:Map<String, Map<String, MapList<Character>>>;
 	
 	//The index of this Character in its corresponding MapList in _allCharacters
 	public var _index:Int;
+	
+	//A list of all Characters that have been initialized (including this Character)
+	//This is good for when you have to iterate through ALL Characters to do something,
+	//like when during the checkCollision() method
+	public static var _unorganizedCharacterList:List<Character>;
 	
 	//This tells you "how much in front" this Character is
 	//The higher the value of this frontness, the more in front this Character will be
@@ -90,7 +97,7 @@ class Character extends Entity implements ICustomEntity
 	 * @param	?xCoordinate	The x coordinate for the image to start out at
 	 * @param	?yCoordinate	The y coordinate for the image to start out at
 	 */
-	public function new( p_kernel:IKernel, assetManager:AssetManager, ?fileDirectory:String, ?fileName:String, ?xCoordinate:Float, ?yCoordinate:Float ) 
+	public function new( p_kernel:IKernel, assetManager:AssetManager, ?fileDirectory:String, ?fileName:String, ?xCoordinate:Int, ?yCoordinate:Int ) 
 	{
 		_imageContainer = new Sprite();
 		
@@ -99,10 +106,10 @@ class Character extends Entity implements ICustomEntity
 		_fileDirectory = fileDirectory;
 		_fileName = fileName;
 
-		//If we decided NOT to pass in one of the initial coordinates, we'll use a default of 0.0 for that coordinate
+		//If we decided NOT to pass in one of the initial coordinates, we'll use a default of 0 for that coordinate
 		if (xCoordinate == null)
 		{
-			_xCoordinate = 0.0;
+			_xCoordinate = 0;
 		}
 		else
 		{
@@ -110,7 +117,7 @@ class Character extends Entity implements ICustomEntity
 		}
 		if (yCoordinate == null)
 		{
-			_yCoordinate = 0.0;
+			_yCoordinate = 0;
 		}
 		else
 		{
@@ -118,8 +125,8 @@ class Character extends Entity implements ICustomEntity
 		}
 		
 		//Initially, we'll have this character NOT moving
-		_speedX = 0.0;
-		_speedY = 0.0;
+		_speedX = 0;
+		_speedY = 0;
 		
 		_draggable = true;
 		_isBeingDragged = false;
@@ -127,6 +134,11 @@ class Character extends Entity implements ICustomEntity
 		if (_allCharacters == null)
 		{			
 			_allCharacters = new Map<String, Map<String, MapList<Character>>>();
+		}
+		
+		if (_unorganizedCharacterList == null)
+		{
+			_unorganizedCharacterList = new List<Character>();
 		}
 		
 		_frontness = null;
@@ -176,12 +188,13 @@ class Character extends Entity implements ICustomEntity
 		}
 		
 		//Now that we insured that our _allCharacters Map contains a key for this Character's _type and _variationId,
-		//we store the _index number for this Character
+		//we store the _index number for this Character,
 		//then add this Character to _allCharacters into
-		//the MapList reserved for Characters of this Character's _type and _variationId
+		//the MapList reserved for Characters of this Character's _type and _variationId,
+		//and then finally add that to our _unorganizedCharacterList
 		_index = _allCharacters.get(_type).get(_variationId).size();
 		_allCharacters.get(_type).get(_variationId).add(this);
-		
+		_unorganizedCharacterList.add(this);
 		
 		//Sets the position of the image container to the initialized coordinates
 		_imageContainer.x = _xCoordinate;
@@ -209,6 +222,9 @@ class Character extends Entity implements ICustomEntity
 		{
 			_frontness = _defaultFrontness;
 		}
+		
+		//adding this Character to the passed in Scene
+		//The second parameter indicates whether or not we should make the Character visible on the screen
 		scene.addEntity(this, true, _frontness);
 		_scene = scene;
 		_defaultFrontness++;
@@ -219,17 +235,35 @@ class Character extends Entity implements ICustomEntity
 	{
 		var collisions:List<Character> = new List<Character>();
 		
+		for (testCharacter in _unorganizedCharacterList.iterator())
+		{
+			if (testCharacter != this)
+			{
+				if (_characterImage.hitTestObject(testCharacter._characterImage))
+				{
+					var coordinatesOfCurrentCharacterImage = new Point(_xCoordinate, _yCoordinate);
+					var coordinatesOfTestCharacterImage = new Point(testCharacter._xCoordinate, testCharacter._yCoordinate);
+					
+					if (_characterImageData.hitTest(coordinatesOfCurrentCharacterImage, 255, testCharacter._characterImage, coordinatesOfTestCharacterImage, 255))
+					{
+						trace(testCharacter._type);
+						collisions.add(testCharacter);
+					}
+				}
+			}
+		}
+		
 		return collisions;
 	}
 	
 	/**
 	 * Sets a specific speed for this Character
-	 * Default values are 0.0 for speedX and speedY
-	 * If you don't pass in any arguments, this will set the speed to 0.0 for both directions, stopping our Character movement
+	 * Default values are 0 for speedX and speedY
+	 * If you don't pass in any arguments, this will set the speed to 0 for both directions, stopping our Character movement
 	 * @param	speedX	The x-component of the speed
 	 * @param	speedY	The y-component of the speed
 	 */
-	public function setSpeed(speedX:Float = 0.0, speedY:Float = 0.0):Void
+	public function setSpeed(speedX:Int = 0, speedY:Int = 0):Void
 	{
 		_speedX = speedX;
 		_speedY = speedY;
@@ -299,15 +333,16 @@ class Character extends Entity implements ICustomEntity
 		super._updater( p_deltaTime );
 		// extend here
 
+		//Moving our Character according to the current speed that's stored
 		_imageContainer.x += _speedX;
 		_imageContainer.y += _speedY;
-		
-		_xCoordinate = _imageContainer.x;
-		_yCoordinate = _imageContainer.y;
+
+		_xCoordinate = cast(_imageContainer.x, Int);
+		_yCoordinate = cast(_imageContainer.y, Int);
 
 		if (_kernel.inputs.mouse.getIsButtonDown())
 		{	
-			if (_isBeingDragged || (_characterImageData.getPixel32(_kernel.inputs.mouse.getButtonLastClickedX() - cast(_xCoordinate, Int), _kernel.inputs.mouse.getButtonLastClickedY() - cast(_yCoordinate, Int)) != 0))
+			if (_isBeingDragged || (_characterImageData.getPixel32(_kernel.inputs.mouse.getButtonLastClickedX() - _xCoordinate, _kernel.inputs.mouse.getButtonLastClickedY() - _yCoordinate) != 0))
 			{
 				if (!_isBeingDragged)
 				{
@@ -341,6 +376,14 @@ class Character extends Entity implements ICustomEntity
 		
 		removeEntity(this, true);
 		super._disposer();
+	}
+	
+	/**
+	 * Calls the private _disposer() method (which I don't think I can make public because it overrides a private method)
+	 */
+	public function disposeCharacter():Void
+	{
+		_disposer();
 	}
 	
 }

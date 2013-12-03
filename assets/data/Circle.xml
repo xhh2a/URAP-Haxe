@@ -1,9 +1,9 @@
 <data>
 	<entity>
-		<type>Character</type>
+		<type>Circle</type>
 		<variations>
 			<variation>
-				<id>Default</id>
+				<id>Regular Circle</id>
 				<fileDirectory>assets.sprites</fileDirectory>
 				<fileName>circle.png</fileName>
 			</variation>

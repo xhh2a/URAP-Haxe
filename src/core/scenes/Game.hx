@@ -9,6 +9,9 @@ import core.Character;
  
 class Game extends AScene 
 {
+	var _goku:Character;
+	var _circle:Character;
+	
 	override private function _init():Void 
 	{
 		super._init();
@@ -16,10 +19,18 @@ class Game extends AScene
 		// extend / addentities
 		_title.text = "GAME";
 		
-		//The boolean "true" at the end controls whether or not to show the entity (in this case, the Character)
-
-		addEntity(new Character(_kernel, _assetManager, "assets.data", "Goku.xml"), true, 1);
-		addEntity(new Character(_kernel, _assetManager, "assets.data", "Circle.xml", 100.0, 100.0), true, 2);
+		_goku = new Character(_kernel, _assetManager, "assets.data", "Goku.xml", 10, 10);
+		_circle = new Character(_kernel, _assetManager, "assets.data", "Circle.xml", 100, 102);
+		_goku.addCharacterToScene(this);
+		_circle.addCharacterToScene(this);
+	}
+	
+	//Do game loop stuff here
+	override private function _updater(p_deltaTime:Int = 0):Void 
+	{
+		super._updater(p_deltaTime);
+		
+		trace(_goku.checkCollision());
 	}
 
 }
