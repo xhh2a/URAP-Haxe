@@ -1,14 +1,7 @@
 package core;
 
-import awe6.core.Context;
 import awe6.core.Entity;
 import awe6.interfaces.IKernel;
-import flash.display.Bitmap;
-import flash.display.BitmapData;
-import flash.display.Sprite;
-import flash.events.MouseEvent;
-import flash.filters.GlowFilter;
-import flash.geom.Rectangle;
 import ICustomEntity;
 import XmlLoader;
 
@@ -16,12 +9,12 @@ import haxe.macro.Context;
 
 class Projectile extends Character {
 
-	// private fields
-	public var _damage: Int;
-	// Array compatibility
-	public var _affectTypes: Array<String>;
-	public var _xMovement: Null<String>;
-	public var _yMovement: Null<String>;
+	// // private fields
+	// public var _damage: Int;
+	// // Array compatibility
+	// public var _affectTypes: Array<String>;
+	// public var _xMovement: Null<String>;
+	// public var _yMovement: Null<String>;
 
 	// pasted here as reference
 	// public var _attribute:Map<String, Dynamic>; 
@@ -55,19 +48,18 @@ class Projectile extends Character {
 		super (p_kernel, _imageContainer, fileDirectory, fileName, xCoordinate);
 	}
 
-	// when are _type and _variationId initialized?
-	override private function _init():Void {
-		super._init();
+	// override private function _init():Void {
+	// 	super._init();
 
-		// _attribute should be initialized by super
-		if (_attribute != null) {
-			_damage = _attribute.get("damage");
-			_xMovement = _attribute.get("xMovement");
-			_yMovement = _attribute.get("yMovement");
-			// TODO: compatibility String.split
-			_affectTypes = _attribute.get("affects").split(",");
-		}
-	}
+	// 	// _attribute should be initialized by super
+	// 	if (_attribute != null) {
+	// 		_damage = _attribute.get("damage");
+	// 		_xMovement = _attribute.get("xMovement");
+	// 		_yMovement = _attribute.get("yMovement");
+	// 		// TODO: compatibility String.split
+	// 		_affectTypes = _attribute.get("affects").split(",");
+	// 	}
+	// }
 
 	override public function checkCollision(): List<Character> {
 		var collision: List<Character> = super.checkCollision();
@@ -103,8 +95,10 @@ class Projectile extends Character {
 		// calculate the pseudo-speed of this projectile
 		var func_x: String, func_y: String;
 		var pos_x: Int, pos_y: Int;
-		func_x = new String(_xMovement);
-		func_y = new String(_yMovement);
+		// func_x = new String(_xMovement);
+		// func_y = new String(_yMovement);
+		func_x = _attribute.get("xMovement");
+		func_y = _attribute.get("yMovement");
         func_x.split("$1").join(String(p_deltaTime));
         func_y.split("$1").join(String(p_deltaTime));
         // TODO: how to make parse works
@@ -125,8 +119,8 @@ class Projectile extends Character {
 	override private function onCollide(collisions: List<Character>): Void {
 		for (hitObject in collisions.elements()) {
 			// contains method for List?
-			if (_affectTypes.contains(hitObject._type)) {
-				var damage: Int = _damage;
+			if (_attribute.get("affects").contains(hitObject._type)) {
+				var damage: Int = _attribute.get("damage");
                 // damage *= multipliers.get('damage').get(this.type);
                 // damage *= multipliers.get('damage').get('global');
                 // damage += additive.get('damage').get(this.type);
@@ -136,6 +130,3 @@ class Projectile extends Character {
 	}
 
 }
-
-// scratch
-// var a = (a!=null) ? a : new A();
