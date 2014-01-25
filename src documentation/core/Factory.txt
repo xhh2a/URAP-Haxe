@@ -1,0 +1,61 @@
+
+/**
+ * ...
+ * @author UC Berkeley
+ */
+
+/** A Factory object, one of the central objects that helps to run the different elements of the game. It creates the asset manager, the overlay, the preloader, unique sessions, and stores the scenes and scene transitions. It is also what switches between scenes.*/
+class Factory extends AFactory
+{
+
+    /** If P_ISPRECONFIG is true, then initializes all variables in the object.*/
+	override private function _configurer( p_isPreconfig:Bool = false ):Void
+	{
+	}
+
+    /** Creates and returns a new Asset Manager tied to this object.*/
+	override public function createAssetManager():IAssetManagerProcess
+	{
+	}
+
+    /** Creates a new Overlay tied to this object, and returns it.*/
+	override public function createOverlay():IOverlayProcess
+	{
+	}
+
+    /** Creates a new preloader that is tied to this object, and returns it.*/
+	override public function createPreloader():IPreloader
+	{
+	}
+
+    /** If P_TYPE is GAME, then returns new Game scene. If P_TYPE is INTRO, then returns a new INTRO scene. Otherwise calls the super method.*/
+	override public function createScene( p_type:EScene ):IScene
+	{
+	}
+
+    /** Creates a new Scene Transition based on what P_TYPEINCOME and P_TYPEOUTGOING are, and returns the scene transition.*/
+	override public function createSceneTransition( ?p_typeIncoming:EScene, ?p_typeOutgoing:EScene ):ISceneTransition
+	{
+	}
+
+    /** Creates a new session with P_ID as its ID, and returns it.*/
+	override public function createSession( ?p_id:String ):ISession
+	{
+	}
+
+    /** Creates a new Text Style based on P_TYPE, and returns it.*/
+	override public function createTextStyle( ?p_type:ETextStyle ):ITextStyle
+	{
+	}
+
+    /** If P_TYPE is GAME, then returns a Game scene. If P_TYPE is INTRO, then returns an INTRO scene. Otherwise calls the super method.*/
+	override public function getBackSceneType( p_type:EScene ):EScene
+	{
+	}
+
+    /** Returns the type of the next scene, depending on what P_TYPE is.*/
+	override public function getNextSceneType( p_type:EScene ):EScene
+	{
+	}
+
+}

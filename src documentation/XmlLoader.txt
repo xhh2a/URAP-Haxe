@@ -1,0 +1,30 @@
+/**
+ * ...
+ * @author UC Berkeley
+ */
+
+/** Class when instantiated creates an Xml Loader object that reads data from file names mentioned below.
+    The Xml Loader is intended to only be run once, to reduce the times data needs to be pulled and to improve overall game performance.
+    The class's only function will load the file and return a Map whose format is specified below.*/
+class XmlLoader
+{
+
+	/**
+	 * Loads information from XMLNAME located in XMLSUBDIRECTORY to MANAGER. Returns a Map<String, Map<String, Map<String, Dynamic>>>.
+	 *
+	 * The first level of the Map has the Entity TYPE as the key for each Entity defined in an XML.
+	 *
+	 * The second level of the Map has the Variation ID as the key for each Variation of an entity defined in an XML.
+	 *
+	 * The third level of the Map has the Attribute STRING as they key and the Dynamic value as the value.
+	 *
+	 * VALIDATOR is an optional function that takes the XML file (<data> tag is the top level) found and validates it, returning true if it validates and false if not.
+	 */
+	public static function loadFile(xmlSubdirectory:String, xmlName:String, manager:AssetManager, ?validator:Xml->Bool):Map<String, Map<String, Map<String, Dynamic>>> {
+		/**
+		 * Helper function that does the actual XML parsing.
+		 */
+		var parseEntity = function(xmlEntity:Xml):ENTITYRESULT {
+		}
+	}
+}

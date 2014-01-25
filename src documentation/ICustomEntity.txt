@@ -1,0 +1,37 @@
+package ;
+
+import awe6.core.Context;
+import awe6.core.Entity;
+import awe6.interfaces.IKernel;
+
+/** Interface that represents a basic entity object in the game. Entities are the basic building block for every component in Haxe, so every class created should implement this one to obtain the basic features. Among these features are the ability to create a copy of oneself, create a new image of oneself, and to have a type, stored as a string. Each custom entity should also be able to be initialized.
+ * All Entity classes should implement this!
+ * @author UC Berkeley
+ */
+interface ICustomEntity
+{
+	/** This is the proper constructor for an entity. If you need to overwrite the constructor, use this as a template. */
+	public function new(p_kernel:IKernel, ?manager:AssetManager, ?p_id:String, ?p_context:Context)
+	{
+	}
+
+	/** Returns a copy of this with the existing _attribute, or the passed in ATTRIBUTE. */
+	function getCopy(?attribute:Map < String, Dynamic>):ICustomEntity {
+	}
+
+	/** If you want to run setup code, below is an example call to get the results from a XML file parsing. You then need to parse
+	 *  those results to get what you want. See XmlLoader for details on what the call returns. */
+	public staticn function __init__() {
+	}
+
+}
+
+/** An Abstract Class with the same principles as the object defined above, with different functionalities as an abstract class.*/
+/*
+class ACustomEntity extends Entity implements ICustomEntity {
+	public var _attribute: Map<String, Dynamic>;
+	public var _type:String;
+	public function getCopy(?attribute:Map < String, Dynamic > ):ICustomEntity {
+	}
+}
+*/

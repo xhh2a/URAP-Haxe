@@ -1,0 +1,38 @@
+
+/**
+ * ...
+ * @author Kevin
+ */
+
+/** Class that stores the functionality of buttons such as menu, pause, mute, etc.*/
+class Overlay extends awe6.core.Overlay
+{
+	private var _assetManager:AssetManager;
+	private var _buttonSize:Float;
+	// private var _buttonRestart:BasicButton;
+
+    /** Creates a new Overlay object by calling the super() method, sets P_KERNEL to the current asset manager.*/
+	public function new( p_kernel:IKernel )
+	{
+	}
+
+    /** Initializes the overlay, sets length of each button and positions the back, pause, unpause, mute, and unmute buttons.*/
+	override private function _init():Void
+	{
+	}
+
+    /** Returns a button, depending on the value of P_TYPE.*/
+	override private function _getButton( p_type:EOverlayButton ):BasicButton
+	{
+	}
+
+    /** Hides the buttons.*/
+	override public function hideButtons():Void
+	{
+	}
+
+    /** Activates P_TYPE button, depending on what P_TYPE is.*/
+	override public function activateButton( p_type:EOverlayButton ):Void
+	{
+	}
+}

@@ -1,0 +1,19 @@
+/**
+ * ...
+ * @author UC Berkeley
+ */
+
+ /** Class that is intended to have a series of static functions for use in the rest of the program.*/
+class Utils
+{
+    /** Function that takes in an array ANARRAY and outputs a list with the contents of that array.*/
+	public static function arrayToList<T>(anArray:Array<T>):List<T> {
+		var output:List<T> = new List<T>();
+		for (el in anArray) {
+			output.add(el);
+		}
+		return output;
+	}
+
+
+}

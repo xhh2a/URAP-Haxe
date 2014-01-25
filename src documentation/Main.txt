@@ -1,0 +1,19 @@
+
+/**
+ * ...
+ * @author UC Berkeley
+ */
+
+/** Main Class, has the main function which starts the game.*/
+class Main
+{
+	/** Main function, if in debug mode then will run the game in debug mode, otherwise run it normally.*/
+	static function main()
+	{
+	}
+
+	/** */
+	public function new()
+	{
+	}
+}

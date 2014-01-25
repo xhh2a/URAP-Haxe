@@ -1,0 +1,10 @@
+
+/**
+ *
+ * @author UC Berkeley
+ */
+
+/** Loads the game?*/
+class Preloader extends APreloader
+{
+}
