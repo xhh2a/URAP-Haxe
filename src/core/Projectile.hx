@@ -2,10 +2,13 @@ package core;
 
 import awe6.core.Entity;
 import awe6.interfaces.IKernel;
-import ICustomEntity;
-import XmlLoader;
 
-import haxe.macro.Context;
+import XmlLoader;
+import ICustomEntity;
+
+import flash.display.Bitmap;
+
+import awe6.core.Context;
 
 class Projectile extends Character {
 
@@ -13,8 +16,6 @@ class Projectile extends Character {
 	// public var _damage: Int;
 	// // Array compatibility
 	// public var _affectTypes: Array<String>;
-	// public var _xMovement: Null<String>;
-	// public var _yMovement: Null<String>;
 
 	// pasted here as reference
 	// public var _attribute:Map<String, Dynamic>; 
@@ -43,9 +44,9 @@ class Projectile extends Character {
 		// TODO: what if the optional param is not provided
 		// TODO: how super works?
 		// instance variable defaults to be initialized?
-		if (IKernel == null || assetManager == null)
-			throw "Invalid Argument Exception at Projectile.new"
-		super (p_kernel, _imageContainer, fileDirectory, fileName, xCoordinate);
+		if (p_kernel == null || assetManager == null)
+			throw "Invalid Argument Exception at Projectile.new";
+		super (p_kernel, assetManager, fileDirectory, fileName, xCoordinate, yCoordinate);
 	}
 
 	// override private function _init():Void {
@@ -67,7 +68,7 @@ class Projectile extends Character {
 		// remove any projectile from the collision list
 		// TODO: grammar check
 		return collision.filter(
-			function(in: Character): Bool {return in._type.equals("Projectile");}
+			function(aCharacter: Character): Bool {return aCharacter._type=="Projectile";}
 		);
 	}
 
@@ -99,32 +100,32 @@ class Projectile extends Character {
 		// func_y = new String(_yMovement);
 		func_x = _attribute.get("xMovement");
 		func_y = _attribute.get("yMovement");
-        func_x.split("$1").join(String(p_deltaTime));
-        func_y.split("$1").join(String(p_deltaTime));
+        func_x = func_x.split("$1").join(Std.string(p_deltaTime));
+        func_y = func_y.split("$1").join(Std.string(p_deltaTime));
         // TODO: how to make parse works
-        pos_x = cast(Context.parse(func_x, Context.currentPos(), Int);
-        pos_y = cast(Context.parse(func_y, Context.currentPos(), Int);
-        setSpeed(pos_x - _xCoordinate, pos_y - _yCoordinate);
+        //pos_x = Context.parse(func_x, Context.currentPos());
+        //pos_y = Context.parse(func_y, Context.currentPos());
+        //setSpeed(pos_x - _xCoordinate, pos_y - _yCoordinate);
 
         // use the super method to complete the update
         super._updater(p_deltaTime);
 	}
 
 	// TODO: where is the resolveDamage function in Character?
-	override public function resolveDamage(damage: Int): Void {
+	/*override public function resolveDamage(damage: Int): Void {
 		throw "resolveDamage should not be called on a Projectile instance";
-	}
+	}*/
 
 	// TODO: where is the onCollide function in Character?
-	override private function onCollide(collisions: List<Character>): Void {
-		for (hitObject in collisions.elements()) {
+	private function onCollide(collisions: List<Character>): Void {
+		for (hitObject in collisions.iterator()) {
 			// contains method for List?
 			if (_attribute.get("affects").contains(hitObject._type)) {
 				var damage: Int = _attribute.get("damage");
                 // damage *= multipliers.get('damage').get(this.type);
                 // damage *= multipliers.get('damage').get('global');
                 // damage += additive.get('damage').get(this.type);
-                hitObject.resolveDamage(damage);
+                //hitObject.resolveDamage(damage);
 			}
 		}
 	}

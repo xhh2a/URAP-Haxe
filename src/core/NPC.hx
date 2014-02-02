@@ -4,8 +4,8 @@ import awe6.interfaces.IKernel;
 
 class NPC extends Character
 {
-
-	public function new(p_kernel:IKernel, assetManager:AssetManager, ?fileDirectory:String, ?fileName:String, ?xCoordinate:Float, ?yCoordinate:Float )
+	//Kevin TODO: do xml stuff for template
+	public function new(p_kernel:IKernel, assetManager:AssetManager, ?fileDirectory:String, ?fileName:String, ?xCoordinate:Int, ?yCoordinate:Int )
 	{
 		//TODO: Test if this throws Null Exceptions if one of the optionals is not given, SHOULD not occur.
 		super(p_kernel, assetManager, fileDirectory, fileName, xCoordinate, yCoordinate);

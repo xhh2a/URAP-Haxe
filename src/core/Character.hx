@@ -1,12 +1,17 @@
 package core;
-import awe6.core.Context;
 import awe6.core.Entity;
 import awe6.core.Scene;
 import awe6.interfaces.IKernel;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
+import flash.display.BlendMode;
 import flash.display.Sprite;
+import flash.geom.ColorTransform;
+import flash.geom.Matrix;
 import flash.geom.Point;
+import flash.geom.Rectangle;
+import flash.Lib;
+import flash.display.DisplayObject;
 
 import ICustomEntity;
 import XmlLoader;
@@ -55,6 +60,9 @@ class Character extends Entity implements ICustomEntity
 	
 	//Set to true when our image is being dragged and set to false when our image is not being dragged
 	public var _isBeingDragged:Bool;
+	
+	//Indicates which Character is currently being dragged; Only one Character can be dragged at a time
+	public static var _characterThatIsBeingDraggedRightNow:Character;
 
 	//The scene that this Character is currently in
 	public var _scene:Scene;
@@ -70,7 +78,7 @@ class Character extends Entity implements ICustomEntity
 	//A list of all Characters that have been initialized (including this Character)
 	//This is good for when you have to iterate through ALL Characters to do something,
 	//like when during the checkCollision() method
-	public static var _unorganizedCharacterList:List<Character>;
+	public static var _iterableCharacterList:List<Character>;
 	
 	//This tells you "how much in front" this Character is
 	//The higher the value of this frontness, the more in front this Character will be
@@ -84,6 +92,8 @@ class Character extends Entity implements ICustomEntity
 	//The default value will increase every time a Character is added
 	//So by default, every new Character you add appear in front of the other Characters you previously added
 	public static var _defaultFrontness:Null<Int>;
+	
+	public static var _allColliders:Map<Character, List<Entity>>;
 	
 	/**
 	 * Initializes a Character, which is essentially a sprite, but I can't call name it Sprite because Sprite is already a built-in class
@@ -136,11 +146,13 @@ class Character extends Entity implements ICustomEntity
 			_allCharacters = new Map<String, Map<String, MapList<Character>>>();
 		}
 		
-		if (_unorganizedCharacterList == null)
+		if (_iterableCharacterList == null)
 		{
-			_unorganizedCharacterList = new List<Character>();
+			_iterableCharacterList = new List<Character>();
 		}
 		
+		//We initially set the _frontness to null because at this point this Character hasn't been added to the screen yet
+		//and therefore, it wouldn't make sense for it to hold a frontness value because it's not even visible!
 		_frontness = null;
 		
 		if (_defaultFrontness == null)
@@ -194,7 +206,7 @@ class Character extends Entity implements ICustomEntity
 		//and then finally add that to our _unorganizedCharacterList
 		_index = _allCharacters.get(_type).get(_variationId).size();
 		_allCharacters.get(_type).get(_variationId).add(this);
-		_unorganizedCharacterList.add(this);
+		_iterableCharacterList.add(this);
 		
 		//Sets the position of the image container to the initialized coordinates
 		_imageContainer.x = _xCoordinate;
@@ -205,7 +217,7 @@ class Character extends Entity implements ICustomEntity
 		_distanceFromTopLeftCornerOfImageX = null;
 		_distanceFromTopLeftCornerOfImageY = null;
 	}
-
+	
 	/**
 	 * Adds this Character to a Scene that we pass in
 	 * If you decide not to pass in a frontness value, it will by default make this Character in front of everything
@@ -216,6 +228,26 @@ class Character extends Entity implements ICustomEntity
 	{
 		if (frontness != null)
 		{
+			//In the next for-loop, after looping through all our present Characters and finding that one of them
+			//has a _frontness value that is equal to the frontness that we want to assign to THIS Character when we add it,
+			//we will bump up that Character's frontness by 1
+			//and then change this needToDoShiftUp boolean to true to indicate that we should do the same for the Characters
+			//with the higher frontness values
+			var needToDoShiftUp:Bool = false;
+			
+			for (aCharacter in _iterableCharacterList)
+			{
+				if (needToDoShiftUp)
+				{
+					aCharacter._frontness++;
+				}
+				if (aCharacter._frontness == frontness)
+				{
+					aCharacter._frontness++;
+					needToDoShiftUp = true;
+				}			
+			}
+			
 			_frontness = frontness;
 		}
 		else
@@ -226,6 +258,7 @@ class Character extends Entity implements ICustomEntity
 		//adding this Character to the passed in Scene
 		//The second parameter indicates whether or not we should make the Character visible on the screen
 		scene.addEntity(this, true, _frontness);
+		
 		_scene = scene;
 		_defaultFrontness++;
 	}
@@ -235,20 +268,75 @@ class Character extends Entity implements ICustomEntity
 	{
 		var collisions:List<Character> = new List<Character>();
 		
-		for (testCharacter in _unorganizedCharacterList.iterator())
+		for (testCharacter in _iterableCharacterList.iterator())
 		{
 			if (testCharacter != this)
 			{
 				if (_characterImage.hitTestObject(testCharacter._characterImage))
 				{
-					var coordinatesOfCurrentCharacterImage = new Point(_xCoordinate, _yCoordinate);
-					var coordinatesOfTestCharacterImage = new Point(testCharacter._xCoordinate, testCharacter._yCoordinate);
+					//var coordinatesOfCurrentCharacterImage = new Point(_xCoordinate, _yCoordinate);
+					//var coordinatesOfTestCharacterImage = new Point(testCharacter._xCoordinate, testCharacter._yCoordinate);
 					
-					if (_characterImageData.hitTest(coordinatesOfCurrentCharacterImage, 255, testCharacter._characterImage, coordinatesOfTestCharacterImage, 255))
+					var currentCharacterImageBoundingRect:Rectangle = _characterImage.getBounds(Lib.current);
+					var testCharacterImageBoundingRect:Rectangle = testCharacter._characterImage.getBounds(Lib.current);
+					var boundingRectIntersection:Rectangle = currentCharacterImageBoundingRect.intersection(testCharacterImageBoundingRect);
+					
+					//trace("boundingRectIntersection is " + boundingRectIntersection.isEmpty());
+					
+					if (!boundingRectIntersection.isEmpty())
+					{
+						var testArea:BitmapData = new BitmapData(cast(boundingRectIntersection.width, Int), cast(boundingRectIntersection.height, Int), false);
+						
+						var testMatrix:Matrix = _characterImage.transform.concatenatedMatrix;
+						testMatrix.tx -= boundingRectIntersection.x;
+						testMatrix.ty -= boundingRectIntersection.y;
+						
+						//var colorTransform:ColorTransform = new ColorTransform();
+						//colorTransform.color = cast(4294967041, UInt);
+						//testArea.draw(_characterImage, testMatrix, colorTransform);
+						//trace(colorTransform.color);
+						
+						//orig
+						//testArea.draw(_characterImage, testMatrix, new ColorTransform(1, 1, 1, 1, 255, -255, -255, 255));
+						
+						//test
+						testArea.draw(_characterImage, testMatrix, new ColorTransform(0, 0, 0, 0, 255, 0, 0, 255));
+						//var test:ColorTransform = new ColorTransform(0, 0, 0, 0, 255, -255, -255, 255);
+						//trace("first one is " + test.color);
+						
+						testMatrix = testCharacter._characterImage.transform.concatenatedMatrix;
+						testMatrix.tx -= boundingRectIntersection.x;
+						testMatrix.ty -= boundingRectIntersection.y;
+						
+						//orig
+						//testArea.draw(testCharacter._characterImage, testMatrix, new ColorTransform(1, 1, 1, 1, 255, 255, 255, 255), BlendMode.DIFFERENCE);
+						
+						//test
+						testArea.draw(testCharacter._characterImage, testMatrix, new ColorTransform(0, 0, 0, 0, 255, 255, 255, 255), BlendMode.DIFFERENCE);
+						//test = new ColorTransform(0, 0, 0, 0, 255, 255, 255, 255);
+						//trace("second one is " + test.color);
+						//orig
+						//var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
+						
+						//test
+						var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
+						//var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
+						trace("possibleCollision width is " + possibleCollision.width);
+						if (possibleCollision.width != 0)
+						{
+							trace(testCharacter._type);
+							trace("here");
+							collisions.add(testCharacter);
+						}
+					}
+					
+					//trace(boundingRectIntersection);
+					
+					/*if (_characterImageData.hitTest(coordinatesOfCurrentCharacterImage, 255, testCharacter._characterImage, coordinatesOfTestCharacterImage, 255))
 					{
 						trace(testCharacter._type);
 						collisions.add(testCharacter);
-					}
+					}*/
 				}
 			}
 		}
@@ -308,9 +396,20 @@ class Character extends Entity implements ICustomEntity
 		}
 	}
 
+	/** Attempts to convert the value associated with KEY in _attribute to a Bool if it exists. */
 	private function attributeToBool(key:String):Void
 	{
-		//TODO: Figure out what String representation of Bool is, to reverse convert back.
+		if (_attribute.exists(key))
+		{
+			if (key == "true" || key == "1")
+			{
+				_attribute.set(key, true);
+			}
+			else if (key == "false" || key == "0")
+			{
+				_attribute.set(key, false);
+			}
+		}
 	}
 
 	/** Returns a copy of _attribute with all values converted to a new String. */
@@ -332,26 +431,58 @@ class Character extends Entity implements ICustomEntity
 	{
 		super._updater( p_deltaTime );
 		// extend here
-
+		
 		//Moving our Character according to the current speed that's stored
 		_imageContainer.x += _speedX;
 		_imageContainer.y += _speedY;
 
+		//Setting x-coordinates and y-coordinates (yes, this is apparently necessary)
 		_xCoordinate = cast(_imageContainer.x, Int);
 		_yCoordinate = cast(_imageContainer.y, Int);
 
-		if (_kernel.inputs.mouse.getIsButtonDown())
-		{	
-			if (_isBeingDragged || (_characterImageData.getPixel32(_kernel.inputs.mouse.getButtonLastClickedX() - _xCoordinate, _kernel.inputs.mouse.getButtonLastClickedY() - _yCoordinate) != 0))
+		//The following if/else statments control the dragging
+		if (_draggable && _kernel.inputs.mouse.getIsButtonDown() && ((_characterThatIsBeingDraggedRightNow == null) || (_characterThatIsBeingDraggedRightNow == this)))
+		{
+			if (!_isBeingDragged && (_characterImageData.getPixel32(_kernel.inputs.mouse.getButtonLastClickedX() - _xCoordinate, _kernel.inputs.mouse.getButtonLastClickedY() - _yCoordinate) != 0))
 			{
-				if (!_isBeingDragged)
+				var characterImagesUnderClickedPoint:Array<DisplayObject> = _imageContainer.parent.getObjectsUnderPoint(new Point(_kernel.inputs.mouse.getButtonLastClickedX(), _kernel.inputs.mouse.getButtonLastClickedY()));			
+				var characterWithHighestFrontness:Character = this;
+				
+				for (aCharacterImage in characterImagesUnderClickedPoint)
 				{
+					for (aCharacter in _iterableCharacterList)
+					{
+						if ((aCharacterImage == aCharacter._characterImage) && (aCharacter._draggable))
+						{
+							if (aCharacter._characterImageData.getPixel32(_kernel.inputs.mouse.getButtonLastClickedX() - aCharacter._xCoordinate, _kernel.inputs.mouse.getButtonLastClickedY() - aCharacter._yCoordinate) != 0)
+							{								
+								if (aCharacter._frontness > characterWithHighestFrontness._frontness)
+								{
+									characterWithHighestFrontness = aCharacter;
+								}
+							}
+							
+							break;
+						}
+					}
+				}				
+				
+				if (characterWithHighestFrontness == this)
+				{
+					_isBeingDragged = true;
+					_characterThatIsBeingDraggedRightNow = this;
 					_distanceFromTopLeftCornerOfImageX = _kernel.inputs.mouse.x - _imageContainer.x;
 					_distanceFromTopLeftCornerOfImageY = _kernel.inputs.mouse.y - _imageContainer.y;
 				}
-				
-				_isBeingDragged = true;
-				
+				else
+				{
+					_isBeingDragged = false;
+					_distanceFromTopLeftCornerOfImageX = null;
+					_distanceFromTopLeftCornerOfImageY = null;
+				}
+			}
+			if (_isBeingDragged)
+			{
 				_imageContainer.x = _kernel.inputs.mouse.x - _distanceFromTopLeftCornerOfImageX;
 				_imageContainer.y = _kernel.inputs.mouse.y - _distanceFromTopLeftCornerOfImageY;
 			}
@@ -361,6 +492,11 @@ class Character extends Entity implements ICustomEntity
 			_isBeingDragged = false;
 			_distanceFromTopLeftCornerOfImageX = null;
 			_distanceFromTopLeftCornerOfImageY = null;
+			
+			if (_characterThatIsBeingDraggedRightNow == this)
+			{
+				_characterThatIsBeingDraggedRightNow = null;
+			}
 		}
 	}
 	

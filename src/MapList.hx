@@ -4,6 +4,9 @@ package ;
  * ...
  * @author Kevin
  */
+
+ //I don't really need this... I'll probably get rid of this class some time later
+ 
 class MapList<ValueType>
 {
 	public var _size:Int;

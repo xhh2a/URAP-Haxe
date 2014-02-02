@@ -17,20 +17,21 @@
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
     <class path="src" />
-    <class path="export\flash\haxe" />
+    <class path="export\html5\haxe" />
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="tools=1&#xA;openfl_ver=1.0.9&#xA;openfl&#xA;display&#xA;web" />
+    <option directives="tools=1&#xA;openfl_ver=1.0.10&#xA;openfl&#xA;display&#xA;html5&#xA;web&#xA;html5&#xA;html" />
     <option flashStrict="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="False" />
-    <option additional="--no-output&#xA;--flash-strict&#xA;-resource assets/_exclude/config.xml@config&#xA;-swf-version 11&#xA;#--remap nme:flash" />
+    <option additional="--no-output&#xA;-resource assets/_exclude/config.xml@config&#xA;--remap flash:flash" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>
     <library name="openfl" />
     <library name="awe6" />
+    <library name="box2D" />
   </haxelib>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>
