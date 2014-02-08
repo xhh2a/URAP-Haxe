@@ -36,7 +36,10 @@ class AssetManager extends AAssetManager
 	 * from this list. The first level KEY is the TYPE of an entity. The second level is a map where the KEY is the ID of the variant.
 	 */
 	public var entityTemplates:Map<String, Map<String, ICustomEntity>>;	
-
+	public var multipliers:Map < String, Map < String, Float >> ;
+	public var additive:Map < String, Map < String, Float >> ;
+	public var modifiers: Map < String, Map < String, Dynamic >> ;
+	
 	private var _html5AudioExtension:String;
 	
 	override private function _init():Void 
@@ -55,6 +58,9 @@ class AssetManager extends AAssetManager
 		overlayUnpauseOver = _createView( OVERLAY_UNPAUSE_OVER );
 		loadLanguage(Globals.SELECTEDLANGUAGE, Globals.LANGUAGEDIRECTORY);
 		entityTemplates = new Map < String, Map < String, ICustomEntity >> ();
+		multipliers = new Map < String, Map < String, Float >> ();
+		additive = new Map < String, Map < String, Float >> ();
+		modifiers = new Map < String, Map < String, Dynamic >> ();
 		//TODO: Put static entity preload calls here (NOT in Preloader.hx), reason is because of multi-threading, we cannot be guarenteed the preloader runs after the AssetManager is initialized.
 		font = Assets.getFont( "assets/fonts/orbitron.ttf" );
 		#if js

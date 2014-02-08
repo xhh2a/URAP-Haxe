@@ -94,6 +94,9 @@ class Character extends Entity implements ICustomEntity
 	public static var _defaultFrontness:Null<Int>;
 	
 	public static var _allColliders:Map<Character, List<Entity>>;
+
+	//The damage on the stack
+    public var _unresolvedDamage:Float;
 	
 	/**
 	 * Initializes a Character, which is essentially a sprite, but I can't call name it Sprite because Sprite is already a built-in class
@@ -387,6 +390,68 @@ class Character extends Entity implements ICustomEntity
 			_attribute.set(key, Std.parseFloat(_attribute.get(key)));
 		}
 	}
+
+	/** Puts DAMAGEAMOUNT onto stack, amount varies based on the multiplier/additive values in AssetManager for SOURCE */
+    public function addDamage(damageAmount:Float, source:Character):Void
+    {
+        var damage:Float = source._attribute.get('damage'); //Apply modifiers
+		var sourceAttribute:String = source._attribute.get('type');
+		if (_assetManager.modifiers.exists('immune') && _assetManager.modifiers.get('immune').exists(this._attribute.get('type')) && _assetManager.modifiers.get('immune').get(this._attribute.get('type')).get(sourceAttribute)) {
+			return;
+		}
+		//TODO: Allow resistances to be defined in _attribute if necessary (Resistance to certain sources requires check to be done here)
+		if (_assetManager.multipliers.exists('damage')) {
+			var innerMap:Map < String, Float > = _assetManager.multipliers.get('damage');
+			if (innerMap.exists(sourceAttribute)) {
+				damage *= innerMap.get(sourceAttribute);
+			}
+			if (innerMap.exists('global')) {
+				damage *= innerMap.get('global');
+			}
+		}
+		if (_assetManager.additive.exists('damage')) {
+			var innerMap:Map < String, Float > = _assetManager.additive.get('damage');
+			if (innerMap.exists(sourceAttribute)) {
+				damage += innerMap.get(sourceAttribute);
+			}
+			if (innerMap.exists('global')) {
+				damage += innerMap.get('global');
+			}
+		}
+        this._unresolvedDamage += damage;
+    }
+
+	/** Resolves damage on the stack */
+	//TODO: Allow resistances to be defined in _attribute if necessary.
+    public function updateHealth():Void {
+        var damage:Float = this._unresolvedDamage;
+		if (_assetManager.multipliers.exists('resistance')) {
+			var innerMap:Map < String, Float > = _assetManager.multipliers.get('resistance');
+			if (innerMap.exists(_attribute.get('type'))) {
+				damage /= innerMap.get(_attribute.get('type'));
+			}
+			if (innerMap.exists('global')) {
+				damage /= innerMap.get('global');
+			}
+		}
+		if (_assetManager.additive.exists('resistance')) {
+			var innerMap:Map < String, Float > = _assetManager.additive.get('resistance');
+			if (innerMap.exists(_attribute.get('type'))) {
+				damage -= innerMap.get(_attribute.get('type'));
+			}
+			if (innerMap.exists('global')) {
+				damage -= innerMap.get('global');
+			}
+		}
+        this._attribute.set('health', this._attribute.get('health') - damage);
+        if (this._attribute.get('health') <= 0) {
+            if (_attribute.get('type') == 'player') {
+                //gameOver(); TODO
+			} else {
+                _disposer();
+			}
+		}
+    }
 
 	/** Attempts to convert the value associated with KEY in _attribute to a Int if it exists. */
 	private function attributeToInt(key:String):Void
