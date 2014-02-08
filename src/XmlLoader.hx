@@ -22,7 +22,10 @@ class XmlLoader
 	 * 
 	 * The second level of the Map has the Variation ID as the key for each Variation of an entity defined in an XML.
 	 * 
-	 * The third level of the Map has the Attribute STRING as they key and the Dynamic value as the value.
+	 * The third level of the Map has the XmlTag STRING as they key and the Dynamic value as the value.
+	 * Dynamic is either a STRING representation of the Value (if there are no attributes on the XMLTag), OR a Map<String, Dynamic> (STRING) of the attributes.
+	 * It CANNOT have both a map and a value. Having attributes on the XMLTag will cause the loader to ignore the value.
+	 * Note that variations with attributes on the variation XML will REPLACE, NOT add to, the parent Map.
 	 * 
 	 * VALIDATOR is an optional function that takes the XML file (<data> tag is the top level) found and validates it, returning true if it validates and false if not.
 	 */
@@ -47,7 +50,17 @@ class XmlLoader
 					}
 					entityType = entity.firstChild().nodeValue;
 				} else {
-					entityDefaults.set(tagAttrib, entity.firstChild().nodeValue);
+					var hasAttributes:Bool = false;
+					var attrMap:Map<String, Dynamic> = new Map<String, Dynamic>();
+					for (attribute in entity.attributes()) {
+						hasAttributes = true;
+						attrMap.set(attribute, entity.get(attribute));
+					}
+					if (hasAttributes) {
+						entityDefaults.set(tagAttrib, attrMap);
+					} else {
+						entityDefaults.set(tagAttrib, entity.firstChild().nodeValue);
+					}
 				}
 			}
 			if (entityType == null) {
@@ -70,7 +83,17 @@ class XmlLoader
 					}
 					id = overwriteAttribute.firstChild().nodeValue;
 				} else {
-					overwriteArray.set(key, overwriteAttribute.firstChild().nodeValue);
+					var hasAttributes:Bool = false;
+					var attrMap:Map<String, Dynamic> = new Map<String, Dynamic>();
+					for (attribute in overwriteAttribute.attributes()) {
+						hasAttributes = true;
+						attrMap.set(attribute, overwriteAttribute.get(attribute));
+					}
+					if (hasAttributes) {
+						overwriteArray.set(key, attrMap);
+					} else {
+						overwriteArray.set(key, overwriteAttribute.firstChild().nodeValue);
+					}
 				}
 			}
 			if (id == null) {
