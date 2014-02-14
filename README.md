@@ -27,5 +27,5 @@ https://github.com/openfl/openfl-samples
 *See the wiki for documentation on classes
 
 ###Design Notes:
-*Haxe does not have inheritance of static [] in child. This is why we are using a very flat structure without many children (aka breaking OOP).
-*You should initialize everything once from the XML assets to reduce disk I/O, then create a template for everything you need in AssetManager. Then you should create new instances of something by calling .getCopy()
+* Haxe does not have inheritance of static [] in child. This is why we are using a very flat structure without many children (aka breaking OOP).<br/>
+* You should initialize everything once from the XML assets to reduce disk I/O, then create a template for everything you need in AssetManager. Then you should create new instances of something by calling .getCopy()
