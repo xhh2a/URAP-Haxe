@@ -23,6 +23,9 @@ Rewrite of the URAP game project with Haxe
 <br/>Sample Code can be found at the OpenFl Github
 https://github.com/openfl/openfl-samples
 
-###HaxeFlixel Documentation:
-*Documentation is okay at an overview of the library structure and usage, bugs and/or incomplete documentation means source code and debugging is required.*
-<pre>http://haxeflixel.com/wiki</pre>
+###Documentation On Classes:
+*See the wiki for documentation on classes
+
+###Design Notes:
+*Haxe does not have inheritance of static [] in child. This is why we are using a very flat structure without many children (aka breaking OOP).
+*You should initialize everything once from the XML assets to reduce disk I/O, then create a template for everything you need in AssetManager. Then you should create new instances of something by calling .getCopy()
