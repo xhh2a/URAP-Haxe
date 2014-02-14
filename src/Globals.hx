@@ -16,5 +16,5 @@ class Globals
 	public static var MINX:Float = 0;
 	public static var MAXY:Float = 1024;
 	public static var MINY:Float = 0;
-
+	public static var nextLayer:Int = 1; //The next layer to ensure that the next object will always be put in front.
 }

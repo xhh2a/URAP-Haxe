@@ -35,10 +35,11 @@ class AssetManager extends AAssetManager
 	 * Contains a list of all entity objects initialized based on values from assets. New instances of an object should be copied
 	 * from this list. The first level KEY is the TYPE of an entity. The second level is a map where the KEY is the ID of the variant.
 	 */
-	public var entityTemplates:Map<String, Map<String, ICustomEntity>>;	
+	public var entityTemplates:Map<String, Map<String, Character>>;	
 	public var multipliers:Map < String, Map < String, Float >> ;
 	public var additive:Map < String, Map < String, Float >> ;
 	public var modifiers: Map < String, Map < String, Dynamic >> ;
+	public var allCharacters:Map < String, Map < String, List<Character> >>;	
 	
 	private var _html5AudioExtension:String;
 	
@@ -57,10 +58,11 @@ class AssetManager extends AAssetManager
 		overlayUnpauseUp = _createView( OVERLAY_UNPAUSE_UP );
 		overlayUnpauseOver = _createView( OVERLAY_UNPAUSE_OVER );
 		loadLanguage(Globals.SELECTEDLANGUAGE, Globals.LANGUAGEDIRECTORY);
-		entityTemplates = new Map < String, Map < String, ICustomEntity >> ();
+		entityTemplates = new Map < String, Map < String, Character >> ();
 		multipliers = new Map < String, Map < String, Float >> ();
 		additive = new Map < String, Map < String, Float >> ();
 		modifiers = new Map < String, Map < String, Dynamic >> ();
+		allCharacters = new Map < String, Map < String, List<Character> >> ();
 		//TODO: Put static entity preload calls here (NOT in Preloader.hx), reason is because of multi-threading, we cannot be guarenteed the preloader runs after the AssetManager is initialized.
 		font = Assets.getFont( "assets/fonts/orbitron.ttf" );
 		#if js

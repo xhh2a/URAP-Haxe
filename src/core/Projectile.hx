@@ -12,84 +12,39 @@ import awe6.core.Context;
 
 class Projectile extends Character {
 
-	// // private fields
-	// public var _damage: Int;
-	// // Array compatibility
-	// public var _affectTypes: Array<String>;
-
-	// pasted here as reference
-	// public var _attribute:Map<String, Dynamic>; 
-	// public var _type:String; 
-	// public var _variationId:String; 
-	// public var _loadedXmlInfo:Map<String,Map<String,Map<String,Dynamic>>>;
-	
-	// public var _assetManager:AssetManager;
-	// public var _fileDirectory:Null<String>; 
-	// public var _fileName:Null<String>;
-	
-	// public var _imageContainer:Sprite; 
-	// public var _characterImage:Bitmap; 
-	// public var _characterImageData:BitmapData; 
-	
-	// public var _xCoordinate:Null<Int>;
-	// public var _yCoordinate:Null<Int>;
-	
-	// public var _speedX:Int;
-	// public var _speedY:Int;
-
-	public function new (p_kernel:IKernel, assetManager:AssetManager, 
-						 ?fileDirectory:String, ?fileName:String, 
-						 ?xCoordinate:Int, ?yCoordinate:Int) {
-		// TODO: coordinate in float? or int?
+	public function new (p_kernel:IKernel, assetManager:AssetManager,
+						 ?xCoordinate:Float, ?yCoordinate:Float) {
 		// TODO: what if the optional param is not provided
-		// TODO: how super works?
 		// instance variable defaults to be initialized?
 		if (p_kernel == null || assetManager == null)
 			throw "Invalid Argument Exception at Projectile.new";
-		super (p_kernel, assetManager, fileDirectory, fileName, xCoordinate, yCoordinate);
+		super (p_kernel, assetManager, xCoordinate, yCoordinate);
 	}
 
-	// override private function _init():Void {
-	// 	super._init();
-
-	// 	// _attribute should be initialized by super
-	// 	if (_attribute != null) {
-	// 		_damage = _attribute.get("damage");
-	// 		_xMovement = _attribute.get("xMovement");
-	// 		_yMovement = _attribute.get("yMovement");
-	// 		// TODO: compatibility String.split
-	// 		_affectTypes = _attribute.get("affects").split(",");
-	// 	}
-	// }
-
-	override public function checkCollision(): List<Character> {
+	override public function checkCollision(?types:Map < String, List<String> > ): List<Character> {
+		//TODO: This function no longer valid.
+		/**
 		var collision: List<Character> = super.checkCollision();
 
 		// remove any projectile from the collision list
 		// TODO: grammar check
 		return collision.filter(
-			function(aCharacter: Character): Bool {return aCharacter._type=="Projectile";}
+			function(aCharacter: Character): Bool {return aCharacter._attribute.get('type') =="Projectile";}
 		);
+		*/
+		return null;
 	}
 
-	override public function getCopy(?attribute:Map<String, Dynamic>):ICustomEntity {
-		var copiedCharacter = new Projectile(_kernel, _assetManager);
-
-		// don't know if the copy-and-paste can be avoided
-		copiedCharacter._loadedXmlInfo = XmlLoader.loadFile(_fileDirectory, _fileName, _assetManager);
-		copiedCharacter._fileName = new String(_fileName);
-		copiedCharacter._fileDirectory = new String(_fileDirectory);
-		copiedCharacter._type = new String(_type);
-		copiedCharacter._variationId = new String(_variationId);		
-		copiedCharacter._attribute = _loadedXmlInfo.get(_type).get(_variationId);
-		copiedCharacter._characterImageData = copiedCharacter._assetManager.getAsset(_attribute.get("fileName"), _attribute.get("fileDirectory"));
-		
-		copiedCharacter._draggable = _draggable;
-		
-		copiedCharacter._characterImage = new Bitmap(_characterImageData);
-		copiedCharacter._imageContainer.addChild(copiedCharacter._characterImage);
-		
-		return copiedCharacter;
+	override public function getCopy(?attribute:Map<String, Dynamic>, ?char:ICustomEntity):ICustomEntity {
+		var copiedProjectile:Projectile;
+		if (char == null) {
+			copiedProjectile = new core.Projectile(_kernel, _assetManager);
+		} else {
+			copiedProjectile = cast(char, Projectile);
+		}
+		copiedProjectile = cast(super.getCopy(attribute, copiedProjectile), Projectile);
+		copiedProjectile.updateAttributes();
+		return copiedProjectile;
 	}
 
 	override private function _updater (p_deltaTime:Int = 0):Void {
@@ -120,7 +75,7 @@ class Projectile extends Character {
 	private function onCollide(collisions: List<Character>): Void {
 		for (hitObject in collisions.iterator()) {
 			// contains method for List?
-			if (_attribute.get("affects").contains(hitObject._type)) {
+			if (_attribute.get("affects").contains(hitObject._attribute.get('type'))) {
 				var damage: Int = _attribute.get("damage");
                 // damage *= multipliers.get('damage').get(this.type);
                 // damage *= multipliers.get('damage').get('global');

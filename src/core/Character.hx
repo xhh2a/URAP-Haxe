@@ -15,154 +15,111 @@ import flash.display.DisplayObject;
 
 import ICustomEntity;
 import XmlLoader;
+import Globals;
 
 /**
- * ...
- * @author Kevin
+ * @attributes
+ * 'type' The type of the character
+ * 'id' The variation of this instance
+ * 'fileName' The fileName to look for the image.
+ * 'fileDirectory' The directory to look under for the image.
+ * 'movementx' Arbitrary Haxe Code to evaluate for movement, x
+ * 'movementy' Arbitrary Haxe Code to evaluate for movement, y
+ * 'speedx' Speed multiplier, x movement
+ * 'speedy' Speed multiplier, y movement
+ * 'weaponType' Weapon (Projectile) Type for the character to use
+ * 'weaponVariation' Weapon (Projectile) Variation for the character to use.
  */
-	
 class Character extends Entity implements ICustomEntity
 {
-	//Stuff that will be used with XmlLoader
-	public var _attribute:Map<String, Dynamic>; //Map that stores the attributes stored within a given variation in the XML
-	public var _type:String; //the type specified in the type tag in the XML file
-	public var _variationId:String; //the String contained within the id tag in one of the variations in the XML file
-	public var _loadedXmlInfo:Map < String, Map < String, Map < String, Dynamic > > >;
-	
-	public var _assetManager:AssetManager;
-	public var _fileDirectory:Null<String>; //file directory as specified in the XML file
-	public var _fileName:Null<String>; //file name as specified in the XML file
-	
-	public var _imageContainer:Sprite; //the Sprite class is technically just a container that holds an image to be displayed
-	public var _characterImage:Bitmap; //the image to be "contained" within _imageContainer
-	public var _characterImageData:BitmapData; //info about the image in _characterImage (ie. dimensions, its current location, etc.)
-	
-	//The (x,y) coordinates of our Character
-	public var _xCoordinate:Null<Int>;
-	public var _yCoordinate:Null<Int>;
-	
-	//The x and y components of this Character's speed (how much we add/subtract to the character's position on each update)
-	public var _speedX:Int;
-	public var _speedY:Int;
-	
-	//Whether we are able to drag this character or not
-	//Set to true if we can drag this character, set to false otherwise
-	public var _draggable:Bool;
-	
-	//Calculation of the x and y components
-	//of the distance between the current mouse position and the top-left corner of our image
-	//These will be used in when we do dragging
-	//The reason why we care about the distance between the mouse position and the top-left corner of the image
-	//is because when we do dragging, the distance between the mouse position and top-left corner of the image
-	//should remain the same throughout the drag
-	public var _distanceFromTopLeftCornerOfImageX:Null<Float>;
-	public var _distanceFromTopLeftCornerOfImageY:Null<Float>;
-	
-	//Set to true when our image is being dragged and set to false when our image is not being dragged
-	public var _isBeingDragged:Bool;
-	
-	//Indicates which Character is currently being dragged; Only one Character can be dragged at a time
-	public static var _characterThatIsBeingDraggedRightNow:Character;
+    //Stuff that will be used with XmlLoader
+    public var _attribute:Map<String, Dynamic>; //Map that stores the attributes stored within a given variation in the XML, see @attributes at the top.
+    public var _assetManager:AssetManager;
+    //The scene that this Character is currently in
+    public var _scene:Scene;
 
-	//The scene that this Character is currently in
-	public var _scene:Scene;
-	
-	//A Map of all Characters that have been initialized (including this Character)
-	//This Map is organized by the Character _type and _variationId
-	//This is good for when you only want to pick out Characters that have a certain _type and/or _variationId
-	public static var _allCharacters:Map<String, Map<String, MapList<Character>>>;
-	
-	//The index of this Character in its corresponding MapList in _allCharacters
-	public var _index:Int;
-	
-	//A list of all Characters that have been initialized (including this Character)
-	//This is good for when you have to iterate through ALL Characters to do something,
-	//like when during the checkCollision() method
-	public static var _iterableCharacterList:List<Character>;
-	
-	//This tells you "how much in front" this Character is
-	//The higher the value of this frontness, the more in front this Character will be
-	//For example, a Character with a frontness of 5 will be more in front than Characters with frontnesses 1 or 2
-	//If you're still confused, think of it this way: If Character A stands in front of Character B,
-	//then Character A will have a greater frontness value than Character B
-	//The smallest frontness possible is 1 (a frontness of 1 means that the Character will show up most behind, as in behind EVERYTHING)
-	public var _frontness:Null<Int>;
-	
-	//The default value for _frontness that this Character will have when it is added
-	//The default value will increase every time a Character is added
-	//So by default, every new Character you add appear in front of the other Characters you previously added
-	public static var _defaultFrontness:Null<Int>;
-	
-	public static var _allColliders:Map<Character, List<Entity>>;
+    public var _imageContainer:Sprite; //the Sprite class is technically just a container that holds an image to be displayed
+    public var _characterImage:Bitmap; //the image to be "contained" within _imageContainer
+    public var _characterImageData:BitmapData; //info about the image in _characterImage (ie. dimensions, its current location, etc.)
 
-	//The damage on the stack
+    //The (x,y) coordinates of our Character
+    public var _xCoordinate:Null<Float> = 0;
+    public var _yCoordinate:Null<Float> = 0;
+
+    //Whether we are able to drag this character or not
+    //Set to true if we can drag this character, set to false otherwise
+    public var _draggable:Bool;
+
+    //Calculation of the x and y components
+    //of the distance between the current mouse position and the top-left corner of our image
+    //These will be used in when we do dragging
+    //The reason why we care about the distance between the mouse position and the top-left corner of the image
+    //is because when we do dragging, the distance between the mouse position and top-left corner of the image
+    //should remain the same throughout the drag
+    public var _distanceFromTopLeftCornerOfImageX:Null<Float>;
+    public var _distanceFromTopLeftCornerOfImageY:Null<Float>;
+
+    //Set to true when our image is being dragged and set to false when our image is not being dragged
+    public var _isBeingDragged:Bool;
+
+
+    //A higher layer appears in front
+    public var _layer:Null<Int>;
+
+    //The damage on the stack
     public var _unresolvedDamage:Float;
+    
+    //The current weapon that this Character is using
+    //Points to a template instance of a projectile inside the AssetManager
+    public var _currentWeapon:Projectile;
 	
-	/**
-	 * Initializes a Character, which is essentially a sprite, but I can't call name it Sprite because Sprite is already a built-in class
-	 * Parameters with the question mark in front means it is optional
-	 * NOTE: For the fileDirectory and fileName, these should be for the XML file, not the image!
-	 * The image directory and name info should be included in the XML file
-	 * @param	p_kernel	The kernel of game (usually, passed in as _kernel)
-	 * @param	assetManager	The AssetManager (usually, passed in as _assetManager)
-	 * @param	?fileDirectory	The file directory of the XML file
-	 * @param	?fileName	The file name of the XML file
-	 * @param	?xCoordinate	The x coordinate for the image to start out at
-	 * @param	?yCoordinate	The y coordinate for the image to start out at
-	 */
-	public function new( p_kernel:IKernel, assetManager:AssetManager, ?fileDirectory:String, ?fileName:String, ?xCoordinate:Int, ?yCoordinate:Int ) 
+    /**
+     * Initializes a Character, which is essentially a sprite, but I can't call name it Sprite because Sprite is already a built-in class
+     * Parameters with the question mark in front means it is optional
+     * NOTE: For the fileDirectory and fileName, these should be for the XML file, not the image!
+     * The image directory and name info should be included in the XML file
+     * @param   p_kernel    The kernel of game (usually, passed in as _kernel)
+     * @param   assetManager    The AssetManager (usually, passed in as _assetManager)
+     * @param   ?xCoordinate    The x coordinate for the image to start out at
+     * @param   ?yCoordinate    The y coordinate for the image to start out at
+	 * @param   ?attribute      An attribute map to pass in (optional)
+     */
+	public function new( p_kernel:IKernel, assetManager:AssetManager, ?xCoordinate:Float, ?yCoordinate:Float, ?attribute:Map<String, Dynamic> ) 
 	{
 		_imageContainer = new Sprite();
-		
 		_assetManager = assetManager;
-		
-		_fileDirectory = fileDirectory;
-		_fileName = fileName;
-
+		_kernel = p_kernel;
 		//If we decided NOT to pass in one of the initial coordinates, we'll use a default of 0 for that coordinate
-		if (xCoordinate == null)
-		{
-			_xCoordinate = 0;
-		}
-		else
+		if (xCoordinate != null)
 		{
 			_xCoordinate = xCoordinate;
 		}
-		if (yCoordinate == null)
-		{
-			_yCoordinate = 0;
-		}
-		else
+		if (yCoordinate != null)
 		{
 			_yCoordinate = yCoordinate;
 		}
-		
-		//Initially, we'll have this character NOT moving
-		_speedX = 0;
-		_speedY = 0;
-		
+		if (attribute != null) {
+			_attribute = attribute;
+		} else {
+			_attribute = new Map<String, Dynamic>();
+		}
+
+		//These lines "create the image" based on _characterImageData (the information about the image)
+		//then adds this created image into our image container
+		if (_attribute.exists("fileName") && _attribute.exists("fileDirectory")) {
+			_characterImageData = _assetManager.getAsset(_attribute.get("fileName"), _attribute.get("fileDirectory"));	
+			_characterImage = new Bitmap(_characterImageData);
+			_imageContainer.addChild(_characterImage);
+		}
+
+		//TODO: Handle missing character image data.
 		_draggable = true;
 		_isBeingDragged = false;
 		
-		if (_allCharacters == null)
-		{			
-			_allCharacters = new Map<String, Map<String, MapList<Character>>>();
-		}
-		
-		if (_iterableCharacterList == null)
-		{
-			_iterableCharacterList = new List<Character>();
-		}
-		
-		//We initially set the _frontness to null because at this point this Character hasn't been added to the screen yet
-		//and therefore, it wouldn't make sense for it to hold a frontness value because it's not even visible!
-		_frontness = null;
-		
-		if (_defaultFrontness == null)
-		{
-			_defaultFrontness = 1;
-		}
-		
+		//We initially set the _layer to null because at this point this Character hasn't been added to the screen yet
+		//and therefore, it wouldn't make sense for it to hold a layer value because it's not even visible!
+		_layer = null;
+	
 		super( p_kernel, _imageContainer );
 	}
 	
@@ -174,43 +131,6 @@ class Character extends Entity implements ICustomEntity
 		super._init();
 		// extend here
 		
-		//Checking to see whether the file directory and name was actually passed in (or set)
-		if (_fileDirectory != null && _fileName != null)
-		{
-			//Loading the XML file and then retrieving the information we want from it
-			_loadedXmlInfo = XmlLoader.loadFile(_fileDirectory, _fileName, _assetManager);
-			_type = _loadedXmlInfo.keys().next();
-			_variationId = _loadedXmlInfo.get(_type).keys().next();
-			_attribute = _loadedXmlInfo.get(_type).get(_variationId);
-			_characterImageData = _assetManager.getAsset(_attribute.get("fileName"), _attribute.get("fileDirectory"));
-		
-			//These lines "create the image" based on _characterImageData (the information about the image)
-			//then adds this created image into our image container
-			_characterImage = new Bitmap(_characterImageData);
-			_imageContainer.addChild(_characterImage);
-		}
-		
-		//If our _allCharacters Map does not already contain a key for this Character's _type, then we create it
-		if (!_allCharacters.exists(_type))
-		{
-			_allCharacters.set(_type, new Map < String, MapList<Character> > () );			
-		}
-		//If our _allCharacters Map does not already contain a key for this Character's _variationId under its _type,
-		//then we create it
-		if (!_allCharacters.get(_type).exists(_variationId))
-		{
-			_allCharacters.get(_type).set(_variationId, new MapList<Character>());
-		}
-		
-		//Now that we insured that our _allCharacters Map contains a key for this Character's _type and _variationId,
-		//we store the _index number for this Character,
-		//then add this Character to _allCharacters into
-		//the MapList reserved for Characters of this Character's _type and _variationId,
-		//and then finally add that to our _unorganizedCharacterList
-		_index = _allCharacters.get(_type).get(_variationId).size();
-		_allCharacters.get(_type).get(_variationId).add(this);
-		_iterableCharacterList.add(this);
-		
 		//Sets the position of the image container to the initialized coordinates
 		_imageContainer.x = _xCoordinate;
 		_imageContainer.y = _yCoordinate;
@@ -220,17 +140,37 @@ class Character extends Entity implements ICustomEntity
 		_distanceFromTopLeftCornerOfImageX = null;
 		_distanceFromTopLeftCornerOfImageY = null;
 	}
-	
-	/**
-	 * Adds this Character to a Scene that we pass in
-	 * If you decide not to pass in a frontness value, it will by default make this Character in front of everything
-	 * @param	scene	The specific Scene that we want to add this Character to
-	 * @param	?frontness	The frontness value that you want to set
-	 */
-	public function addCharacterToScene(scene:Scene, ?frontness:Int):Void
+
+	/** Calls xmlLoader and creates a template for every variation inside the file and stores it in the AssetManager */
+	public function preloader(xmlName:String, xmlDirectory:String):Void {
+			//Loading the XML file and then retrieve the information we want from it
+			var _loadedXmlInfo:Map<String, Map<String, Map<String, Dynamic>>> = XmlLoader.loadFile(xmlName, xmlDirectory, _assetManager);
+			for (type in _loadedXmlInfo.keys()) {
+				if (!_assetManager.entityTemplates.exists(type)) {
+						_assetManager.entityTemplates.set(type, new Map<String, Character>());
+					}
+				var _storageTypeMap:Map<String, Character> = _assetManager.entityTemplates.get(type);
+				var _typeMap = _loadedXmlInfo.get(type);
+				for (variation in _typeMap.keys()) {
+					if (!_storageTypeMap.exists(variation)) {
+						_storageTypeMap.set(type, new Character(_kernel, _assetManager, null, null, _typeMap.get(variation)));
+					} //Else ignore, potentially print an error message.
+				}
+			}
+	}
+
+    /**
+     * Adds this Character to a Scene that we pass in
+     * If you decide not to pass in a layer value, it will by default make this Character in front of everything
+     * @param   scene   The specific Scene that we want to add this Character to
+     * @param   ?layer  The frontness value that you want to set
+     */
+	public function addCharacterToScene(scene:Scene, ?layer:Int):Void
 	{
-		if (frontness != null)
+		if (layer != null)
 		{
+			//Is this really necessary? Why not just let them overlap somehow?
+			/*
 			//In the next for-loop, after looping through all our present Characters and finding that one of them
 			//has a _frontness value that is equal to the frontness that we want to assign to THIS Character when we add it,
 			//we will bump up that Character's frontness by 1
@@ -248,149 +188,148 @@ class Character extends Entity implements ICustomEntity
 				{
 					aCharacter._frontness++;
 					needToDoShiftUp = true;
-				}			
+				}
 			}
-			
-			_frontness = frontness;
+			*/
+			_layer = layer;
+			if (_layer >= Globals.nextLayer) {
+				Globals.nextLayer = _layer + 1;
+			}
 		}
 		else
 		{
-			_frontness = _defaultFrontness;
+			_layer = Globals.nextLayer;
+			Globals.nextLayer += 1;
 		}
-		
 		//adding this Character to the passed in Scene
 		//The second parameter indicates whether or not we should make the Character visible on the screen
-		scene.addEntity(this, true, _frontness);
-		
+		scene.addEntity(this, true, _layer);
 		_scene = scene;
-		_defaultFrontness++;
 	}
-	
+
 	//Has not been fully implemented yet
-	public function checkCollision():List<Character>
+	public function checkCollision(?types:Map<String, List<String>>):List<Character>
 	{
 		var collisions:List<Character> = new List<Character>();
 		
-		for (testCharacter in _iterableCharacterList.iterator())
-		{
-			if (testCharacter != this)
-			{
-				if (_characterImage.hitTestObject(testCharacter._characterImage))
-				{
-					//var coordinatesOfCurrentCharacterImage = new Point(_xCoordinate, _yCoordinate);
-					//var coordinatesOfTestCharacterImage = new Point(testCharacter._xCoordinate, testCharacter._yCoordinate);
-					
-					var currentCharacterImageBoundingRect:Rectangle = _characterImage.getBounds(Lib.current);
-					var testCharacterImageBoundingRect:Rectangle = testCharacter._characterImage.getBounds(Lib.current);
-					var boundingRectIntersection:Rectangle = currentCharacterImageBoundingRect.intersection(testCharacterImageBoundingRect);
-					
-					//trace("boundingRectIntersection is " + boundingRectIntersection.isEmpty());
-					
-					if (!boundingRectIntersection.isEmpty())
+		//TODO: A change in how all items are stored in AssetManager means that filtering should be done before hand.
+		//This is because after thinking about it, I believe it is more efficient to filter before hand rather than to check everything.
+		for (type in _assetManager.allCharacters.keys()) {
+			var _typeMap = _assetManager.allCharacters.get(type);
+			for (variation in _typeMap.keys()) {
+				for (testCharacter in _typeMap.get(variation).iterator()) {
+					if (testCharacter != this)
 					{
-						var testArea:BitmapData = new BitmapData(cast(boundingRectIntersection.width, Int), cast(boundingRectIntersection.height, Int), false);
-						
-						var testMatrix:Matrix = _characterImage.transform.concatenatedMatrix;
-						testMatrix.tx -= boundingRectIntersection.x;
-						testMatrix.ty -= boundingRectIntersection.y;
-						
-						//var colorTransform:ColorTransform = new ColorTransform();
-						//colorTransform.color = cast(4294967041, UInt);
-						//testArea.draw(_characterImage, testMatrix, colorTransform);
-						//trace(colorTransform.color);
-						
-						//orig
-						//testArea.draw(_characterImage, testMatrix, new ColorTransform(1, 1, 1, 1, 255, -255, -255, 255));
-						
-						//test
-						testArea.draw(_characterImage, testMatrix, new ColorTransform(0, 0, 0, 0, 255, 0, 0, 255));
-						//var test:ColorTransform = new ColorTransform(0, 0, 0, 0, 255, -255, -255, 255);
-						//trace("first one is " + test.color);
-						
-						testMatrix = testCharacter._characterImage.transform.concatenatedMatrix;
-						testMatrix.tx -= boundingRectIntersection.x;
-						testMatrix.ty -= boundingRectIntersection.y;
-						
-						//orig
-						//testArea.draw(testCharacter._characterImage, testMatrix, new ColorTransform(1, 1, 1, 1, 255, 255, 255, 255), BlendMode.DIFFERENCE);
-						
-						//test
-						testArea.draw(testCharacter._characterImage, testMatrix, new ColorTransform(0, 0, 0, 0, 255, 255, 255, 255), BlendMode.DIFFERENCE);
-						//test = new ColorTransform(0, 0, 0, 0, 255, 255, 255, 255);
-						//trace("second one is " + test.color);
-						//orig
-						//var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
-						
-						//test
-						var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
-						//var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
-						trace("possibleCollision width is " + possibleCollision.width);
-						if (possibleCollision.width != 0)
+						if (_characterImage.hitTestObject(testCharacter._characterImage))
 						{
-							trace(testCharacter._type);
-							trace("here");
-							collisions.add(testCharacter);
+							//var coordinatesOfCurrentCharacterImage = new Point(_xCoordinate, _yCoordinate);
+							//var coordinatesOfTestCharacterImage = new Point(testCharacter._xCoordinate, testCharacter._yCoordinate);
+							
+							var currentCharacterImageBoundingRect:Rectangle = _characterImage.getBounds(Lib.current);
+							var testCharacterImageBoundingRect:Rectangle = testCharacter._characterImage.getBounds(Lib.current);
+							var boundingRectIntersection:Rectangle = currentCharacterImageBoundingRect.intersection(testCharacterImageBoundingRect);
+							
+							//trace("boundingRectIntersection is " + boundingRectIntersection.isEmpty());
+							
+							if (!boundingRectIntersection.isEmpty())
+							{
+								var testArea:BitmapData = new BitmapData(cast(boundingRectIntersection.width, Int), cast(boundingRectIntersection.height, Int), false);
+								
+								var testMatrix:Matrix = _characterImage.transform.concatenatedMatrix;
+								testMatrix.tx -= boundingRectIntersection.x;
+								testMatrix.ty -= boundingRectIntersection.y;
+								
+								//var colorTransform:ColorTransform = new ColorTransform();
+								//colorTransform.color = cast(4294967041, UInt);
+								//testArea.draw(_characterImage, testMatrix, colorTransform);
+								//trace(colorTransform.color);
+								
+								//orig
+								//testArea.draw(_characterImage, testMatrix, new ColorTransform(1, 1, 1, 1, 255, -255, -255, 255));
+								
+								//test
+								testArea.draw(_characterImage, testMatrix, new ColorTransform(0, 0, 0, 0, 255, 0, 0, 255));
+								//var test:ColorTransform = new ColorTransform(0, 0, 0, 0, 255, -255, -255, 255);
+								//trace("first one is " + test.color);
+								
+								testMatrix = testCharacter._characterImage.transform.concatenatedMatrix;
+								testMatrix.tx -= boundingRectIntersection.x;
+								testMatrix.ty -= boundingRectIntersection.y;
+								
+								//orig
+								//testArea.draw(testCharacter._characterImage, testMatrix, new ColorTransform(1, 1, 1, 1, 255, 255, 255, 255), BlendMode.DIFFERENCE);
+								
+								//test
+								testArea.draw(testCharacter._characterImage, testMatrix, new ColorTransform(0, 0, 0, 0, 255, 255, 255, 255), BlendMode.DIFFERENCE);
+								//test = new ColorTransform(0, 0, 0, 0, 255, 255, 255, 255);
+								//trace("second one is " + test.color);
+								//orig
+								//var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
+								
+								//test
+								var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
+								//var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
+								trace("possibleCollision width is " + possibleCollision.width);
+								if (possibleCollision.width != 0)
+								{
+									trace(testCharacter._attribute.get('type'));
+									trace("here");
+									collisions.add(testCharacter);
+								}
+							}
+							
+							//trace(boundingRectIntersection);
+							
+							/*if (_characterImageData.hitTest(coordinatesOfCurrentCharacterImage, 255, testCharacter._characterImage, coordinatesOfTestCharacterImage, 255))
+							{
+								trace(testCharacter._type);
+								collisions.add(testCharacter);
+							}*/
 						}
 					}
-					
-					//trace(boundingRectIntersection);
-					
-					/*if (_characterImageData.hitTest(coordinatesOfCurrentCharacterImage, 255, testCharacter._characterImage, coordinatesOfTestCharacterImage, 255))
-					{
-						trace(testCharacter._type);
-						collisions.add(testCharacter);
-					}*/
 				}
 			}
 		}
-		
 		return collisions;
 	}
-	
-	/**
-	 * Sets a specific speed for this Character
-	 * Default values are 0 for speedX and speedY
-	 * If you don't pass in any arguments, this will set the speed to 0 for both directions, stopping our Character movement
-	 * @param	speedX	The x-component of the speed
-	 * @param	speedY	The y-component of the speed
-	 */
-	public function setSpeed(speedX:Int = 0, speedY:Int = 0):Void
-	{
-		_speedX = speedX;
-		_speedY = speedY;
-	}
-	
+
 	/**
 	 * Creates a new Character with the same _characterImageData and XML file as this one
 	 */
-	public function getCopy(?attribute:Map<String, Dynamic>):ICustomEntity
+	public function getCopy(?attribute:Map<String, Dynamic>, ?char:ICustomEntity):ICustomEntity
 	{
-		var copiedCharacter = new Character(_kernel, _assetManager);
-		
-		copiedCharacter._loadedXmlInfo = XmlLoader.loadFile(_fileDirectory, _fileName, _assetManager);
-		copiedCharacter._fileName = new String(_fileName);
-		copiedCharacter._fileDirectory = new String(_fileDirectory);
-		copiedCharacter._type = new String(_type);
-		copiedCharacter._variationId = new String(_variationId);		
-		copiedCharacter._attribute = _loadedXmlInfo.get(_type).get(_variationId);
+		var copiedCharacter:Character;
+		if (char == null) {
+			copiedCharacter = new Character(_kernel, _assetManager);
+		} else {
+			copiedCharacter = cast(char, Character);
+		}
+		if (attribute == null) {
+			copiedCharacter._attribute = this.getStringAttributeMap();
+		} else {
+			copiedCharacter._attribute = attribute;
+		}
+		copiedCharacter.updateAttributes();
+		//TODO: Check if this is correct, see if there is a way to copy the memory without disk I/O
 		copiedCharacter._characterImageData = copiedCharacter._assetManager.getAsset(_attribute.get("fileName"), _attribute.get("fileDirectory"));
-		
-		copiedCharacter._draggable = _draggable;
-		
 		copiedCharacter._characterImage = new Bitmap(_characterImageData);
 		copiedCharacter._imageContainer.addChild(copiedCharacter._characterImage);
-		
+		if (!_assetManager.allCharacters.exists(_attribute.get('type'))) {
+			_assetManager.allCharacters.set(_attribute.get('type'), new Map < String, List<Character> > ());
+		}
+		var _allCharType:Map < String, List<Character> > = _assetManager.allCharacters.get(_attribute.get('type'));
+		if (!_allCharType.exists(_attribute.get('id'))) {
+			_allCharType.set(_attribute.get('id'), new List<Character>());
+		}
+		var _allInstanceList: List<Character> = _allCharType.get('id');
+		_allInstanceList.add(this);
 		return copiedCharacter;
 	}
-	
-	/** Attempts to convert the value associated with KEY in _attribute to a Float if it exists. */
-	private function attributeToFloat(key:String):Void
-	{
-		if (_attribute.exists(key)) {
-			_attribute.set(key, Std.parseFloat(_attribute.get(key)));
-		}
-	}
 
+	public function updateAttributes():Void {
+		//TODO
+	}
+	
 	/** Puts DAMAGEAMOUNT onto stack, amount varies based on the multiplier/additive values in AssetManager for SOURCE */
     public function addDamage(damageAmount:Float, source:Character):Void
     {
@@ -445,13 +384,43 @@ class Character extends Entity implements ICustomEntity
 		}
         this._attribute.set('health', this._attribute.get('health') - damage);
         if (this._attribute.get('health') <= 0) {
-            if (_attribute.get('type') == 'player') {
-                //gameOver(); TODO
-			} else {
-                _disposer();
-			}
+            _disposer();
 		}
     }
+
+    /** Checks if this object should fire, and if so, does. */
+	//TODO: Incomplete
+    public function shouldFire():Void {
+        var shouldFire:Bool;
+		if (this._attribute.get('type') != 'player') {
+			//Evaluate arbitrary Haxe Boolean Code
+		} else {
+			//See if fire button is clicked;
+		}
+        if (shouldFire) {
+			var weapon: Character;
+			var copy: Projectile;
+            if (this._attribute.get('type') == 'player') {
+                weapon = _currentWeapon;
+                copy = cast(weapon.getCopy(), Projectile); //Create instance from template
+                //Set X/Y coords, speed, etc on weapon by modifying copy._attribute
+			} else if (this._attribute.exists('weaponType') && this._attribute.exists('weaponVariation')) {
+				weapon = _assetManager.entityTemplates.get(this._attribute.get('weaponType')).get(this._attribute.get('weaponVariation'));
+				copy = cast(weapon.getCopy(), Projectile);
+			} else {
+				//Undefined, throw an error, OR use a default type.
+			}
+			//Set X/Y coords, speed, etc on weapon by modifying copy._attribute
+		}
+    }
+
+	/** Attempts to convert the value associated with KEY in _attribute to a Float if it exists. */
+	private function attributeToFloat(key:String):Void
+	{
+		if (_attribute.exists(key)) {
+			_attribute.set(key, Std.parseFloat(_attribute.get(key)));
+		}
+	}
 
 	/** Attempts to convert the value associated with KEY in _attribute to a Int if it exists. */
 	private function attributeToInt(key:String):Void
@@ -498,17 +467,19 @@ class Character extends Entity implements ICustomEntity
 		// extend here
 		
 		//Moving our Character according to the current speed that's stored
-		_imageContainer.x += _speedX;
-		_imageContainer.y += _speedY;
+		_imageContainer.x += _attribute.get('speedx');
+		_imageContainer.y += _attribute.get('speedy');
 
 		//Setting x-coordinates and y-coordinates (yes, this is apparently necessary)
 		_xCoordinate = cast(_imageContainer.x, Int);
 		_yCoordinate = cast(_imageContainer.y, Int);
 
 		//The following if/else statments control the dragging
+		
+		//TODO: This should be moved out of the Character class, we should not be checking on every instance of a character!
 		if (_draggable && _kernel.inputs.mouse.getIsButtonDown() && ((_characterThatIsBeingDraggedRightNow == null) || (_characterThatIsBeingDraggedRightNow == this)))
 		{
-			if (!_isBeingDragged && (_characterImageData.getPixel32(_kernel.inputs.mouse.getButtonLastClickedX() - _xCoordinate, _kernel.inputs.mouse.getButtonLastClickedY() - _yCoordinate) != 0))
+			if (!_isBeingDragged && (_characterImageData.getPixel32(_kernel.inputs.mouse.getButtonLastClickedX() - Math.round(_xCoordinate), _kernel.inputs.mouse.getButtonLastClickedY() - Math.round(_yCoordinate)) != 0))
 			{
 				var characterImagesUnderClickedPoint:Array<DisplayObject> = _imageContainer.parent.getObjectsUnderPoint(new Point(_kernel.inputs.mouse.getButtonLastClickedX(), _kernel.inputs.mouse.getButtonLastClickedY()));			
 				var characterWithHighestFrontness:Character = this;
@@ -521,7 +492,7 @@ class Character extends Entity implements ICustomEntity
 						{
 							if (aCharacter._characterImageData.getPixel32(_kernel.inputs.mouse.getButtonLastClickedX() - aCharacter._xCoordinate, _kernel.inputs.mouse.getButtonLastClickedY() - aCharacter._yCoordinate) != 0)
 							{								
-								if (aCharacter._frontness > characterWithHighestFrontness._frontness)
+								if (aCharacter._frontness > characterWithHighestFrontness._layer)
 								{
 									characterWithHighestFrontness = aCharacter;
 								}
@@ -564,21 +535,19 @@ class Character extends Entity implements ICustomEntity
 			}
 		}
 	}
-	
+
 	/**
 	 * Disposes (removes) our Character
 	 * Currently, this has not been tested yet
 	 */
 	override private function _disposer():Void 
 	{
-		// extend here
-		
-		_allCharacters.get(_type).get(_variationId).removeItemAt(_index);
-		
+		// TODO: Implement game over for player here.
+		_assetManager.allCharacters.get(_attribute.get('type')).get(_attribute.get('id')).remove(this);
 		removeEntity(this, true);
 		super._disposer();
 	}
-	
+
 	/**
 	 * Calls the private _disposer() method (which I don't think I can make public because it overrides a private method)
 	 */

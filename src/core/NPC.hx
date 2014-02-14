@@ -44,16 +44,16 @@ class NPC extends Character
 		}
 	}
 
-	override public function getCopy(?attribute:Map<String, Dynamic>):ICustomEntity
+	override public function getCopy(?attribute:Map<String, Dynamic>, ?char:ICustomEntity):ICustomEntity
 	{
-		var copiedNPC = new core.NPC(_kernel, _assetManager);
-		if (attribute == null) {
-			copiedNPC._attribute = this.getStringAttributeMap();
+		var copiedNPC;
+		if (char == null) {
+			copiedNPC = new core.NPC(_kernel, _assetManager);
 		} else {
-			copiedNPC._attribute = attribute;
+			copiedNPC = char;
 		}
+		copiedNPC = super.getCopy(attribute, copiedNPC);
 		copiedNPC.updateAttributes();
-		//TODO: Deep copy image data (wait for implementation in Character).
 		return copiedNPC;
 	}
 }
