@@ -10,6 +10,7 @@ Rewrite of the URAP game project with Haxe
 * Install HaxeFlixel via terminal. <pre>haxelib install flixel</pre>
 * Download FlashDevelop **4.4.3** or above for Windows <pre>http://www.flashdevelop.org/</pre>
 * OR Download Sublime Text for Mac/Linux <pre>http://haxeflixel.com/wiki/installing-sublime-text</pre>
+* Download Awe6 Framework. <pre>haxelib install awe6</pre>
 * Git Clone the new project
 * Open the OpenFl.hxproj with FlashDevelop, use as you would Eclipse OR modify the source code under src
 
