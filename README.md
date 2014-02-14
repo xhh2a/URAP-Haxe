@@ -5,7 +5,7 @@ Rewrite of the URAP game project with Haxe
 
 ## Development Setup
 * Download Haxe and Install <pre>http://haxe.org/download</pre>
-* Open up a terminal.
+* Open up a terminal (Shift+Right Click on Windows to get a 'Open a Command Line Here' option)
 * Install OpenFl via terminal. <pre>http://www.openfl.org/download/</pre>
 * Install HaxeFlixel via terminal. <pre>haxelib install flixel</pre>
 * Download FlashDevelop **4.4.3** or above for Windows <pre>http://www.flashdevelop.org/</pre>
