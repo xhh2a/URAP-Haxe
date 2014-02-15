@@ -38,6 +38,7 @@ class XmlLoader
 			var variationSubElement :Null<Xml> = null; //There can only ever be one of these in an XML!
 			var entityType:Null<String> = null;
 			for (entity in xmlEntity.elements()) { //Parse all default values.
+				trace(entity.toString());
 				var tagAttrib:String = entity.nodeName;
 				if (tagAttrib.toLowerCase() == Globals.XMLVARIANTSEPARATOR.toLowerCase()) {
 					if (variationSubElement != null) {
@@ -53,6 +54,7 @@ class XmlLoader
 					var hasAttributes:Bool = false;
 					var attrMap:Map<String, Dynamic> = new Map<String, Dynamic>();
 					for (attribute in entity.attributes()) {
+						trace(attribute.toString());
 						hasAttributes = true;
 						attrMap.set(attribute, entity.get(attribute));
 					}
@@ -66,6 +68,7 @@ class XmlLoader
 			if (entityType == null) {
 				throw manager.getText("xmlloader.exception.missingtype", [xmlName, xmlSubdirectory] );
 			}
+			entityDefaults.set('type', entityType);
 			var output:ENTITYRESULT = { type:entityType, entityMap: entityDefaults, variationRoot: variationSubElement };
 			return output;
 		}
@@ -99,6 +102,7 @@ class XmlLoader
 			if (id == null) {
 				throw manager.getText("xmlloader.exception.missingid", [xmlName, xmlSubdirectory] );
 			}
+			overwriteArray.set('id', id);
 			var output:VARIANTRESULT = { id: id, attributeMap: overwriteArray };
 			return output;
 		}
@@ -116,6 +120,7 @@ class XmlLoader
 			return outMap;
 		}
 		
+		trace("Loading" + xmlSubdirectory + xmlName);
 		var temp:Xml = Xml.parse(manager.getAsset(xmlName, xmlSubdirectory));
 		if (validator != null) {
 			validator(temp);

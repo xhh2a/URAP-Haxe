@@ -132,9 +132,11 @@ class Character extends Entity implements ICustomEntity
 	}
 	
 	/** Calls xmlLoader and creates a template for every variation inside the file and stores it in the AssetManager */
-	public function preloader(xmlName:String, xmlDirectory:String):Void {
+	public function preloader(xmlDirectory:String, xmlName:String):Void {
 			//Loading the XML file and then retrieve the information we want from it
-			var _loadedXmlInfo:Map<String, Map<String, Map<String, Dynamic>>> = XmlLoader.loadFile(xmlName, xmlDirectory, _assetManager);
+			var _loadedXmlInfo:Map < String, Map < String, Map < String, Dynamic >>> = XmlLoader.loadFile(xmlDirectory, xmlName, _assetManager);
+			trace("Loaded");
+			trace(_loadedXmlInfo.toString());
 			for (type in _loadedXmlInfo.keys()) {
 				if (!_assetManager.entityTemplates.exists(type)) {
 						_assetManager.entityTemplates.set(type, new Map<String, Character>());
@@ -143,10 +145,12 @@ class Character extends Entity implements ICustomEntity
 				var _typeMap = _loadedXmlInfo.get(type);
 				for (variation in _typeMap.keys()) {
 					if (!_storageTypeMap.exists(variation)) {
-						_storageTypeMap.set(type, new Character(_kernel, _assetManager, null, null, _typeMap.get(variation)));
+						_storageTypeMap.set(variation, new Character(_kernel, _assetManager, null, null, _typeMap.get(variation)));
 					} //Else ignore, potentially print an error message.
 				}
 			}
+			trace(_assetManager.entityTemplates.toString());
+			trace(_assetManager.entityTemplates.get('Goku').get('Adult Goku')._attribute.toString());
 	}
 
     /**
@@ -311,7 +315,7 @@ class Character extends Entity implements ICustomEntity
 		if (!_allCharType.exists(_attribute.get('id'))) {
 			_allCharType.set(_attribute.get('id'), new List<Character>());
 		}
-		var _allInstanceList: List<Character> = _allCharType.get('id');
+		var _allInstanceList: List<Character> = _allCharType.get(_attribute.get('id'));
 		_allInstanceList.add(this);
 		return copiedCharacter;
 	}

@@ -23,8 +23,11 @@ class Game extends AScene
 		// extend / addentities
 		_title.text = "GAME";
 		
-		_goku = new Character(_kernel, _assetManager, 10, 10);
+		var _temp = new Character(_kernel, _assetManager, 10, 10);
+		_temp.preloader("assets/data", "Goku.xml");
+		_goku = cast(_assetManager.entityTemplates.get('Goku').get('Adult Goku').getCopy(), Character);
 		_circle = new Character(_kernel, _assetManager, 100, 102);
+		
 		_goku.addCharacterToScene(this, 1);
 		_circle.addCharacterToScene(this, 4);
 		

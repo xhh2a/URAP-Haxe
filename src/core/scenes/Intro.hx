@@ -14,6 +14,12 @@ class Intro extends AScene
 		// extend / addentities
 		
 		_title.text = "INTRO";
+		var _temp = new Character(_kernel, _assetManager, 10, 10);
+		_temp.preloader("assets.data", "Goku.xml");
+		var _goku = cast(_assetManager.entityTemplates.get('Goku').get('Adult Goku').getCopy(), Character);
+		trace("Works");
+		_goku.addCharacterToScene(this, 1);
+
 	}
 
 	override private function _updater( p_deltaTime:Int = 0 ):Void 
