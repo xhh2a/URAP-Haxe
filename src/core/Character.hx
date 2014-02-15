@@ -19,8 +19,8 @@ import Globals;
 
 /**
  * @attributes
- * 'type' The type of the character
- * 'id' The variation of this instance
+ * 'type' The type of the character. Note an actual character (not subclass) has type 'player'
+ * 'id' The variation of this instance. Note an actual character (not subclass) has variations for difficulty.
  * 'fileName' The fileName to look for the image.
  * 'fileDirectory' The directory to look under for the image.
  * 'movementx' Arbitrary Haxe Code to evaluate for movement, x
@@ -48,7 +48,7 @@ class Character extends Entity implements ICustomEntity
 
     //Whether we are able to drag this character or not
     //Set to true if we can drag this character, set to false otherwise
-    public var _draggable:Bool;
+    public var _draggable:Bool = false;
 
     //Calculation of the x and y components
     //of the distance between the current mouse position and the top-left corner of our image
@@ -56,8 +56,8 @@ class Character extends Entity implements ICustomEntity
     //The reason why we care about the distance between the mouse position and the top-left corner of the image
     //is because when we do dragging, the distance between the mouse position and top-left corner of the image
     //should remain the same throughout the drag
-    public var _distanceFromTopLeftCornerOfImageX:Null<Float>;
-    public var _distanceFromTopLeftCornerOfImageY:Null<Float>;
+    public var _distanceFromTopLeftCornerOfImageX:Null<Float> = null;
+    public var _distanceFromTopLeftCornerOfImageY:Null<Float> = null;
 
     //Set to true when our image is being dragged and set to false when our image is not being dragged
     public var _isBeingDragged:Bool;
@@ -72,7 +72,9 @@ class Character extends Entity implements ICustomEntity
     //The current weapon that this Character is using
     //Points to a template instance of a projectile inside the AssetManager
     public var _currentWeapon:Projectile;
-	
+
+	private var _collisionFilter:Null < Map < String, List<String> >> = null;
+
     /**
      * Initializes a Character, which is essentially a sprite, but I can't call name it Sprite because Sprite is already a built-in class
      * Parameters with the question mark in front means it is optional
@@ -89,7 +91,6 @@ class Character extends Entity implements ICustomEntity
 		_imageContainer = new Sprite();
 		_assetManager = assetManager;
 		_kernel = p_kernel;
-		//If we decided NOT to pass in one of the initial coordinates, we'll use a default of 0 for that coordinate
 		if (xCoordinate != null)
 		{
 			_xCoordinate = xCoordinate;
@@ -104,6 +105,9 @@ class Character extends Entity implements ICustomEntity
 			_attribute = new Map<String, Dynamic>();
 		}
 
+		_imageContainer.x = Math.round(_xCoordinate);
+		_imageContainer.y = Math.round(_yCoordinate);
+
 		//These lines "create the image" based on _characterImageData (the information about the image)
 		//then adds this created image into our image container
 		if (_attribute.exists("fileName") && _attribute.exists("fileDirectory")) {
@@ -113,7 +117,11 @@ class Character extends Entity implements ICustomEntity
 		}
 
 		//TODO: Handle missing character image data.
-		_draggable = true;
+		
+		if(_attribute.exists('draggable') && _attribute.get('draggable')) {
+			_draggable = true;
+		}
+
 		_isBeingDragged = false;
 		
 		//We initially set the _layer to null because at this point this Character hasn't been added to the screen yet
@@ -123,24 +131,6 @@ class Character extends Entity implements ICustomEntity
 		super( p_kernel, _imageContainer );
 	}
 	
-	/**
-	 * More initialization
-	 */
-	override private function _init():Void 
-	{
-		super._init();
-		// extend here
-		
-		//Sets the position of the image container to the initialized coordinates
-		_imageContainer.x = _xCoordinate;
-		_imageContainer.y = _yCoordinate;
-		
-		//Setting these to null because we don't care about these at this point
-		//We will start caring about these when dragging happens
-		_distanceFromTopLeftCornerOfImageX = null;
-		_distanceFromTopLeftCornerOfImageY = null;
-	}
-
 	/** Calls xmlLoader and creates a template for every variation inside the file and stores it in the AssetManager */
 	public function preloader(xmlName:String, xmlDirectory:String):Void {
 			//Loading the XML file and then retrieve the information we want from it
@@ -208,83 +198,83 @@ class Character extends Entity implements ICustomEntity
 	}
 
 	//Has not been fully implemented yet
-	public function checkCollision(?types:Map<String, List<String>>):List<Character>
+	public function getCollision(?types:Map<String, List<String>>):List<Character>
 	{
 		var collisions:List<Character> = new List<Character>();
 		
 		//TODO: A change in how all items are stored in AssetManager means that filtering should be done before hand.
 		//This is because after thinking about it, I believe it is more efficient to filter before hand rather than to check everything.
 		for (type in _assetManager.allCharacters.keys()) {
-			var _typeMap = _assetManager.allCharacters.get(type);
-			for (variation in _typeMap.keys()) {
-				for (testCharacter in _typeMap.get(variation).iterator()) {
-					if (testCharacter != this)
-					{
-						if (_characterImage.hitTestObject(testCharacter._characterImage))
-						{
-							//var coordinatesOfCurrentCharacterImage = new Point(_xCoordinate, _yCoordinate);
-							//var coordinatesOfTestCharacterImage = new Point(testCharacter._xCoordinate, testCharacter._yCoordinate);
-							
-							var currentCharacterImageBoundingRect:Rectangle = _characterImage.getBounds(Lib.current);
-							var testCharacterImageBoundingRect:Rectangle = testCharacter._characterImage.getBounds(Lib.current);
-							var boundingRectIntersection:Rectangle = currentCharacterImageBoundingRect.intersection(testCharacterImageBoundingRect);
-							
-							//trace("boundingRectIntersection is " + boundingRectIntersection.isEmpty());
-							
-							if (!boundingRectIntersection.isEmpty())
-							{
-								var testArea:BitmapData = new BitmapData(cast(boundingRectIntersection.width, Int), cast(boundingRectIntersection.height, Int), false);
-								
-								var testMatrix:Matrix = _characterImage.transform.concatenatedMatrix;
-								testMatrix.tx -= boundingRectIntersection.x;
-								testMatrix.ty -= boundingRectIntersection.y;
-								
-								//var colorTransform:ColorTransform = new ColorTransform();
-								//colorTransform.color = cast(4294967041, UInt);
-								//testArea.draw(_characterImage, testMatrix, colorTransform);
-								//trace(colorTransform.color);
-								
-								//orig
-								//testArea.draw(_characterImage, testMatrix, new ColorTransform(1, 1, 1, 1, 255, -255, -255, 255));
-								
-								//test
-								testArea.draw(_characterImage, testMatrix, new ColorTransform(0, 0, 0, 0, 255, 0, 0, 255));
-								//var test:ColorTransform = new ColorTransform(0, 0, 0, 0, 255, -255, -255, 255);
-								//trace("first one is " + test.color);
-								
-								testMatrix = testCharacter._characterImage.transform.concatenatedMatrix;
-								testMatrix.tx -= boundingRectIntersection.x;
-								testMatrix.ty -= boundingRectIntersection.y;
-								
-								//orig
-								//testArea.draw(testCharacter._characterImage, testMatrix, new ColorTransform(1, 1, 1, 1, 255, 255, 255, 255), BlendMode.DIFFERENCE);
-								
-								//test
-								testArea.draw(testCharacter._characterImage, testMatrix, new ColorTransform(0, 0, 0, 0, 255, 255, 255, 255), BlendMode.DIFFERENCE);
-								//test = new ColorTransform(0, 0, 0, 0, 255, 255, 255, 255);
-								//trace("second one is " + test.color);
-								//orig
-								//var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
-								
-								//test
-								var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
-								//var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
-								trace("possibleCollision width is " + possibleCollision.width);
-								if (possibleCollision.width != 0)
-								{
-									trace(testCharacter._attribute.get('type'));
-									trace("here");
-									collisions.add(testCharacter);
+			if ((types == null) || (types.exists(type))) {
+				var _typeMap: Map<String, List<Character>> = _assetManager.allCharacters.get(type);
+				var _filterVariation:List<String> = new List<String>();
+				if (types != null) {
+					_filterVariation = types.get(type);
+				}
+				for (variation in _typeMap.keys()) {
+					if ((types == null) || Lambda.has(_filterVariation, 'all') || Lambda.has(_filterVariation, variation)) {
+						for (testCharacter in _typeMap.get(variation)) {
+							if (testCharacter != this) {
+								if (_characterImage.hitTestObject(testCharacter._characterImage)) {
+									var currentCharacterImageBoundingRect:Rectangle = _characterImage.getBounds(Lib.current);
+									var testCharacterImageBoundingRect:Rectangle = testCharacter._characterImage.getBounds(Lib.current);
+									var boundingRectIntersection:Rectangle = currentCharacterImageBoundingRect.intersection(testCharacterImageBoundingRect);					
+									if (!boundingRectIntersection.isEmpty())
+									{
+										var testArea:BitmapData = new BitmapData(cast(boundingRectIntersection.width, Int), cast(boundingRectIntersection.height, Int), false);
+										
+										var testMatrix:Matrix = _characterImage.transform.concatenatedMatrix;
+										testMatrix.tx -= boundingRectIntersection.x;
+										testMatrix.ty -= boundingRectIntersection.y;
+										
+										//var colorTransform:ColorTransform = new ColorTransform();
+										//colorTransform.color = cast(4294967041, UInt);
+										//testArea.draw(_characterImage, testMatrix, colorTransform);
+										//trace(colorTransform.color);
+										
+										//orig
+										//testArea.draw(_characterImage, testMatrix, new ColorTransform(1, 1, 1, 1, 255, -255, -255, 255));
+										
+										//test
+										testArea.draw(_characterImage, testMatrix, new ColorTransform(0, 0, 0, 0, 255, 0, 0, 255));
+										//var test:ColorTransform = new ColorTransform(0, 0, 0, 0, 255, -255, -255, 255);
+										//trace("first one is " + test.color);
+										
+										testMatrix = testCharacter._characterImage.transform.concatenatedMatrix;
+										testMatrix.tx -= boundingRectIntersection.x;
+										testMatrix.ty -= boundingRectIntersection.y;
+										
+										//orig
+										//testArea.draw(testCharacter._characterImage, testMatrix, new ColorTransform(1, 1, 1, 1, 255, 255, 255, 255), BlendMode.DIFFERENCE);
+										
+										//test
+										testArea.draw(testCharacter._characterImage, testMatrix, new ColorTransform(0, 0, 0, 0, 255, 255, 255, 255), BlendMode.DIFFERENCE);
+										//test = new ColorTransform(0, 0, 0, 0, 255, 255, 255, 255);
+										//trace("second one is " + test.color);
+										//orig
+										//var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
+										
+										//test
+										var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
+										//var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
+										trace("possibleCollision width is " + possibleCollision.width);
+										if (possibleCollision.width != 0)
+										{
+											trace(testCharacter._attribute.get('type'));
+											trace("here");
+											collisions.add(testCharacter);
+										}
+									}
+									
+									//trace(boundingRectIntersection);
+									
+									/*if (_characterImageData.hitTest(coordinatesOfCurrentCharacterImage, 255, testCharacter._characterImage, coordinatesOfTestCharacterImage, 255))
+									{
+										trace(testCharacter._type);
+										collisions.add(testCharacter);
+									}*/
 								}
 							}
-							
-							//trace(boundingRectIntersection);
-							
-							/*if (_characterImageData.hitTest(coordinatesOfCurrentCharacterImage, 255, testCharacter._characterImage, coordinatesOfTestCharacterImage, 255))
-							{
-								trace(testCharacter._type);
-								collisions.add(testCharacter);
-							}*/
 						}
 					}
 				}
@@ -330,15 +320,22 @@ class Character extends Entity implements ICustomEntity
 		//TODO
 	}
 	
-	/** Puts DAMAGEAMOUNT onto stack, amount varies based on the multiplier/additive values in AssetManager for SOURCE */
+	/** 
+	 * Puts DAMAGEAMOUNT onto stack, amount varies based on the multiplier/additive values in AssetManager for SOURCE.
+	 * @upgrades
+	 * 'immune' Take no damage from the source, return immediatly.
+	 * @modifiers
+	 * 'damage' *= or += damage in AssetManager.multipliers and AssetManager.additive
+	 * @attribute
+	 * 'resistance' Resistance to a certain types of enemies, /=
+	 * */
     public function addDamage(damageAmount:Float, source:Character):Void
     {
-        var damage:Float = source._attribute.get('damage'); //Apply modifiers
+        var damage:Float = source._attribute.get('damage');
 		var sourceAttribute:String = source._attribute.get('type');
 		if (_assetManager.modifiers.exists('immune') && _assetManager.modifiers.get('immune').exists(this._attribute.get('type')) && _assetManager.modifiers.get('immune').get(this._attribute.get('type')).get(sourceAttribute)) {
 			return;
 		}
-		//TODO: Allow resistances to be defined in _attribute if necessary (Resistance to certain sources requires check to be done here)
 		if (_assetManager.multipliers.exists('damage')) {
 			var innerMap:Map < String, Float > = _assetManager.multipliers.get('damage');
 			if (innerMap.exists(sourceAttribute)) {
@@ -357,12 +354,14 @@ class Character extends Entity implements ICustomEntity
 				damage += innerMap.get('global');
 			}
 		}
+		if (_attribute.exists('resistance') && Lambda.has(_attribute.get('resistance').keys(), source._attribute.get('type'))) {
+			damage /= _attribute.get('resistance').get(source._attribute.get('type'));
+		}
         this._unresolvedDamage += damage;
     }
 
 	/** Resolves damage on the stack */
-	//TODO: Allow resistances to be defined in _attribute if necessary.
-    public function updateHealth():Void {
+    private function _updateHealth():Void {
         var damage:Float = this._unresolvedDamage;
 		if (_assetManager.multipliers.exists('resistance')) {
 			var innerMap:Map < String, Float > = _assetManager.multipliers.get('resistance');
@@ -390,29 +389,31 @@ class Character extends Entity implements ICustomEntity
 
     /** Checks if this object should fire, and if so, does. */
 	//TODO: Incomplete
-    public function shouldFire():Void {
+    public function shouldFire():Bool {
         var shouldFire:Bool;
 		if (this._attribute.get('type') != 'player') {
-			//Evaluate arbitrary Haxe Boolean Code
+			//TODO Evaluate arbitrary Haxe Boolean Code
 		} else {
-			//See if fire button is clicked;
+			//TODO See if fire button is clicked;
 		}
-        if (shouldFire) {
-			var weapon: Character;
-			var copy: Projectile;
-            if (this._attribute.get('type') == 'player') {
-                weapon = _currentWeapon;
-                copy = cast(weapon.getCopy(), Projectile); //Create instance from template
-                //Set X/Y coords, speed, etc on weapon by modifying copy._attribute
-			} else if (this._attribute.exists('weaponType') && this._attribute.exists('weaponVariation')) {
-				weapon = _assetManager.entityTemplates.get(this._attribute.get('weaponType')).get(this._attribute.get('weaponVariation'));
-				copy = cast(weapon.getCopy(), Projectile);
-			} else {
-				//Undefined, throw an error, OR use a default type.
-			}
-			//Set X/Y coords, speed, etc on weapon by modifying copy._attribute
-		}
+		return false;
     }
+
+	private function _fireFunction():Void {
+		var weapon: Character;
+		var copy: Projectile;
+        if (this._attribute.get('type') == 'player') {
+            weapon = _currentWeapon;
+            copy = cast(weapon.getCopy(), Projectile); //Create instance from template
+            //TODO Set X/Y coords, speed, etc on weapon by modifying copy._attribute
+		} else if (this._attribute.exists('weaponType') && this._attribute.exists('weaponVariation')) {
+			weapon = _assetManager.entityTemplates.get(this._attribute.get('weaponType')).get(this._attribute.get('weaponVariation'));
+			copy = cast(weapon.getCopy(), Projectile);
+		} else {
+			//Undefined, throw an error, OR use a default type.
+		}
+		//TODO Set X/Y coords, speed, etc on weapon by modifying copy._attribute
+	}
 
 	/** Attempts to convert the value associated with KEY in _attribute to a Float if it exists. */
 	private function attributeToFloat(key:String):Void
@@ -457,15 +458,46 @@ class Character extends Entity implements ICustomEntity
 		}
 		return out;
 	}
-	
+
+	/** 
+	 * Defining this variable as a function allows child classes to overwrite this.
+	 * This is passed into getCollusion() by _updated
+	 * This should be overriden by child classes.
+	 */
+	private function _generateCollisionFilter(): Void {
+		_collisionFilter = new Map < String, List<String> > (); //Return an empty list, let the other types deal with it.
+	}
+
+	/**
+	 * This method takes care of movement update logic.
+	 */
+	private function _moveFunction(p_deltaTime:Int = 0): Void {
+		//TODO
+		
+	}
+
+	private function _onCollision(with :List<Character>):Void {
+		return; //Don't do anything, let the other function deal with it.
+	}
+
 	/**
 	 * Updates the properties of our character (ie. position, whether it's being dragged, etc.) while our game is still open
 	 */
 	override private function _updater( p_deltaTime:Int = 0 ):Void 
 	{
+		_moveFunction(p_deltaTime);
+		if (_collisionFilter == null) {
+			_generateCollisionFilter();
+		}
+		_onCollision(getCollision(_collisionFilter));
+		_updateHealth();
+		if (shouldFire()) {
+			_fireFunction();
+		}
 		super._updater( p_deltaTime );
+
 		// extend here
-		
+		/*
 		//Moving our Character according to the current speed that's stored
 		_imageContainer.x += _attribute.get('speedx');
 		_imageContainer.y += _attribute.get('speedy');
@@ -476,7 +508,7 @@ class Character extends Entity implements ICustomEntity
 
 		//The following if/else statments control the dragging
 		
-		//TODO: This should be moved out of the Character class, we should not be checking on every instance of a character!
+		//TODO: We should not be checking on every instance of a character! Potentially move to Game or AScene
 		if (_draggable && _kernel.inputs.mouse.getIsButtonDown() && ((_characterThatIsBeingDraggedRightNow == null) || (_characterThatIsBeingDraggedRightNow == this)))
 		{
 			if (!_isBeingDragged && (_characterImageData.getPixel32(_kernel.inputs.mouse.getButtonLastClickedX() - Math.round(_xCoordinate), _kernel.inputs.mouse.getButtonLastClickedY() - Math.round(_yCoordinate)) != 0))
@@ -534,14 +566,14 @@ class Character extends Entity implements ICustomEntity
 				_characterThatIsBeingDraggedRightNow = null;
 			}
 		}
+		*/
 	}
 
 	/**
 	 * Disposes (removes) our Character
 	 * Currently, this has not been tested yet
 	 */
-	override private function _disposer():Void 
-	{
+	override private function _disposer():Void {
 		// TODO: Implement game over for player here.
 		_assetManager.allCharacters.get(_attribute.get('type')).get(_attribute.get('id')).remove(this);
 		removeEntity(this, true);
@@ -551,8 +583,7 @@ class Character extends Entity implements ICustomEntity
 	/**
 	 * Calls the private _disposer() method (which I don't think I can make public because it overrides a private method)
 	 */
-	public function disposeCharacter():Void
-	{
+	public function disposeCharacter():Void	{
 		_disposer();
 	}
 	

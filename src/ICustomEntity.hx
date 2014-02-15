@@ -5,7 +5,7 @@ import awe6.core.Entity;
 import awe6.interfaces.IKernel;
 
 /**
- * All Entity classes should implement this!
+ * All Entity classes should now extend Character.
  * @author UC Berkeley
  */
 interface ICustomEntity

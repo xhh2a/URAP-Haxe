@@ -35,9 +35,9 @@ class NPC extends Character
 	override private function _updater( p_deltaTime:Int = 0 ):Void 
 	{
 		super._updater( p_deltaTime ); //Movement Code in parent.
-		// extend here
+		//TODO: Some way of not deleting the template version.
 		if (!onScreen() || (this._attribute['health'] <= 0)) {
-			this._disposer(); //Kill me
+			this._disposer();
 		}
 		if (this.shouldFire()) {
 			this.fire();
