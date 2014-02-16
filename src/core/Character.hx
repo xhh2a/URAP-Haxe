@@ -74,6 +74,10 @@ class Character extends Entity implements ICustomEntity
     public var _currentWeapon:Projectile;
 
 	private var _collisionFilter:Null < Map < String, List<String> >> = null;
+	
+	//TODO: put a bool field here to indicate whether this is a template or not
+	//preloader should set that field to true, whereas when you create an instance from a template, you set that bool to false
+	//when you do getCopy
 
     /**
      * Initializes a Character, which is essentially a sprite, but I can't call name it Sprite because Sprite is already a built-in class
@@ -296,7 +300,7 @@ class Character extends Entity implements ICustomEntity
 		if (char == null) {
 			copiedCharacter = new Character(_kernel, _assetManager);
 		} else {
-			copiedCharacter = cast(char, Character);
+			copiedCharacter = cast(char, Character); //for stuff that extends Character
 		}
 		if (attribute == null) {
 			copiedCharacter._attribute = this.getStringAttributeMap();
@@ -320,6 +324,7 @@ class Character extends Entity implements ICustomEntity
 		return copiedCharacter;
 	}
 
+	//parses Strings in an attribute map
 	public function updateAttributes():Void {
 		//TODO
 	}
@@ -393,10 +398,12 @@ class Character extends Entity implements ICustomEntity
 
     /** Checks if this object should fire, and if so, does. */
 	//TODO: Incomplete
-    public function shouldFire():Bool {
+    public function shouldFire(p_deltaTime:Int=0):Bool {
         var shouldFire:Bool;
 		if (this._attribute.get('type') != 'player') {
 			//TODO Evaluate arbitrary Haxe Boolean Code
+			
+			//For default, just fire every X seconds
 		} else {
 			//TODO See if fire button is clicked;
 		}
@@ -457,7 +464,7 @@ class Character extends Entity implements ICustomEntity
 		var out:Map<String, Dynamic> = new Map<String, Dynamic>();
 		for (akey in this._attribute.keys()) {
 			var copyKey:String = new String(akey);
-			var copyValue:String = Std.string(this._attribute[akey]);
+			var copyValue:String = Std.string(this._attribute.get(akey));
 			out.set(copyKey, copyValue);
 		}
 		return out;
@@ -480,6 +487,7 @@ class Character extends Entity implements ICustomEntity
 		
 	}
 
+	//going to get overrided by things that extend Character
 	private function _onCollision(with :List<Character>):Void {
 		return; //Don't do anything, let the other function deal with it.
 	}
@@ -495,7 +503,7 @@ class Character extends Entity implements ICustomEntity
 		}
 		_onCollision(getCollision(_collisionFilter));
 		_updateHealth();
-		if (shouldFire()) {
+		if (shouldFire(p_deltaTime)) {
 			_fireFunction();
 		}
 		super._updater( p_deltaTime );

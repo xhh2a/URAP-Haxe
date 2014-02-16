@@ -6,6 +6,10 @@
 				<id>Regular Circle</id>
 				<fileDirectory>assets.sprites</fileDirectory>
 				<fileName>circle.png</fileName>
+				<movementX></movementX>
+				<movementY></movementY>
+				<speedX>0</speedX>
+				<speedY>0</speedY>
 			</variation>
 		</variations>
 	</entity>
