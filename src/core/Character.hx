@@ -23,10 +23,10 @@ import Globals;
  * 'id' The variation of this instance. Note an actual character (not subclass) has variations for difficulty.
  * 'fileName' The fileName to look for the image.
  * 'fileDirectory' The directory to look under for the image.
- * 'movementx' Arbitrary Haxe Code to evaluate for movement, x
- * 'movementy' Arbitrary Haxe Code to evaluate for movement, y
- * 'speedx' Speed multiplier, x movement
- * 'speedy' Speed multiplier, y movement
+ * 'movementX' Arbitrary Haxe Code to evaluate for movement, x
+ * 'movementY' Arbitrary Haxe Code to evaluate for movement, y
+ * 'speedX' Speed multiplier, x movement
+ * 'speedY' Speed multiplier, y movement
  * 'weaponType' Weapon (Projectile) Type for the character to use
  * 'weaponVariation' Weapon (Projectile) Variation for the character to use.
  */
@@ -78,6 +78,8 @@ class Character extends Entity implements ICustomEntity
 	//TODO: put a bool field here to indicate whether this is a template or not
 	//preloader should set that field to true, whereas when you create an instance from a template, you set that bool to false
 	//when you do getCopy
+	//Status: Just added
+	public var _isTemplate:Bool;
 
     /**
      * Initializes a Character, which is essentially a sprite, but I can't call name it Sprite because Sprite is already a built-in class
@@ -105,8 +107,10 @@ class Character extends Entity implements ICustomEntity
 		}
 		if (attribute != null) {
 			_attribute = attribute;
+			_isTemplate = false;
 		} else {
 			_attribute = new Map<String, Dynamic>();
+			_isTemplate = true;
 		}
 
 		_imageContainer.x = Math.round(_xCoordinate);
@@ -121,6 +125,11 @@ class Character extends Entity implements ICustomEntity
 		}
 
 		//TODO: Handle missing character image data.
+		//Status: Just added below
+		else if (!_isTemplate)
+		{
+			trace("Missing image data for Character");
+		}
 		
 		if(_attribute.exists('draggable') && _attribute.get('draggable')) {
 			_draggable = true;
@@ -484,7 +493,15 @@ class Character extends Entity implements ICustomEntity
 	 */
 	private function _moveFunction(p_deltaTime:Int = 0): Void {
 		//TODO
-		
+		if ((!_attribute.exists("movementX")) && (!_attribute.exists("movementY")))
+		{
+			//default stuff goes here
+			//maybe add a check to see if this Character is controlled by the player?
+		}
+		else
+		{
+			//add stuff to parse the movement code from attribute here
+		}
 	}
 
 	//going to get overrided by things that extend Character
@@ -511,8 +528,8 @@ class Character extends Entity implements ICustomEntity
 		// extend here
 		/*
 		//Moving our Character according to the current speed that's stored
-		_imageContainer.x += _attribute.get('speedx');
-		_imageContainer.y += _attribute.get('speedy');
+		_imageContainer.x += _attribute.get('speedX');
+		_imageContainer.y += _attribute.get('speedY');
 
 		//Setting x-coordinates and y-coordinates (yes, this is apparently necessary)
 		_xCoordinate = cast(_imageContainer.x, Int);
@@ -583,7 +600,6 @@ class Character extends Entity implements ICustomEntity
 
 	/**
 	 * Disposes (removes) our Character
-	 * Currently, this has not been tested yet
 	 */
 	override private function _disposer():Void {
 		// TODO: Implement game over for player here.

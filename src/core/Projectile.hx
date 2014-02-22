@@ -75,7 +75,7 @@ class Projectile extends Character {
 		return;
 	}
 
-	override public function shouldFire():Bool {
+	override public function shouldFire(p_deltaTime:Int=0):Bool {
 		return false;
 	}
 

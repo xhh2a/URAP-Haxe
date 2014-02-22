@@ -8,8 +8,8 @@
 				<fileName>circle.png</fileName>
 				<movementX></movementX>
 				<movementY></movementY>
-				<speedX>0</speedX>
-				<speedY>0</speedY>
+				<speedX>1</speedX>
+				<speedY>1</speedY>
 			</variation>
 		</variations>
 	</entity>

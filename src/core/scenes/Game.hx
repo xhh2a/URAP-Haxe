@@ -6,13 +6,17 @@ package core.scenes;
  */
 
 import core.Character; 
+import core.PlayerControl;
 import core.Projectile;
 import core.RectCollider;
+import awe6.interfaces.EKey;
  
 class Game extends AScene 
 {
 	var _goku:Character;
 	var _circle:Character;
+	
+	var _playerControl:PlayerControl;
 	
 	var rectColliderTest:RectCollider;
 	
@@ -23,13 +27,19 @@ class Game extends AScene
 		// extend / addentities
 		_title.text = "GAME";
 		
-		var _temp = new Character(_kernel, _assetManager, 10, 10);
-		_temp.preloader("assets/data", "Goku.xml");
-		_goku = cast(_assetManager.entityTemplates.get('Goku').get('Adult Goku').getCopy(), Character);
-		_circle = new Character(_kernel, _assetManager, 100, 102);
 		
+
+		//_circle = new Character(_kernel, _assetManager, 100, 102);
+		
+		var _temp = new Character(_kernel, _assetManager, 10, 10);
+		_temp.preloader("assets.data", "Goku.xml");
+		_goku = cast(_assetManager.entityTemplates.get('Goku').get('Adult Goku').getCopy(), Character);
+		trace("Works");
 		_goku.addCharacterToScene(this, 1);
-		_circle.addCharacterToScene(this, 4);
+		trace(_assetManager.allCharacters);
+		//_circle.addCharacterToScene(this, 4);
+		
+		_playerControl = new PlayerControl(_kernel, _goku);
 		
 		rectColliderTest = new RectCollider(_kernel, _goku, 100, 200, 50, 50);
 		
@@ -42,8 +52,7 @@ class Game extends AScene
 	override private function _updater(p_deltaTime:Int = 0):Void 
 	{
 		super._updater(p_deltaTime);
-		//_goku.checkCollision();
-		//trace(_goku.checkCollision());
+		_playerControl._updater(p_deltaTime);
 	}
 
 }
