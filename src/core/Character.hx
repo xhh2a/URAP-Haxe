@@ -79,21 +79,21 @@ class Character extends Entity implements ICustomEntity
 	//preloader should set that field to true, whereas when you create an instance from a template, you set that bool to false
 	//when you do getCopy
 	//Status: Just added
-	public var _isTemplate:Bool;
+	public var _isTemplate:Bool = False;
 
     /**
      * Initializes a Character, which is essentially a sprite, but I can't call name it Sprite because Sprite is already a built-in class
      * Parameters with the question mark in front means it is optional
      * NOTE: For the fileDirectory and fileName, these should be for the XML file, not the image!
      * The image directory and name info should be included in the XML file
-     * @param   p_kernel    The kernel of game (usually, passed in as _kernel)
+     * @param   p_kernel        The kernel of game (usually, passed in as _kernel)
      * @param   assetManager    The AssetManager (usually, passed in as _assetManager)
      * @param   ?xCoordinate    The x coordinate for the image to start out at
      * @param   ?yCoordinate    The y coordinate for the image to start out at
 	 * @param   ?attribute      An attribute map to pass in (optional)
+	 * @param   ?isTemplate     If this is a template
      */
-	public function new( p_kernel:IKernel, assetManager:AssetManager, ?xCoordinate:Float, ?yCoordinate:Float, ?attribute:Map<String, Dynamic> ) 
-	{
+	public function new( p_kernel:IKernel, assetManager:AssetManager, ?xCoordinate:Float, ?yCoordinate:Float, ?attribute:Map<String, Dynamic>, ?isTemplate:Bool ) {
 		_imageContainer = new Sprite();
 		_assetManager = assetManager;
 		_kernel = p_kernel;
@@ -107,10 +107,11 @@ class Character extends Entity implements ICustomEntity
 		}
 		if (attribute != null) {
 			_attribute = attribute;
-			_isTemplate = false;
 		} else {
 			_attribute = new Map<String, Dynamic>();
-			_isTemplate = true;
+		}
+		if (isTemplate != null) {
+			_isTemplate = isTemplate;
 		}
 
 		_imageContainer.x = Math.round(_xCoordinate);
@@ -143,27 +144,27 @@ class Character extends Entity implements ICustomEntity
 	
 		super( p_kernel, _imageContainer );
 	}
-	
+
 	/** Calls xmlLoader and creates a template for every variation inside the file and stores it in the AssetManager */
 	public function preloader(xmlDirectory:String, xmlName:String):Void {
-			//Loading the XML file and then retrieve the information we want from it
-			var _loadedXmlInfo:Map < String, Map < String, Map < String, Dynamic >>> = XmlLoader.loadFile(xmlDirectory, xmlName, _assetManager);
-			trace("Loaded");
-			trace(_loadedXmlInfo.toString());
-			for (type in _loadedXmlInfo.keys()) {
-				if (!_assetManager.entityTemplates.exists(type)) {
-						_assetManager.entityTemplates.set(type, new Map<String, Character>());
-					}
-				var _storageTypeMap:Map<String, Character> = _assetManager.entityTemplates.get(type);
-				var _typeMap = _loadedXmlInfo.get(type);
-				for (variation in _typeMap.keys()) {
-					if (!_storageTypeMap.exists(variation)) {
-						_storageTypeMap.set(variation, new Character(_kernel, _assetManager, null, null, _typeMap.get(variation)));
-					} //Else ignore, potentially print an error message.
+		//Loading the XML file and then retrieve the information we want from it
+		var _loadedXmlInfo:Map < String, Map < String, Map < String, Dynamic >>> = XmlLoader.loadFile(xmlDirectory, xmlName, _assetManager);
+		trace("Loaded");
+		trace(_loadedXmlInfo.toString());
+		for (type in _loadedXmlInfo.keys()) {
+			if (!_assetManager.entityTemplates.exists(type)) {
+					_assetManager.entityTemplates.set(type, new Map<String, Character>());
 				}
+			var _storageTypeMap:Map<String, Character> = _assetManager.entityTemplates.get(type);
+			var _typeMap = _loadedXmlInfo.get(type);
+			for (variation in _typeMap.keys()) {
+				if (!_storageTypeMap.exists(variation)) {
+					_storageTypeMap.set(variation, new Character(_kernel, _assetManager, null, null, _typeMap.get(variation)));
+				} //Else ignore, potentially print an error message.
 			}
-			trace(_assetManager.entityTemplates.toString());
-			trace(_assetManager.entityTemplates.get('Goku').get('Adult Goku')._attribute.toString());
+		}
+		trace(_assetManager.entityTemplates.toString());
+		trace(_assetManager.entityTemplates.get('Goku').get('Adult Goku')._attribute.toString());
 	}
 
     /**
@@ -176,28 +177,6 @@ class Character extends Entity implements ICustomEntity
 	{
 		if (layer != null)
 		{
-			//Is this really necessary? Why not just let them overlap somehow?
-			/*
-			//In the next for-loop, after looping through all our present Characters and finding that one of them
-			//has a _frontness value that is equal to the frontness that we want to assign to THIS Character when we add it,
-			//we will bump up that Character's frontness by 1
-			//and then change this needToDoShiftUp boolean to true to indicate that we should do the same for the Characters
-			//with the higher frontness values
-			var needToDoShiftUp:Bool = false;
-			
-			for (aCharacter in _iterableCharacterList)
-			{
-				if (needToDoShiftUp)
-				{
-					aCharacter._frontness++;
-				}
-				if (aCharacter._frontness == frontness)
-				{
-					aCharacter._frontness++;
-					needToDoShiftUp = true;
-				}
-			}
-			*/
 			_layer = layer;
 			if (_layer >= Globals.nextLayer) {
 				Globals.nextLayer = _layer + 1;
@@ -307,7 +286,7 @@ class Character extends Entity implements ICustomEntity
 	{
 		var copiedCharacter:Character;
 		if (char == null) {
-			copiedCharacter = new Character(_kernel, _assetManager);
+			copiedCharacter = new Character(_kernel, _assetManager, isTemplate = false);
 		} else {
 			copiedCharacter = cast(char, Character); //for stuff that extends Character
 		}
@@ -501,6 +480,18 @@ class Character extends Entity implements ICustomEntity
 		else
 		{
 			//add stuff to parse the movement code from attribute here
+			var func_x: String, func_y: String;
+			var pos_x: Int, pos_y: Int;
+			if (_attribute.exists('movementX')) {
+				func_x = _attribute.get("movementX");
+				func_x = func_x.split("$1").join(Std.string(p_deltaTime));
+				pos_x = Context.parse(func_x, Context.currentPos());
+			}
+			if (_attribute.exists('movementY')) {
+				func_y = _attribute.get("movementY");
+				func_y = func_y.split("$1").join(Std.string(p_deltaTime));
+				pos_y = Context.parse(func_y, Context.currentPos());
+			}
 		}
 	}
 
