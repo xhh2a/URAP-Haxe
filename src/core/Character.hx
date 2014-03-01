@@ -12,6 +12,7 @@ import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.Lib;
 import flash.display.DisplayObject;
+import haxe.macro.Context;
 
 import ICustomEntity;
 import XmlLoader;
@@ -79,7 +80,7 @@ class Character extends Entity implements ICustomEntity
 	//preloader should set that field to true, whereas when you create an instance from a template, you set that bool to false
 	//when you do getCopy
 	//Status: Just added
-	public var _isTemplate:Bool = False;
+	public var _isTemplate:Bool = false;
 
     /**
      * Initializes a Character, which is essentially a sprite, but I can't call name it Sprite because Sprite is already a built-in class
@@ -93,7 +94,7 @@ class Character extends Entity implements ICustomEntity
 	 * @param   ?attribute      An attribute map to pass in (optional)
 	 * @param   ?isTemplate     If this is a template
      */
-	public function new( p_kernel:IKernel, assetManager:AssetManager, ?xCoordinate:Float, ?yCoordinate:Float, ?attribute:Map<String, Dynamic>, ?isTemplate:Bool ) {
+	public function new( p_kernel:IKernel, assetManager:AssetManager, ?isTemplate:Bool, ?xCoordinate:Float, ?yCoordinate:Float, ?attribute:Map<String, Dynamic> ) {
 		_imageContainer = new Sprite();
 		_assetManager = assetManager;
 		_kernel = p_kernel;
@@ -286,7 +287,8 @@ class Character extends Entity implements ICustomEntity
 	{
 		var copiedCharacter:Character;
 		if (char == null) {
-			copiedCharacter = new Character(_kernel, _assetManager, isTemplate = false);
+			//copiedCharacter = new Character(_kernel, _assetManager, isTemplate = false); WRONG
+			copiedCharacter = new Character(_kernel, _assetManager, false);
 		} else {
 			copiedCharacter = cast(char, Character); //for stuff that extends Character
 		}
@@ -485,12 +487,12 @@ class Character extends Entity implements ICustomEntity
 			if (_attribute.exists('movementX')) {
 				func_x = _attribute.get("movementX");
 				func_x = func_x.split("$1").join(Std.string(p_deltaTime));
-				pos_x = Context.parse(func_x, Context.currentPos());
+				pos_x = Context.parse(func_x, Context.currentPos()); //this doesn't work despite the import
 			}
 			if (_attribute.exists('movementY')) {
 				func_y = _attribute.get("movementY");
 				func_y = func_y.split("$1").join(Std.string(p_deltaTime));
-				pos_y = Context.parse(func_y, Context.currentPos());
+				pos_y = Context.parse(func_y, Context.currentPos()); //this doesn't work despite the import
 			}
 		}
 	}

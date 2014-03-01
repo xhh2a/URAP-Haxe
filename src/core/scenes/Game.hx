@@ -31,7 +31,7 @@ class Game extends AScene
 
 		//_circle = new Character(_kernel, _assetManager, 100, 102);
 		
-		var _temp = new Character(_kernel, _assetManager, 10, 10);
+		var _temp = new Character(_kernel, _assetManager, true, 10, 10);
 		_temp.preloader("assets.data", "Goku.xml");
 		_goku = cast(_assetManager.entityTemplates.get('Goku').get('Adult Goku').getCopy(), Character);
 		trace("Works");

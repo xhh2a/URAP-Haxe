@@ -22,7 +22,7 @@ class Projectile extends Character {
 		if (p_kernel == null || assetManager == null) {
 			throw "Invalid Argument Exception at Projectile.new";
 		}
-		super (p_kernel, assetManager, xCoordinate, yCoordinate, attribute, isTemplate);
+		super (p_kernel, assetManager, isTemplate, xCoordinate, yCoordinate, attribute);
 	}
 
 	override private function _generateCollisionFilter(): Void {
@@ -46,7 +46,8 @@ class Projectile extends Character {
 	override public function getCopy(?attribute:Map<String, Dynamic>, ?char:ICustomEntity):ICustomEntity {
 		var copiedProjectile:Projectile;
 		if (char == null) {
-			copiedProjectile = new core.Projectile(_kernel, _assetManager, isTemplate = false);
+			//copiedProjectile = new core.Projectile(_kernel, _assetManager, isTemplate = false); WRONG
+			copiedProjectile = new core.Projectile(_kernel, _assetManager, false);
 		} else {
 			copiedProjectile = cast(char, Projectile);
 		}
