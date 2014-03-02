@@ -17,8 +17,8 @@ import awe6.core.Context;
  */
 class Projectile extends Character {
 
-	public function new (p_kernel:IKernel, assetManager:AssetManager,
-						 ?xCoordinate:Float, ?yCoordinate:Float, ?attribute:Map<String, Dynamic>, ?isTemplate:Bool) {
+	public function new (p_kernel:IKernel, assetManager:AssetManager, ?isTemplate:Bool,
+						 ?xCoordinate:Float, ?yCoordinate:Float, ?attribute:Map<String, Dynamic>) {
 		if (p_kernel == null || assetManager == null) {
 			throw "Invalid Argument Exception at Projectile.new";
 		}

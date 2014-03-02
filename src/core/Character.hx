@@ -12,7 +12,7 @@ import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.Lib;
 import flash.display.DisplayObject;
-import haxe.macro.Context;
+
 
 import ICustomEntity;
 import XmlLoader;
@@ -482,20 +482,11 @@ class Character extends Entity implements ICustomEntity
 		else
 		{
 			//add stuff to parse the movement code from attribute here
-			var func_x: String, func_y: String;
-			var pos_x: Int, pos_y: Int;
-			if (_attribute.exists('movementX')) {
-				func_x = _attribute.get("movementX");
-				func_x = func_x.split("$1").join(Std.string(p_deltaTime));
-				pos_x = Context.parse(func_x, Context.currentPos()); //this doesn't work despite the import
-			}
-			if (_attribute.exists('movementY')) {
-				func_y = _attribute.get("movementY");
-				func_y = func_y.split("$1").join(Std.string(p_deltaTime));
-				pos_y = Context.parse(func_y, Context.currentPos()); //this doesn't work despite the import
-			}
+			//Utils._moveContext(this);
 		}
 	}
+
+
 
 	//going to get overrided by things that extend Character
 	private function _onCollision(with :List<Character>):Void {

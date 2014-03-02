@@ -94,8 +94,10 @@ class XmlLoader
 					}
 					if (hasAttributes) {
 						overwriteArray.set(key, attrMap);
-					} else {
+					} else if ((overwriteAttribute.firstChild != null) && (overwriteAttribute.firstChild().nodeValue != null)) {
 						overwriteArray.set(key, overwriteAttribute.firstChild().nodeValue);
+					} else {
+						overwriteArray.set(key, "");
 					}
 				}
 			}
