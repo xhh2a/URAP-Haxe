@@ -38,7 +38,7 @@ class XmlLoader
 			var variationSubElement :Null<Xml> = null; //There can only ever be one of these in an XML!
 			var entityType:Null<String> = null;
 			for (entity in xmlEntity.elements()) { //Parse all default values.
-				trace(entity.toString());
+				//trace(entity.toString());
 				var tagAttrib:String = entity.nodeName;
 				if (tagAttrib.toLowerCase() == Globals.XMLVARIANTSEPARATOR.toLowerCase()) {
 					if (variationSubElement != null) {
@@ -54,7 +54,7 @@ class XmlLoader
 					var hasAttributes:Bool = false;
 					var attrMap:Map<String, Dynamic> = new Map<String, Dynamic>();
 					for (attribute in entity.attributes()) {
-						trace(attribute.toString());
+						//trace(attribute.toString());
 						hasAttributes = true;
 						attrMap.set(attribute, entity.get(attribute));
 					}
@@ -122,7 +122,7 @@ class XmlLoader
 			return outMap;
 		}
 		
-		trace("Loading" + xmlSubdirectory + xmlName);
+		//trace("Loading" + xmlSubdirectory + xmlName);
 		var temp:Xml = Xml.parse(manager.getAsset(xmlName, xmlSubdirectory));
 		if (validator != null) {
 			validator(temp);

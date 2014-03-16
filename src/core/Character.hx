@@ -130,7 +130,7 @@ class Character extends Entity implements ICustomEntity
 		//Status: Just added below
 		else if (!_isTemplate)
 		{
-			trace("Missing image data for Character");
+			//trace("Missing image data for Character");
 		}
 		
 		if(_attribute.exists('draggable') && _attribute.get('draggable')) {
@@ -150,8 +150,8 @@ class Character extends Entity implements ICustomEntity
 	public function preloader(xmlDirectory:String, xmlName:String):Void {
 		//Loading the XML file and then retrieve the information we want from it
 		var _loadedXmlInfo:Map < String, Map < String, Map < String, Dynamic >>> = XmlLoader.loadFile(xmlDirectory, xmlName, _assetManager);
-		trace("Loaded");
-		trace(_loadedXmlInfo.toString());
+		//trace("Loaded");
+		//trace(_loadedXmlInfo.toString());
 		for (type in _loadedXmlInfo.keys()) {
 			if (!_assetManager.entityTemplates.exists(type)) {
 					_assetManager.entityTemplates.set(type, new Map<String, Character>());
@@ -164,8 +164,8 @@ class Character extends Entity implements ICustomEntity
 				} //Else ignore, potentially print an error message.
 			}
 		}
-		trace(_assetManager.entityTemplates.toString());
-		trace(_assetManager.entityTemplates.get('Goku').get('Adult Goku')._attribute.toString());
+		//trace(_assetManager.entityTemplates.toString());
+		//trace(_assetManager.entityTemplates.get('Goku').get('Adult Goku')._attribute.toString());
 	}
 
     /**
@@ -254,11 +254,11 @@ class Character extends Entity implements ICustomEntity
 										//test
 										var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
 										//var possibleCollision:Rectangle = testArea.getColorBoundsRect(0xFFFFFFFF, 0xFF00FFFF);
-										trace("possibleCollision width is " + possibleCollision.width);
+										//trace("possibleCollision width is " + possibleCollision.width);
 										if (possibleCollision.width != 0)
 										{
-											trace(testCharacter._attribute.get('type'));
-											trace("here");
+											//trace(testCharacter._attribute.get('type'));
+											//trace("here");
 											collisions.add(testCharacter);
 										}
 									}
