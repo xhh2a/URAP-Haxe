@@ -1,0 +1,13 @@
+{
+    floats : {
+        "health" : 10.0
+    },
+    strings : {
+        "weapontype" : "soap",
+        "weaponvariation" : "default",
+        "imageFile" : "images/Ondaboat.gif"
+    },
+    variations : {
+        "default" : { }
+    }
+}

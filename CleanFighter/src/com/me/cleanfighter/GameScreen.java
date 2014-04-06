@@ -28,10 +28,10 @@ public class GameScreen implements Screen, InputProcessor {
 		Gdx.input.setInputProcessor(this);
 		
 		///HARDCODED TESTS
-		Poop poop = new Poop();
-		poop.position = new Vector2(300,50);
-		poop.receiveForce(new Vector2(-40,0));
-		world.addEnemy(poop);
+		//Poop poop = new Poop();
+		//poop.position = new Vector2(300,50);
+		//poop.receiveForce(new Vector2(-40,0));
+		//world.addEnemy(poop);
 	}
 
 	@Override

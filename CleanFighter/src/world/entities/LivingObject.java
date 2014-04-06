@@ -1,8 +1,5 @@
 package world.entities;
 
-import java.util.HashMap;
-
-import com.badlogic.gdx.utils.Json;
 
 /**
  * The base class for all objects.
@@ -19,23 +16,41 @@ public class LivingObject extends PhysObject {
 	public boolean isAlive = true;
 
 	/**
-	 * Attributes for this object.
+	 * What type of object this is.
 	 */
-	public HashMap<String, Object> attributeMap;
-	
+	public String type;
 	/**
-	 * Attribute map can be null. Sort of like using Object ... params for varargs.
-	 * @param health The starting hitpoints for this object
-	 * @param isAlive Whether or not this object is alive.
+	 * What variation of the object this is.
 	 */
-	public LivingObject(HashMap<String, Object> attributeMap){
+	public String variation;
+
+	/**
+	 * This is the constructor that should be used!
+	 */
+	public LivingObject(loader.Variation data){
 		super();
-		if ((attributeMap != null) && attributeMap.containsKey("health")) {
-			this.health = (float) attributeMap.get("health");
+		if (data != null) {
+			if (data.type != null) {
+				this.type = data.type;
+			}
+			if (data.variation != null) {
+				this.variation = data.variation;
+			}
+			if (data.floats.containsKey("health")) {
+				this.health = data.floats.get("health");
+			}
+			if (data.strings.containsKey("imageFile")) {
+				this.imageFile = data.strings.get("imageFile");
+				this.loadTexture();
+			}
 		}
-		if ((attributeMap != null) && attributeMap.containsKey("isAlive")) {
-			this.isAlive = (boolean) attributeMap.get("isAlive");
-		}
+	}
+
+	/**
+	 * Apparently required for static variables.
+	 */
+	public LivingObject() {
+		super();
 	}
 	
 	public void receiveDamage(float d){

@@ -1,9 +1,13 @@
 package world;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Json;
 
 import world.entities.*;
 
@@ -15,16 +19,29 @@ public class World {
 	 * This keeps track of all instances of non player objects in a two level HashMap.
 	 * *First level is the Object Type
 	 * *Second level is the Object Variation
+	 * *Third level is the list of instances.
 	 */
-	public HashMap<String, HashMap<String, LivingObject>> instances = new HashMap<String, HashMap<String, LivingObject>>();
+	public HashMap<String, HashMap<String, ArrayList<LivingObject>>> instances = new HashMap<String, HashMap<String, ArrayList<LivingObject>>>();
 	public Player player;
 
 	/**
 	 * Constructor for a new world, creates a player object.
 	 */
 	public World(){
-		this.player = new Player();
+		Player.LOADEDDATA = loadJSON("data/json/player.json").update();
+		this.player = new Player(Player.LOADEDDATA.variations.get("default"));
 		this.player.world = this;
+	}
+
+	/**
+	 * Loads a JSON file in a given PATH and returns it. Must be a valid
+	 * loader.Type object.
+	 */
+	public loader.Type loadJSON(String path) {
+		FileHandle file = Gdx.files.internal(path);
+		String text = file.readString();
+		Json json = new Json();
+		return json.fromJson(loader.Type.class, text);
 	}
 
 	/**
@@ -32,17 +49,23 @@ public class World {
 	 * @param delta The time difference since the last update.
 	 */
 	public void update(float delta){
-		this.player.update(delta);
+		player.update(delta);
 		//We want to use an iterator to avoid concurrent modification exceptions.
-		Iterator<HashMap<String, LivingObject>> iiter = instances.values().iterator();
-		while (iiter.hasNext()) {
-			Iterator<LivingObject> jiter = iiter.next().values().iterator();
-			while (jiter.hasNext()) {
-				LivingObject lo = jiter.next();
-				//Each LivingObject's Update function will handle updates!
-				lo.update(delta);
-				if (!lo.shouldExist) {
-					jiter.remove();
+		Iterator<HashMap<String, ArrayList<LivingObject>>> iiter = instances.values().iterator();
+		while (iiter.hasNext()) { //Iterate through the types.
+			Iterator<ArrayList<LivingObject>> jiter = iiter.next().values().iterator();
+			while (jiter.hasNext()) { //Iterate through the variations
+				ArrayList<LivingObject> lol = jiter.next();
+				if (lol != null) {
+					Iterator<LivingObject> loliter = lol.iterator();
+					while (loliter.hasNext()) {
+						//Each LivingObject's Update function will handle updates!
+						LivingObject lo = loliter.next();
+						lo.update(delta);
+						if (!lo.shouldExist) {
+							loliter.remove();
+						}
+					}
 				}
 			}
 		}
@@ -52,15 +75,20 @@ public class World {
 	 * Calls spritebatch.draw() on protected variables of the PhysObject.
 	 */
 	public void drawSelf(SpriteBatch spritebatch){
-		Iterator<HashMap<String, LivingObject>> iiter = instances.values().iterator();
+		player.drawSelf(spritebatch);
+		Iterator<HashMap<String, ArrayList<LivingObject>>> iiter = instances.values().iterator();
 		while (iiter.hasNext()) {
-			Iterator<LivingObject> jiter = iiter.next().values().iterator();
+			Iterator<ArrayList<LivingObject>> jiter = iiter.next().values().iterator();
 			while (jiter.hasNext()) {
-				LivingObject lo = jiter.next();
-				lo.drawSelf(spritebatch);
+				ArrayList<LivingObject> lol = jiter.next();
+				if (lol != null) {
+					for (LivingObject lo : lol) {
+						lo.drawSelf(spritebatch);
+					}
+				}
+
 			}
 		}
-		player.drawSelf(spritebatch);
 	}
 
 	/**
@@ -71,12 +99,20 @@ public class World {
 	 * @param variation Required to be in the attribute map.
 	 */
 	public boolean addInstance(LivingObject livingObject) {
-		if (livingObject.attributeMap.containsKey("type") && livingObject.attributeMap.containsKey("variation")) {
-			this.instances.get((String) livingObject.attributeMap.get("type"));
+		if ((livingObject.type != null) && (livingObject.variation != null)) {
+			if (!this.instances.containsKey(livingObject.type)) {
+				this.instances.put(livingObject.type, new HashMap<String, ArrayList<LivingObject>>());
+			}
+			HashMap<String, ArrayList<LivingObject>> typemap = this.instances.get(livingObject.type);
+			if (!typemap.containsKey(livingObject.variation)) {
+				typemap.put(livingObject.variation, new ArrayList<LivingObject>());
+			}
+			ArrayList<LivingObject> variationlist = typemap.get(livingObject.variation);
+			variationlist.add(livingObject);
 			livingObject.world = this;
 			return true;
 		}
-		livingObject.world = this;
+		//livingObject.world = this;
 		return false;
 	}
 }
