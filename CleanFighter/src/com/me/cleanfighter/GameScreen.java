@@ -3,7 +3,6 @@ package com.me.cleanfighter;
 
 import world.World;
 import world.WorldController;
-import world.entities.Poop;
 
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
@@ -30,7 +29,7 @@ public class GameScreen implements Screen, InputProcessor {
 		
 		///HARDCODED TESTS
 		Poop poop = new Poop();
-		poop.setPosition(new Vector2(300,50));
+		poop.position = new Vector2(300,50);
 		poop.receiveForce(new Vector2(-40,0));
 		world.addEnemy(poop);
 	}

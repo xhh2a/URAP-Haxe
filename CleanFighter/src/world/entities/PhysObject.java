@@ -9,17 +9,22 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class PhysObject {
-	private Vector2 position;
-	private Vector2 velocity;
-	private Vector2 acceleration;
-	private World world;
-	private Texture texture;
-	private float mass;
+	protected Vector2 velocity;
+	protected Vector2 acceleration;
+	protected Texture texture;
+	public Vector2 position;
+	public World world;
+	public float mass;
 	public float SIZE = 6f;
 	public boolean shouldExist = true;
+	public final float MAXSPEED = 500f;
+	public String imageFile;
 	
 	public static Vector2 gravity = new Vector2(0f,-0f);
-	
+
+	/**
+	 * Initialize the object with a null texture.
+	 */
 	public PhysObject(){
 		this.position = new Vector2();
 		this.velocity = new Vector2();
@@ -40,39 +45,26 @@ public class PhysObject {
 		this.acceleration = acceleration;
 	}
 	
-	public float getMaxSpeed(){
-		return 500f;
-	}
-	
 	public void update(float delta){
 		//System.out.println("The thing updating:\t" + this + "\tacceleration:\t" + acceleration);
-		position.add(velocity.cpy().scl(delta));
-		velocity.add(acceleration);
+		this.position.add(this.velocity.cpy().scl(delta));
+		this.velocity.add(this.acceleration);
 		//velocity.add(gravity);
-		this.setAcceleration(Vector2.Zero);
+		this.acceleration = Vector2.Zero;
 		//TODO: Velocity and acceleration
 		//System.out.println("The thing updating:\t" + this + "\tacceleration:\t" + acceleration);
 	}
 	
 	public void setVelocity(Vector2 v){
-		
-		this.velocity = v.clamp(0, this.getMaxSpeed());
-	}
-	
-	public void setMass(float f) {
-		this.mass = f;
+		this.velocity = v.clamp(0, this.MAXSPEED);
 	}
 	
 	public void addVelocity(Vector2 v){
-		this.setVelocity(this.velocity.add(v));
+		this.velocity = this.velocity.add(v);
 	}
 	
 	public Vector2 getVelocity(){
 		return this.velocity;
-	}
-	
-	public Vector2 getPosition(){
-		return this.position;
 	}
 	
 	public void receiveForce(Vector2 force){
@@ -81,32 +73,32 @@ public class PhysObject {
 		force.y /= this.mass;
 		this.acceleration.add(force);
 	}
-	
-	public void setPosition(Vector2 v){
-		this.position = v;
+
+	/**
+	 * Loads the texture in PATH
+	 */
+	public void loadTexture(String path){
+		this.texture = new Texture(Gdx.files.internal(path));
 	}
-	
-	public void setWorld(World w){
-		this.world = w;
-	}
-	
-	public World getWorld(){
-		return this.world;
-	}
-	
-	public String getImageName(){
-		return "null.png";
-	}
-	
-	public void loadTexture(){
-		this.texture = new  Texture(Gdx.files.internal("images/" + this.getImageName()));
+
+	/**
+	 * Loads the texture in this.imageFile. If it is null, loads images/null.png.
+	 */
+	public void loadTexture() {
+		String aFilePath = (this.imageFile == null) ? "images/null.png" : this.imageFile;
+		this.loadTexture(aFilePath);
 	}
 	
 	public Texture getTexture(){
 		return this.texture;
 	}
+
+	public void setTexture(Texture t){
+		this.texture = t;
+	}
+
 	public Rectangle getBounds(){
-		return new Rectangle(this.getPosition().x,this.getPosition().y, this.getWidth(),this.getHeight());
+		return new Rectangle(this.position.x,this.position.y, this.getWidth(),this.getHeight());
 	}
 	
 	private float getWidth() {
@@ -127,28 +119,25 @@ public class PhysObject {
 		newOther.update(delta);
 		return newMe.intersects(newOther);
 	}
+
 	public void drawSelf(SpriteBatch spritebatch){
-		spritebatch.draw(this.texture, this.getPosition().x, this.getPosition().y);
+		spritebatch.draw(this.texture, this.position.x, this.position.y);
 	}
-	
+
+	/**
+	 * Creates a temporary copy of this Physical Object to check
+	 * for if intersections will occur on the next frame for
+	 * the willIntersect call.
+	 */
 	public PhysObject clone(){
 		PhysObject ans = new PhysObject();
-		ans.setPosition(position);
+		ans.position = this.position;
 		ans.setVelocity(velocity);
-		ans.setAcceleration(acceleration);
-		ans.setWorld(world);
-		ans.setMass(mass);
+		ans.acceleration = this.acceleration;
+		ans.world = this.world;
+		ans.mass = this.mass;
 		ans.setTexture(texture);
-		
 		return ans;
-	}
-	
-	public void setAcceleration(Vector2 v){
-		this.acceleration = v;
-	}
-	
-	public void setTexture(Texture t){
-		this.texture = t;
 	}
 	
 	public void collide(PhysObject other){

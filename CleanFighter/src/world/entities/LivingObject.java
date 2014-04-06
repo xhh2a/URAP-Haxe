@@ -1,46 +1,53 @@
 package world.entities;
 
+import java.util.HashMap;
+
+import com.badlogic.gdx.utils.Json;
+
+/**
+ * The base class for all objects.
+ */
 public class LivingObject extends PhysObject {
-	private float health;
-	private boolean isAlive;
+	/**
+	 * Defaults to 20f.
+	 */
+	public float health = 20f;
+
+	/**
+	 * Whether or not this object is alive.
+	 */
+	public boolean isAlive = true;
+
+	/**
+	 * Attributes for this object.
+	 */
+	public HashMap<String, Object> attributeMap;
 	
-	public LivingObject(){
+	/**
+	 * Attribute map can be null. Sort of like using Object ... params for varargs.
+	 * @param health The starting hitpoints for this object
+	 * @param isAlive Whether or not this object is alive.
+	 */
+	public LivingObject(HashMap<String, Object> attributeMap){
 		super();
-		this.health = this.getMaxHealth();
-		this.isAlive = true;
-	}
-	
-	public LivingObject(float health){
-		this.health = health;
-		this.isAlive = true;
-	}
-	
-	public void setHealth(float h){
-		this.health = h;
-	}
-	
-	public float getHealth(){
-		return this.health;
-	}
-	
-	public boolean isAlive(){
-		return this.isAlive;
-	}
-	
-	public void receiveDamage(float d){
-		this.setHealth(this.getHealth()-d);
-		if (this.getHealth()<=0){
-			this.die();
+		if ((attributeMap != null) && attributeMap.containsKey("health")) {
+			this.health = (float) attributeMap.get("health");
+		}
+		if ((attributeMap != null) && attributeMap.containsKey("isAlive")) {
+			this.isAlive = (boolean) attributeMap.get("isAlive");
 		}
 	}
 	
-	public void die(){
-		this.shouldExist = false;
-		//TODO: Actually implement this and make the enemy leave the world
+	public void receiveDamage(float d){
+		this.health -= d;
+		if (this.health<=0){
+			this.destroy();
+		}
 	}
 	
-	public float getMaxHealth(){
-		return 20f;
+	public void destroy(){
+		this.shouldExist = false;
+		//TODO: Actually implement this and make the enemy leave the world
 	}
 	
 }

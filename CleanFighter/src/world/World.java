@@ -1,100 +1,82 @@
 package world;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Iterator;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import world.entities.*;
 
+/**
+ * A world contains information about the current game state.
+ */
 public class World {
-	private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
-	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
-	private Player player;
+	/** 
+	 * This keeps track of all instances of non player objects in a two level HashMap.
+	 * *First level is the Object Type
+	 * *Second level is the Object Variation
+	 */
+	public HashMap<String, HashMap<String, LivingObject>> instances = new HashMap<String, HashMap<String, LivingObject>>();
+	public Player player;
 
+	/**
+	 * Constructor for a new world, creates a player object.
+	 */
 	public World(){
 		this.player = new Player();
-		this.player.setWorld(this);
+		this.player.world = this;
 	}
-	
-	public Player getPlayer(){
-		return player;
-	}
-	
+
+	/**
+	 * Iteratively calls update on all instance objects.
+	 * @param delta The time difference since the last update.
+	 */
 	public void update(float delta){
 		this.player.update(delta);
-		for (int i=0; i<enemies.size(); i++){
-			
-			Enemy enemy = enemies.get(i);
-			
-			while (!enemy.shouldExist){
-				
-				this.removeEnemy(enemy);
-				if (i<enemies.size())
-					enemy = enemies.get(i);
-				else
-					break;
-			}
-			
-			enemy.update(delta);
-		}
-		
-		
-		for (int i=0; i<projectiles.size(); i++){
-			Projectile projectile = projectiles.get(i);
-			
-			while (!projectile.shouldExist){
-				this.removeProjectile(projectile);
-				
-				if (i<projectiles.size())
-					projectile = projectiles.get(i);
-				else
-					break;
-			}
-			
-			projectile.update(delta);
-			
-			for (int j=0; j<enemies.size(); j++){
-				Enemy enemy = enemies.get(j);
-				
-				if (projectile.intersects(enemy)){
-					projectile.hit(enemy);
+		//We want to use an iterator to avoid concurrent modification exceptions.
+		Iterator<HashMap<String, LivingObject>> iiter = instances.values().iterator();
+		while (iiter.hasNext()) {
+			Iterator<LivingObject> jiter = iiter.next().values().iterator();
+			while (jiter.hasNext()) {
+				LivingObject lo = jiter.next();
+				//Each LivingObject's Update function will handle updates!
+				lo.update(delta);
+				if (!lo.shouldExist) {
+					jiter.remove();
 				}
 			}
 		}
-		
-		
 	}
 
+	/**
+	 * Calls spritebatch.draw() on protected variables of the PhysObject.
+	 */
 	public void drawSelf(SpriteBatch spritebatch){
-		for (Enemy enemy: enemies){
-			//if (enemy.isAlive())
-				enemy.drawSelf(spritebatch);
-		}
-		for (Projectile projectile: projectiles){
-			projectile.drawSelf(spritebatch);
+		Iterator<HashMap<String, LivingObject>> iiter = instances.values().iterator();
+		while (iiter.hasNext()) {
+			Iterator<LivingObject> jiter = iiter.next().values().iterator();
+			while (jiter.hasNext()) {
+				LivingObject lo = jiter.next();
+				lo.drawSelf(spritebatch);
+			}
 		}
 		player.drawSelf(spritebatch);
 	}
 
-	public void addProjectile(Projectile projectile) {
-		this.projectiles.add(projectile);
-		projectile.setWorld(this);
-	}
-
-	public void addEnemy(Enemy enemy) {
-		this.enemies.add(enemy);
-		enemy.setWorld(this);
-	}
-
-	private void removeEnemy(LivingObject livingObject) {
-		this.enemies.remove(livingObject);
-		livingObject.setWorld(null);
-	}
-	private void removeProjectile(Projectile projectile) {
-		this.projectiles.remove(projectile);
-		projectile.setWorld(null);
+	/**
+	 * Adds a LIVINGOBJECT to the instances list.
+	 * @param livingObject What to add.
+	 * @return True on success, false otherwise.
+	 * @param type Required to be in the attribute map.
+	 * @param variation Required to be in the attribute map.
+	 */
+	public boolean addInstance(LivingObject livingObject) {
+		if (livingObject.attributeMap.containsKey("type") && livingObject.attributeMap.containsKey("variation")) {
+			this.instances.get((String) livingObject.attributeMap.get("type"));
+			livingObject.world = this;
+			return true;
+		}
+		livingObject.world = this;
+		return false;
 	}
 }

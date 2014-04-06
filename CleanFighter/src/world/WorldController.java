@@ -29,7 +29,7 @@ public class WorldController {
 	
 	public WorldController(World world) {
 		this.world = world;
-		this.player = world.getPlayer();
+		this.player = world.player;
 	}
 
 	// ** Key presses and touches **************** //
@@ -84,10 +84,10 @@ public class WorldController {
 		
 		/////////////////////////
 		if (keys.get(Keys.LEFT) == true){
-			this.player.addVelocity(new Vector2(-this.player.getMaxSpeed(),0));
+			this.player.addVelocity(new Vector2(-this.player.MAXSPEED,0));
 		}
 		if (keys.get(Keys.RIGHT) == true){
-			this.player.addVelocity(new Vector2(this.player.getMaxSpeed(),0));
+			this.player.addVelocity(new Vector2(this.player.MAXSPEED,0));
 		}
 		if (!(keys.get(Keys.RIGHT) || keys.get(Keys.LEFT))){
 			this.player.getVelocity().x = 0;
@@ -96,10 +96,10 @@ public class WorldController {
 		//////////////////////////
 		if (keys.get(Keys.UP) == true){
 			
-			this.player.addVelocity(new Vector2(0,this.player.getMaxSpeed()));
+			this.player.addVelocity(new Vector2(0,this.player.MAXSPEED));
 		}
 		if (keys.get(Keys.DOWN) == true){
-			this.player.addVelocity(new Vector2(0,-this.player.getMaxSpeed()));
+			this.player.addVelocity(new Vector2(0,-this.player.MAXSPEED));
 		} 
 		
 		if (!(keys.get(Keys.UP) || keys.get(Keys.DOWN))){
@@ -108,11 +108,11 @@ public class WorldController {
 		///////////////////////////
 		
 		if (keys.get(Keys.FIRE)){
-			this.world.getPlayer().pullTrigger();
+			this.player.pullTrigger();
 		}
 		
 		if (!keys.get(Keys.FIRE)){
-			this.world.getPlayer().releaseTrigger();
+			this.player.releaseTrigger();
 		}
 		
 		
