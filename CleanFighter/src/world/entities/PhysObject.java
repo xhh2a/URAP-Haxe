@@ -9,7 +9,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class PhysObject {
+	/** Current speed. */
 	protected Vector2 velocity;
+	/** Queued acceleration on the object */
 	protected Vector2 acceleration;
 	protected Texture texture;
 	public Vector2 position;
@@ -18,6 +20,7 @@ public class PhysObject {
 	public float SIZE = 6f;
 	public boolean shouldExist = true;
 	public final float MAXSPEED = 500f;
+
 	public String imageFile;
 	
 	public static Vector2 gravity = new Vector2(0f,-0f);
@@ -46,13 +49,11 @@ public class PhysObject {
 	}
 	
 	public void update(float delta){
-		//System.out.println("The thing updating:\t" + this + "\tacceleration:\t" + acceleration);
 		this.position.add(this.velocity.cpy().scl(delta));
 		this.velocity.add(this.acceleration);
-		//velocity.add(gravity);
-		this.acceleration = Vector2.Zero;
-		//TODO: Velocity and acceleration
-		//System.out.println("The thing updating:\t" + this + "\tacceleration:\t" + acceleration);
+		this.velocity.clamp(0, this.MAXSPEED);
+		this.acceleration = Vector2.Zero.cpy();
+		//TODO: Update acceleration possibly
 	}
 	
 	public void setVelocity(Vector2 v){
@@ -68,10 +69,13 @@ public class PhysObject {
 	}
 	
 	public void receiveForce(Vector2 force){
-		//System.out.println("The thing receiving force:\t" + this + "\tForce:\t" + force);
 		force.x /= this.mass;
 		force.y /= this.mass;
 		this.acceleration.add(force);
+	}
+
+	public Vector2 getAcceleration() {
+		return this.acceleration;
 	}
 
 	/**

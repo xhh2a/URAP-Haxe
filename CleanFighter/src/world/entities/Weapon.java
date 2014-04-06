@@ -1,23 +1,16 @@
 package world.entities;
 
+import java.util.HashMap;
+
 import world.World;
 
 import com.badlogic.gdx.math.Vector2;
 
-public abstract class Weapon {
-	private Player player;
+public class Weapon {
+	/** A HashMap of Weapon Types to their Type loaded JSON object. */
+	public static HashMap<String, loader.Type> LOADEDDATA;
 	
-	public boolean triggerDown;
 	public int reloadCounter = 0;
-	
-	
-	public Weapon(Player p) {
-		this.player = p;
-	}
-	
-	public Player getPlayer(){
-		return player;
-	}
 	
 	public void update(){
 		this.reloadCounter -= 1;
@@ -29,7 +22,7 @@ public abstract class Weapon {
 		}
 		
 	}
-	
+
 	public void fire(){	
 		World world = player.getWorld();
 		Soap soap = new Soap();

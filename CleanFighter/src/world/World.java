@@ -35,7 +35,8 @@ public class World {
 
 	/**
 	 * Loads a JSON file in a given PATH and returns it. Must be a valid
-	 * loader.Type object.
+	 * loader.Type object. You should call .update() afterward to propagate
+	 * type data to variations.
 	 */
 	public loader.Type loadJSON(String path) {
 		FileHandle file = Gdx.files.internal(path);

@@ -26,6 +26,10 @@ public class LivingObject extends PhysObject {
 
 	/**
 	 * This is the constructor that should be used!
+	 * This handles PhysObject variable updates.
+	 * The reason for doing so here is because PhysObject is also used
+	 * when calculating if things will intercept and thus
+	 * we split the attributes off to avoid unnecessary overhead.
 	 */
 	public LivingObject(loader.Variation data){
 		super();
@@ -42,6 +46,9 @@ public class LivingObject extends PhysObject {
 			if (data.strings.containsKey("imageFile")) {
 				this.imageFile = data.strings.get("imageFile");
 				this.loadTexture();
+			}
+			if (data.floats.containsKey("mass")) {
+				this.mass = data.floats.get("mass");
 			}
 		}
 	}

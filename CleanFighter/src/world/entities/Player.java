@@ -11,11 +11,22 @@ public class Player extends LivingObject {
 	 * Data loaded from JSON is stored here so it can be referenced without reloading.
 	 */
 	public static loader.Type LOADEDDATA;
-
+	/** Change in speed on input */
+	public float speed = 25f;
 	private Weapon weapon;
 
 	public Player(loader.Variation data){
 		super(data);
+		if (data.floats.containsKey("speed")) {
+			this.speed = data.floats.get("speed");
+		}
+		if (data.strings.containsKey("weaponType")) {
+			String variation = "default";
+			if (data.strings.containsKey("weaponVariation")) {
+				variation = data.strings.get("weaponVariation");
+			}
+			//this.weapon = new Weapon(Weapon.LOADEDDATA.get(data.strings.get("weaponType")).variations.get(variation));
+		}
 		this.weapon = null; //TODO
 	}
 
