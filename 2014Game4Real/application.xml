@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<application xmlns="http://ns.adobe.com/air/application/3.9">
+	
+	<id>2014Game4Real</id> 
+	<versionNumber>1.0</versionNumber> 
+	<filename>2014Game4Real</filename> 
+	
+	<name>2014Game4Real</name> 
+	<description></description> 
+	<copyright></copyright> 
+	
+	<initialWindow> 
+		<title>The Game of Awesomeness</title> 
+		<content>2014Game4Real.swf</content> 
+		<systemChrome>standard</systemChrome> 
+		<transparent>false</transparent> 
+		<visible>true</visible> 
+		<renderMode>direct</renderMode>
+		<minimizable>true</minimizable> 
+		<maximizable>false</maximizable> 
+		<resizable>false</resizable> 
+	</initialWindow> 
+	
+	<!-- 
+	More options:
+	http://livedocs.adobe.com/flex/3/html/File_formats_1.html#1043413
+	-->
+</application>
