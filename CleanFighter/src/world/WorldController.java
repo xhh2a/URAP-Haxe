@@ -83,24 +83,25 @@ public class WorldController {
 		this.player.setVelocity(Vector2.Zero.cpy());
 		Vector2 res = Vector2.Zero.cpy();
 		/////////////////////////
-		if (keys.get(Keys.LEFT) == true){
+		if (keys.get(Keys.LEFT)){
 			res.add(new Vector2(-this.player.speed,0));
 		}
-		if (keys.get(Keys.RIGHT) == true){
+		if (keys.get(Keys.RIGHT)){
 			res.add(new Vector2(this.player.speed,0));
 		}
 		//////////////////////////
-		if (keys.get(Keys.UP) == true){
+		if (keys.get(Keys.UP)){
 			res.add(new Vector2(0,this.player.speed));
 		}
-		if (keys.get(Keys.DOWN) == true){
+		if (keys.get(Keys.DOWN)){
 			res.add(new Vector2(0,-this.player.speed));
 		}
+		System.out.println(keys);
 		this.player.setVelocity(res);
 
 
 		///////////////////////////
-		
+		//TODO: Move this directly to the release/pressed areas to avoid duplicate calls.
 		if (keys.get(Keys.FIRE)){
 			this.player.pullTrigger();
 		}

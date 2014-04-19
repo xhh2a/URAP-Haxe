@@ -13,7 +13,7 @@ public class Player extends LivingObject {
 	public static loader.Type LOADEDDATA;
 	/** Change in speed on input */
 	public float speed = 25f;
-	private Weapon weapon;
+	protected Weapon weapon;
 
 	public Player(loader.Variation data){
 		super(data);
@@ -30,26 +30,23 @@ public class Player extends LivingObject {
 		this.weapon = null; //TODO
 	}
 
-	public String getImageName(){
-		return "ondaboat.gif";
+	/**
+	 * Method to call when the player is pressing the fire button.
+	 */
+	public void pullTrigger(){
+		//this.weapon.fire = true;
 	}
 
-	// TODO: This needs to check for time delta.
-	public void pullTrigger(){
-		//weapon.pullTrigger();
-	}
-	
+	/**
+	 * Method to call when the player has released the fire button.
+	 */
 	public void releaseTrigger(){
-		//weapon.releaseTrigger();
+		//this.weapon.fire = false;
 	}
-	
-	
-	public void update(float delta){
+
+	public void update(float delta) {
 		super.update(delta);
-		//this.weapon.update();
-		
+		//this.weapon.update(delta);
 	}
-	
-	
 
 }
