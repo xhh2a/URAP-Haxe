@@ -4,13 +4,12 @@ public abstract class Behavior {
 
 	protected LivingObject parent;
 
-	/** A behavior object called by CALLER */
-	public Behavior(LivingObject caller) {
-		this.parent = caller;
+	/** A behavior object*/
+	public Behavior() {
 	}
 
-	/** The actual command. */
-	public void run() {
+	/** The actual command called by CALLER  */
+	public void run(LivingObject caller) {
 		return;
 	}
 

@@ -19,7 +19,7 @@ public class Enemy extends LivingObject {
 	public void update(float delta){
 		super.update(delta); // Update Movement and damage check
 		for(Behavior b: this.behaviors) {
-			b.run();
+			b.run(this);
 		}
 		this.weapon.update(delta);
 	}
