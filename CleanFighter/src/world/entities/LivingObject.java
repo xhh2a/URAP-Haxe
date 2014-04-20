@@ -34,6 +34,9 @@ public class LivingObject extends PhysObject {
 
 	/**
 	 * List of things to check on collision.
+	 * If the TYPE keyword "all" is present, then other TYPES will be IGNORED. It will check ALL
+	 * instances.
+	 * If the VARIATION keyword "all" is present, then it will check all variations.
 	 */
 	public HashMap<String, ArrayList<String>> affects = new HashMap<String, ArrayList<String>>();
 
@@ -49,9 +52,15 @@ public class LivingObject extends PhysObject {
 		if (data != null) {
 			if (data.type != null) {
 				this.type = data.type;
+			} else {
+				System.err.println("[WARNING] Missing type in JSON data. Stacktrace: ");
+				Thread.currentThread().dumpStack();
 			}
 			if (data.variation != null) {
 				this.variation = data.variation;
+			} else {
+				System.err.println("[WARNING] Missing variation in JSON data. Stacktrace: ");
+				Thread.currentThread().dumpStack();
 			}
 			if (data.floats.containsKey("health")) {
 				this.health = data.floats.get("health");
@@ -96,31 +105,54 @@ public class LivingObject extends PhysObject {
 	}
 
 	/**
-	 * Checks for collisions in the list of things
+	 * Action on every update that checks for collisions in the list of things
 	 * this object affects. Calls resolveCollision. Ideally
 	 * this method does not need to be overridden, unless you want it
 	 * to be a no-op.
+	 * 
+	 * If you want to check for if there is a collision between two objects,
+	 * use PhysObject.intersects.
 	 * @param t Time delta
 	 */
 	protected void checkCollision(float t) {
-		for(String atype: this.affects.keySet()) {
-			if (world.instances.containsKey(atype)) {
-				if (this.affects.get(atype).contains("all")) {
-					for (ArrayList<LivingObject> typelist: world.instances.get(atype).values()) {
-						for (LivingObject entry: typelist) {
-							this.resolveCollision(t, entry);
-						}
-					}
-				} else {
-					for (String avalue: this.affects.get(atype)) {
-						for (LivingObject entry: world.instances.get(atype).get(avalue)) {
+		if (this.affects.containsKey("all")) {
+			for (HashMap<String, ArrayList<LivingObject>> atype: world.instances.values()) {
+				for (ArrayList<LivingObject> avalue: atype.values()) {
+					for (LivingObject entry: avalue) {
+						if ((this != entry) && (this.intersects(entry))) {
 							this.resolveCollision(t, entry);
 						}
 					}
 				}
 			}
+		} else {
+			for(String atype: this.affects.keySet()) {
+				if (world.instances.containsKey(atype)) {
+					checkCollisionHelper(t, atype);
+				}
+			}
 		}
 		return;
+	}
+
+	private void checkCollisionHelper(float t, String atype) {
+		if (this.affects.get(atype).contains("all")) {
+			for (ArrayList<LivingObject> typelist: world.instances.get(atype).values()) {
+				for (LivingObject entry: typelist) {
+					if ((this != entry) && (this.intersects(entry))) {
+						this.resolveCollision(t, entry);
+					}
+				}
+			}
+		} else {
+			for (String avalue: this.affects.get(atype)) {
+				for (LivingObject entry: world.instances.get(atype).get(avalue)) {
+					if ((this != entry) && (this.intersects(entry))) {
+						this.resolveCollision(t, entry);
+					}
+				}
+			}
+		}
 	}
 
 	/**

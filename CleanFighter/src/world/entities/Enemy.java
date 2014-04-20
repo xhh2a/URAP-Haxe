@@ -9,7 +9,7 @@ public class Enemy extends LivingObject {
 	/**
 	 * Data loaded from JSON is stored here so it can be referenced without reloading.
 	 */
-	public static loader.Type LOADEDDATA;
+	public static HashMap<String, loader.Type> LOADEDDATA;
 	protected Weapon weapon;
 	protected ArrayList<Behavior> behaviors;
 

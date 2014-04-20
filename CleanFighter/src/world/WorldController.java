@@ -96,7 +96,7 @@ public class WorldController {
 		if (keys.get(Keys.DOWN)){
 			res.add(new Vector2(0,-this.player.speed));
 		}
-		System.out.println(keys);
+		//System.out.println(keys);
 		this.player.setVelocity(res);
 
 

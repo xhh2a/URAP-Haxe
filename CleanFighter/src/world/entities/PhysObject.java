@@ -17,6 +17,7 @@ public class PhysObject {
 	protected Vector2 velocity;
 	/** Queued acceleration on the object */
 	protected Vector2 acceleration;
+	//TODO: Potentially does not require a copy of the sprite per instance, investigate SpriteCache.
 	protected Sprite sprite;
 	public Vector2 position;
 	public World world;
@@ -26,7 +27,7 @@ public class PhysObject {
 	public final float MAXSPEED = 500f;
 	//TODO: Switch to using TextureAtlas as the backing for Sprites, see https://github.com/alistairrutherford/netthreads-libgdx/blob/master/src/main/java/com/netthreads/libgdx/texture/TextureCache.java
 	//TODO: And related SpriteCache.
-	//TODO: Allow animation
+	//TODO: Allow animation.
 	protected static HashMap<String, Sprite> spritecache = new HashMap<String, Sprite>();
 
 	public String imageFile;
@@ -128,6 +129,9 @@ public class PhysObject {
 		return this.sprite.getHeight();
 	}
 
+	/**
+	 * Returns true if this object intersects (collides with another object.
+	 */
 	public boolean intersects(PhysObject other){
 		return this.getBounds().overlaps(other.getBounds());
 	}

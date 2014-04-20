@@ -1,4 +1,5 @@
 {
+    type : "player",
     floats : {
         "speed" : 10.0,
         "health" : 10.0,
