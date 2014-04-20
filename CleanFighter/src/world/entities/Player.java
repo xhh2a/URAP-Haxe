@@ -44,9 +44,16 @@ public class Player extends LivingObject {
 		//this.weapon.fire = false;
 	}
 
+	@Override
 	public void update(float delta) {
 		super.update(delta);
 		//this.weapon.update(delta);
+	}
+	
+	@Override
+	/** No-op, should be handled by enemy and projectile to avoid double checking. */
+	protected void checkCollision(float t) {
+		return;
 	}
 
 }

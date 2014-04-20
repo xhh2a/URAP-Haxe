@@ -1,25 +1,33 @@
 package world.entities;
 
+import java.util.HashMap;
+
 import world.World;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+//TODO: Potentially requires extending Disposable?
 public class PhysObject {
 	/** Current speed. */
 	protected Vector2 velocity;
 	/** Queued acceleration on the object */
 	protected Vector2 acceleration;
-	protected Texture texture;
+	protected Sprite sprite;
 	public Vector2 position;
 	public World world;
 	public float mass;
 	public float SIZE = 6f;
 	public boolean shouldExist = true;
 	public final float MAXSPEED = 500f;
+	//TODO: Switch to using TextureAtlas as the backing for Sprites, see https://github.com/alistairrutherford/netthreads-libgdx/blob/master/src/main/java/com/netthreads/libgdx/texture/TextureCache.java
+	//TODO: And related SpriteCache.
+	//TODO: Allow animation
+	protected static HashMap<String, Sprite> spritecache = new HashMap<String, Sprite>();
 
 	public String imageFile;
 	
@@ -32,7 +40,7 @@ public class PhysObject {
 		this.position = new Vector2();
 		this.velocity = new Vector2();
 		this.acceleration = new Vector2();
-		this.loadTexture();
+		this.loadSprite(); //TODO: Use TexturePacker or SpritePacker
 		this.mass = 1;
 	}
 	
@@ -79,37 +87,45 @@ public class PhysObject {
 	}
 
 	/**
-	 * Loads the texture in PATH
+	 * Loads the sprite in PATH, checks the cache first. If not there, does
+	 * an IO, and puts into cache. If it is, sets the sprite to be a COPY
+	 * of the stored sprite.
 	 */
-	public void loadTexture(String path){
-		this.texture = new Texture(Gdx.files.internal(path));
+	public void loadSprite(String path){
+		if (spritecache.containsKey(path)) {
+			this.sprite = new Sprite(spritecache.get(path));
+		} else {
+			this.sprite = new Sprite(new Texture(Gdx.files.internal(path)));
+			spritecache.put(path, new Sprite(this.sprite));
+		}
 	}
 
 	/**
-	 * Loads the texture in this.imageFile. If it is null, loads images/null.png.
+	 * Loads the sprite in this.imageFile. If it is null, loads images/null.png.
 	 */
-	public void loadTexture() {
+	public void loadSprite() {
 		String aFilePath = (this.imageFile == null) ? "images/null.png" : this.imageFile;
-		this.loadTexture(aFilePath);
+		this.loadSprite(aFilePath);
 	}
 	
-	public Texture getTexture(){
-		return this.texture;
+	public Sprite getSprite(){
+		return this.sprite;
 	}
 
-	public void setTexture(Texture t){
-		this.texture = t;
+	public void setSprite(Sprite t){
+		this.sprite = t;
 	}
 
 	public Rectangle getBounds(){
 		return new Rectangle(this.position.x,this.position.y, this.getWidth(),this.getHeight());
 	}
 	
-	private float getWidth() {
-		return this.texture.getWidth();
+	protected float getWidth() {
+		return this.sprite.getWidth();
 	}
-	private float getHeight() {
-		return this.texture.getHeight();
+
+	protected float getHeight() {
+		return this.sprite.getHeight();
 	}
 
 	public boolean intersects(PhysObject other){
@@ -125,9 +141,10 @@ public class PhysObject {
 	}
 
 	public void drawSelf(SpriteBatch spritebatch){
-		spritebatch.draw(this.texture, this.position.x, this.position.y);
+		spritebatch.draw(this.sprite.getTexture(), this.position.x, this.position.y);
 	}
 
+	@Override
 	/**
 	 * Creates a temporary copy of this Physical Object to check
 	 * for if intersections will occur on the next frame for
@@ -140,7 +157,7 @@ public class PhysObject {
 		ans.acceleration = this.acceleration;
 		ans.world = this.world;
 		ans.mass = this.mass;
-		ans.setTexture(texture);
+		ans.setSprite(this.sprite);
 		return ans;
 	}
 	

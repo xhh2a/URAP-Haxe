@@ -34,9 +34,9 @@ public class Weapon {
 		output.receiveForce(force);
 		
 		world.addInstance(output);
-		this.reload();
+		this.reload(); //This should be defined
 	}
-	
+
 	public void reload(){
 		return; //TODO: Actually do.
 	}

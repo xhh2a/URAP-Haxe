@@ -1,6 +1,7 @@
 package world.entities;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -16,6 +17,7 @@ public class Enemy extends LivingObject {
 		super(data);
 	}
 
+	@Override
 	public void update(float delta){
 		super.update(delta); // Update Movement and damage check
 		for(Behavior b: this.behaviors) {
