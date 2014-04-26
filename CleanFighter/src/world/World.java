@@ -23,12 +23,16 @@ public class World {
 	 */
 	public HashMap<String, HashMap<String, ArrayList<LivingObject>>> instances = new HashMap<String, HashMap<String, ArrayList<LivingObject>>>();
 	public Player player;
+	public HashMap<String, Behavior> installedbehaviors = new HashMap<String, Behavior>();
 
 	/**
 	 * Constructor for a new world, creates a player object.
 	 */
 	public World(){
+		Weapon.LOADEDDATA = new HashMap<String, loader.Type>();
+		Weapon.LOADEDDATA.put("soapWeapon", loadJSON("data/json/soap.json").update()); //TODO: Change this to a generic directory load.
 		Player.LOADEDDATA = loadJSON("data/json/player.json").update();
+		Projectile.LOADEDDATA = new HashMap<String, loader.Type>();
 		this.player = new Player(Player.LOADEDDATA.variations.get("default"));
 		this.player.world = this;
 	}
@@ -60,7 +64,7 @@ public class World {
 				if (lol != null) {
 					Iterator<LivingObject> loliter = lol.iterator();
 					while (loliter.hasNext()) {
-						//Each LivingObject's Update function will handle updates!
+						//Each LivingObject's Updat)e function will handle updates!
 						LivingObject lo = loliter.next();
 						lo.update(delta);
 						if (!lo.shouldExist) {

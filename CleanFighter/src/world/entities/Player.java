@@ -25,29 +25,28 @@ public class Player extends LivingObject {
 			if (data.strings.containsKey("weaponVariation")) {
 				variation = data.strings.get("weaponVariation");
 			}
-			//this.weapon = new Weapon(Weapon.LOADEDDATA.get(data.strings.get("weaponType")).variations.get(variation));
+			this.weapon = new Weapon(Weapon.LOADEDDATA.get(data.strings.get("weaponType")).variations.get(variation), this);
 		}
-		this.weapon = null; //TODO
 	}
 
 	/**
 	 * Method to call when the player is pressing the fire button.
 	 */
 	public void pullTrigger(){
-		//this.weapon.fire = true;
+		this.weapon.fire = true;
 	}
 
 	/**
 	 * Method to call when the player has released the fire button.
 	 */
 	public void releaseTrigger(){
-		//this.weapon.fire = false;
+		this.weapon.fire = false;
 	}
 
 	@Override
 	public void update(float delta) {
 		super.update(delta);
-		//this.weapon.update(delta);
+		this.weapon.update(delta);
 	}
 	
 	@Override

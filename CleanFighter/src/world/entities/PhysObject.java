@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 //TODO: Potentially requires extending Disposable?
 public class PhysObject {
+	//TODO: Extend Sprite class and move velocity and acceleration into that or figure out how to avoid double track of x/y.
 	/** Current speed. */
 	protected Vector2 velocity;
 	/** Queued acceleration on the object */
@@ -23,6 +24,7 @@ public class PhysObject {
 	public World world;
 	public float mass;
 	public float SIZE = 6f;
+
 	public boolean shouldExist = true;
 	public final float MAXSPEED = 500f;
 	//TODO: Switch to using TextureAtlas as the backing for Sprites, see https://github.com/alistairrutherford/netthreads-libgdx/blob/master/src/main/java/com/netthreads/libgdx/texture/TextureCache.java
@@ -62,6 +64,9 @@ public class PhysObject {
 		this.velocity.add(this.acceleration);
 		this.velocity.clamp(0, this.MAXSPEED);
 		this.acceleration = Vector2.Zero.cpy();
+		//TODO: Potentially required, look at how origin stuff is calculated.
+		//this.sprite.setX(this.position.x);
+		//this.sprite.setY(this.position.y);
 		//TODO: Update acceleration possibly
 	}
 	
@@ -143,9 +148,12 @@ public class PhysObject {
 		newOther.update(delta);
 		return newMe.intersects(newOther);
 	}
-
+	//draw(TextureRegion region, float x, float y, float originX, float originY, float width, float height, float scaleX, float scaleY, float rotation)
 	public void drawSelf(SpriteBatch spritebatch){
-		spritebatch.draw(this.sprite.getTexture(), this.position.x, this.position.y);
+		//Verify this actually uses rotation, scale, etc, the sourcecode doesn't seem to do so.
+		//this.sprite.draw(spritebatch);
+		//So much stupid stuff that shouldn't need to be passed in. Bad design by libgdx.
+		spritebatch.draw(this.sprite, this.position.x, this.position.y, this.sprite.getRegionWidth()/2.0f, this.sprite.getRegionHeight()/2.0f, this.sprite.getWidth(), this.sprite.getHeight(), this.sprite.getScaleX(), this.sprite.getScaleY(), this.sprite.getRotation());
 	}
 
 	@Override

@@ -41,6 +41,11 @@ public class LivingObject extends PhysObject {
 	public HashMap<String, ArrayList<String>> affects = new HashMap<String, ArrayList<String>>();
 
 	/**
+	 * A list of behaviors for this object.
+	 */
+	protected ArrayList<Behavior> behaviors = new ArrayList<Behavior>();
+
+	/**
 	 * This is the constructor that should be used!
 	 * This handles PhysObject variable updates.
 	 * The reason for doing so here is because PhysObject is also used
@@ -71,6 +76,17 @@ public class LivingObject extends PhysObject {
 			}
 			if (data.floats.containsKey("mass")) {
 				this.mass = data.floats.get("mass");
+			}
+			if (data.data.containsKey("behaviors")) {
+				for (String b : (ArrayList<String>) data.data.get("behaviors")) {
+					Behavior res = this.world.installedbehaviors.get(b);
+					if (res != null) {
+						this.behaviors.add(res);
+					} else {
+						System.err.println("[WARNING] Behavior requested in object is not installed in the world. Stacktrace:");
+						Thread.currentThread().dumpStack();
+					}
+				}
 			}
 		}
 	}
@@ -172,6 +188,9 @@ public class LivingObject extends PhysObject {
 	/** Common update behavior. */
 	public void update(float delta){
 		super.update(delta); //Resolve movement.
+		for(Behavior b: this.behaviors) {
+			b.run(this);
+		}
 		this.resolveDamage(delta); //Resolve damage.
 		this.checkCollision(delta); //Check for collisions.
 	}
@@ -184,5 +203,6 @@ public class LivingObject extends PhysObject {
 		this.shouldExist = false;
 		//TODO: Actually implement this and make the enemy leave the world
 	}
-	
+
+
 }

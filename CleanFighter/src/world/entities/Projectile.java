@@ -1,5 +1,6 @@
 package world.entities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Projectile extends LivingObject {
@@ -8,7 +9,10 @@ public class Projectile extends LivingObject {
 	 * Data loaded from JSON is stored here so it can be referenced without reloading.
 	 */
 	public static HashMap<String, loader.Type> LOADEDDATA;
+	/** Damage of this projectile. */
 	protected float damage;
+	/** Speed of this projectile at creation. */
+	protected float spawnSpeed;
 
 	/** A constructor for a predefined projectile in JSON. */
 	public Projectile(loader.Variation data){
@@ -16,6 +20,9 @@ public class Projectile extends LivingObject {
 		if (data != null) {
 			if (data.floats.containsKey("damage")) {
 				this.damage = data.floats.get("damage");
+			}
+			if (data.floats.containsKey("spawnSpeed")) {
+				this.spawnSpeed = data.floats.get("spawnSpeed");
 			}
 		} else {
 			System.err.println("[WARNING] Projectile Constructor called with null variation data.");
@@ -31,10 +38,11 @@ public class Projectile extends LivingObject {
 	}
 
 	/** A constructor for a non-loaded projectile. ATYPE and AVARIATION and IMAGEPATH can be null, will use
-	 *  defaults "projectile" and "default" and the null image. */
-	public Projectile(float amount, String atype, String avariation, String imagepath) {
+	 *  defaults "projectile" and "default" and the null image. DAMAGEAMOUNT is used
+	 *  to track damage. */
+	public Projectile(float damageAmount, String atype, String avariation, String imagepath) {
 		super();
-		this.damage = amount;
+		this.damage = damageAmount;
 		this.type = (atype != null) ? atype : "projectile";
 		this.variation = (avariation != null) ? avariation : "default";
 		this.imageFile = imagepath;

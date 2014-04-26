@@ -14,32 +14,66 @@ public class Weapon {
 	/** Whether the fire trigger is true or not */
 	public boolean fire = false;
 	/** Time remaining on reloading. */
-	public int reloadCounter = 0;
+	public float reloadCounter = 0;
+	/** Time it takes to reload. */
+	protected float reloadTime = 0;
 	/** The parent object, required for access to world instance. */
 	protected LivingObject parent;
 	/** A string with the type of projectile. */
 	protected String fireType;
 	/** A string with the variation of the projectile. */
 	protected String fireVariation;
-	/** The damage of the projectile, used when type/variation is empty. */
-	protected int damage = 0;
-	/** The image file path for the projectile, used when type/variation is empty. */
+	/** The damage of the projectile, used when type/variation is invalid. */
+	protected float damage = 0;
+	/** The speed of the projectile, used when type/variation is invalid. */
+	protected float projectileSpeed = 0;
+	/** The image file path for the projectile, used when type/variation is invalid. */
 	protected String projectileImage;
+	/** Used internally in fire() method, this is to cache and avoid duplicate lookups. */
+	protected loader.Variation projectileVariation;
 	//TODO: Potentially an image for the weapon for the GUI?
 
-	/** Constructor for a given variation. */
-	public Weapon(loader.Variation data) {
-		if(data != null) {
-			//TODO
+	/** Constructor for a given variation. Parent object PAR
+	 *  which owns this must be passed in. */
+	public Weapon(loader.Variation data, LivingObject par) {
+		if (par == null) {
+			System.err.println("[WARNING] Invalid Constructor call to Weapon, missing parent. Stacktrace: ");
+			Thread.currentThread().dumpStack();
 		}
+		this.parent = par;
+		if(data != null) {
+			if (data.strings.containsKey("fireType")) {
+				this.fireType = data.strings.get("fireType");
+			}
+			if (data.strings.containsKey("fireVariation")) {
+				this.fireVariation = data.strings.get("fireVariation");
+			}
+			if (data.strings.containsKey("projectileImage")) {
+				this.projectileImage = data.strings.get("projectileImage");
+			}
+			if (data.strings.containsKey("fireVariation")) {
+				this.fireVariation = data.strings.get("fireVariation");
+			}
+			if (data.floats.containsKey("damage")) {
+				this.damage = data.floats.get("damage");
+			}
+			if (data.floats.containsKey("reloadTime")) {
+				this.reloadTime = data.floats.get("reloadTime");
+			}
+		}
+		this.projectileVariation = lookupProjectile();
 	}
 
 	/** Constructor for a generic weapon. projectileImage PI can be null (will use
-	 *  hardcoded null image). damage D should not be null.
+	 *  hardcoded null image). Damage D should not be null. 
+	 *  Projectile speed PS should not be null.
+	 *  PAR is the parent owner of this weapon.
 	 */
-	public Weapon(int d, String pi) {
+	public Weapon(int d, int ps, String pi, LivingObject par) {
 		this.damage = d;
+		this.projectileSpeed = ps;
 		this.projectileImage = pi;
+		this.parent = par;
 	}
 
 	
@@ -73,16 +107,20 @@ public class Weapon {
 	public void fire(){	
 		World world = parent.world;
 		Projectile output;
-		loader.Variation t = lookupProjectile();
-		if (t != null) {
-			output = new Projectile(t);
+		float angle = parent.sprite.getRotation();
+		Vector2 force;
+		if (this.projectileVariation != null) {
+			output = new Projectile(this.projectileVariation);
+			force = new Vector2(output.spawnSpeed, 0).rotate(angle);
 		} else {
 			output = new Projectile(this.damage, this.fireType, this.fireVariation, this.projectileImage);
+			force = new Vector2(this.projectileSpeed,0).rotate(angle);
 		}
-		output.position = new Vector2(parent.position);
-		
-		Vector2 force = new Vector2(300,0); //TODO: Remove this and replace with JSON stuff
 		output.receiveForce(force);
+		output.position = new Vector2(parent.position);
+
+		output.sprite.setRotation(angle);
+
 		
 		world.addInstance(output);
 		this.reload(); //This should be defined

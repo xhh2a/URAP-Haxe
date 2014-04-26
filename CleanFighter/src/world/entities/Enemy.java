@@ -11,18 +11,10 @@ public class Enemy extends LivingObject {
 	 */
 	public static HashMap<String, loader.Type> LOADEDDATA;
 	protected Weapon weapon;
-	protected ArrayList<Behavior> behaviors;
-
-	public Enemy(loader.Variation data) {
-		super(data);
-	}
 
 	@Override
 	public void update(float delta){
 		super.update(delta); // Update Movement and damage check
-		for(Behavior b: this.behaviors) {
-			b.run(this);
-		}
 		this.weapon.update(delta);
 	}
 

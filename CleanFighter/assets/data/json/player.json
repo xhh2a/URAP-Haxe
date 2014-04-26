@@ -5,7 +5,7 @@
         "health" : 10.0,
     },
     strings : {
-        "weaponType" : "soap",
+        "weaponType" : "soapWeapon",
         "weaponVariation" : "default",
         "imageFile" : "images/Ondaboat.gif"
     },
