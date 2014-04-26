@@ -88,6 +88,9 @@ public class LivingObject extends PhysObject {
 					}
 				}
 			}
+			if (data.data.containsKey("affects")) {
+				this.affects = (HashMap<String, ArrayList<String>>) data.data.get("affects");
+			}
 		}
 	}
 
