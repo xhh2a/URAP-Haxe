@@ -64,7 +64,7 @@ public class World {
 				if (lol != null) {
 					Iterator<LivingObject> loliter = lol.iterator();
 					while (loliter.hasNext()) {
-						//Each LivingObject's Updat)e function will handle updates!
+						//Each LivingObject's Update function will handle updates!
 						LivingObject lo = loliter.next();
 						lo.update(delta);
 						if (!lo.shouldExist) {

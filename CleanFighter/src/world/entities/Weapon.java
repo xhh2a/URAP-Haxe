@@ -60,6 +60,9 @@ public class Weapon {
 			if (data.floats.containsKey("reloadTime")) {
 				this.reloadTime = data.floats.get("reloadTime");
 			}
+			if (data.floats.containsKey("projectileSpeed")) {
+				this.projectileSpeed = data.floats.get("projectileSpeed");
+			}
 		}
 		this.projectileVariation = lookupProjectile();
 	}
@@ -83,13 +86,14 @@ public class Weapon {
 	 * will call this update function.
 	 */
 	public void update(float delta){
-		this.reloadCounter -= delta; //TODO: Proper reload check	
-		if (this.fire){
-			if (this.reloadCounter <= 0){
-				this.fire();
+		if ((this.reloadCounter > 0) && !this.fire) {
+			this.reloadCounter = Math.max(this.reloadCounter - delta, 0);
+		} else if (this.fire) {
+			this.reloadCounter -= delta;
+			while(this.reloadCounter <= 0){ //Fire all queued up.
+				this.fire(-this.reloadCounter);
 			}
 		}
-
 	}
 
 	/**
@@ -104,7 +108,11 @@ public class Weapon {
 		return null;
 	}
 
-	public void fire(){	
+	/** 
+	 * Fire the projectile, with time DELTA elapsed <i><b>since
+	 * the projectile was supposed to have been fired!</b></i>
+	 */
+	public void fire(float delta){	
 		World world = parent.world;
 		Projectile output;
 		float angle = parent.sprite.getRotation();
@@ -121,13 +129,13 @@ public class Weapon {
 
 		output.sprite.setRotation(angle);
 
-		
+		output.update(delta);
 		world.addInstance(output);
-		this.reload(); //This should be defined
+		this.reload();
 	}
 
 	public void reload(){
-		return; //TODO: Actually do.
+		this.reloadCounter = Math.min(this.reloadCounter + this.reloadTime, this.reloadTime);
 	}
 	
 }
