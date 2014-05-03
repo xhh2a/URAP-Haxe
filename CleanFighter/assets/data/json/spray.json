@@ -1,0 +1,16 @@
+{
+    type : "sprayWeapon",
+    floats : {
+        "damage" : 1,
+        "projectileSpeed" : 150,
+        "reloadTime" : 1.5
+    },
+    strings : {
+        "fireType" : "sprayProjectile",
+        "fireVariation" : "default",
+        "projectileImage" : "images/spray.png"
+    },
+    variations : {
+        "default" : { }
+    }
+}

@@ -13,12 +13,19 @@ public class Player extends LivingObject {
 	public static loader.Type LOADEDDATA;
 	/** Change in speed on input */
 	public float speed = 25f;
+	public float maxJumpHeight = 10.0f;
+	public float currJumpHeight = 0.0f;
+	public boolean isFalling = false;
 	protected Weapon weapon;
+	public World myWorld;
 
-	public Player(loader.Variation data){
+	public Player(loader.Variation data, World theWorld){
 		super(data);
 		if (data.floats.containsKey("speed")) {
 			this.speed = data.floats.get("speed");
+		}
+		if (data.floats.containsKey("jumpHeight")) {
+			this.maxJumpHeight = data.floats.get("jumpHeight");
 		}
 		if (data.strings.containsKey("weaponType")) {
 			String variation = "default";
@@ -27,8 +34,31 @@ public class Player extends LivingObject {
 			}
 			this.weapon = new Weapon(Weapon.LOADEDDATA.get(data.strings.get("weaponType")).variations.get(variation), this);
 		}
+		myWorld = theWorld;
 	}
+	
+	/**
+	 * Makes this Player fall until the ground is reached
+	 */
+	public void fall() {
+		Vector2 res = Vector2.Zero.cpy();
+		//here we're assuming the ground is at the bottom of the screen;
+		//might change this later
+		if (this.position.y == this.myWorld.ground)
+		{
+			isFalling = false;
+		}
+		if (isFalling)
+		{
+			System.out.println("here");
+			res.add(new Vector2(0,-this.speed));
+			this.setVelocity(res);
+		}
 
+	}
+	
+	
+	
 	/**
 	 * Method to call when the player is pressing the fire button.
 	 */
@@ -47,6 +77,7 @@ public class Player extends LivingObject {
 	public void update(float delta) {
 		super.update(delta);
 		this.weapon.update(delta);
+		//this.fall();
 	}
 	
 	@Override

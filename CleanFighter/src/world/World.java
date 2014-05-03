@@ -24,6 +24,8 @@ public class World {
 	public HashMap<String, HashMap<String, ArrayList<LivingObject>>> instances = new HashMap<String, HashMap<String, ArrayList<LivingObject>>>();
 	public Player player;
 	public HashMap<String, Behavior> installedbehaviors = new HashMap<String, Behavior>();
+	
+	public float ground = 0;
 
 	/**
 	 * Constructor for a new world, creates a player object.
@@ -33,7 +35,7 @@ public class World {
 		Weapon.LOADEDDATA.put("soapWeapon", loadJSON("data/json/soap.json").update()); //TODO: Change this to a generic directory load.
 		Player.LOADEDDATA = loadJSON("data/json/player.json").update();
 		Projectile.LOADEDDATA = new HashMap<String, loader.Type>();
-		this.player = new Player(Player.LOADEDDATA.variations.get("default"));
+		this.player = new Player(Player.LOADEDDATA.variations.get("default"), this);
 		this.player.world = this;
 	}
 

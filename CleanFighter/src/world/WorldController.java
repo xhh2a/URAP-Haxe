@@ -91,10 +91,60 @@ public class WorldController {
 		}
 		//////////////////////////
 		if (keys.get(Keys.UP)){
-			res.add(new Vector2(0,this.player.speed));
+			//res.add(new Vector2(0,this.player.speed));
+			//System.out.println("pressed up");
+			System.out.println(this.player.maxJumpHeight);
+			System.out.println("currJumpHeight is " + this.player.currJumpHeight);
+			if ((this.player.currJumpHeight < this.player.maxJumpHeight) && !this.player.isFalling)
+			{
+				System.out.println("went in if for " + this.player.currJumpHeight);
+				res.add(new Vector2(0,this.player.speed));
+				this.player.currJumpHeight = this.player.position.y - this.player.myWorld.ground; //assuming jumping speed is walking speed
+				/*if (this.player.currJumpHeight > this.player.maxJumpHeight)
+				{
+					this.player.currJumpHeight = this.player.maxJumpHeight;
+				}*/
+			}
+			else
+			{
+				this.player.currJumpHeight = 0;
+				if (this.player.position.y > this.player.myWorld.ground)
+				{
+					res.add(new Vector2(0,-this.player.speed));
+					this.player.isFalling = true;
+				}
+				else if (this.player.position.y < this.player.myWorld.ground)
+				{
+					this.player.position.y = this.player.myWorld.ground;
+				}
+				if (this.player.position.y == this.player.myWorld.ground)
+				{
+					this.player.isFalling = false;
+				}
+				//System.out.println(this.player.position.y);
+			}
+			
+		}
+		else
+		{
+			this.player.currJumpHeight = 0;
+			if (this.player.position.y > this.player.myWorld.ground)
+			{
+				res.add(new Vector2(0,-this.player.speed));
+				this.player.isFalling = true;
+			}
+			if (this.player.position.y < this.player.myWorld.ground)
+			{
+				this.player.position.y = this.player.myWorld.ground;
+			}
+			if (this.player.position.y == this.player.myWorld.ground)
+			{
+				this.player.isFalling = false;
+			}
+			//System.out.println(this.player.position.y);
 		}
 		if (keys.get(Keys.DOWN)){
-			res.add(new Vector2(0,-this.player.speed));
+			//res.add(new Vector2(0,-this.player.speed));
 		}
 		//System.out.println(keys);
 		this.player.setVelocity(res);

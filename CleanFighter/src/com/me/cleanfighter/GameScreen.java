@@ -50,6 +50,15 @@ public class GameScreen implements Screen, InputProcessor {
 		this.height = height;
 	}
 
+	public int getWidth()
+	{
+		return this.width;
+	}
+	public int getHeight()
+	{
+		return this.height;
+	}
+	
 	@Override
 	public void hide() {
 		Gdx.input.setInputProcessor(null);
