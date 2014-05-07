@@ -46,7 +46,7 @@ public class LivingObject extends PhysObject {
 	 * instances.
 	 * If the VARIATION keyword "all" is present, then it will check all variations.
 	 */
-	public HashMap<String, ArrayList<String>> affects = new HashMap<String, ArrayList<String>>();
+	public HashMap<String, com.badlogic.gdx.utils.Array<String>> affects = new HashMap<String, com.badlogic.gdx.utils.Array<String>>();
 
 	/**
 	 * A list of behaviors for this object.
@@ -111,7 +111,7 @@ public class LivingObject extends PhysObject {
 				}
 			}
 			if (data.data.containsKey("affects")) {
-				this.affects = (HashMap<String, ArrayList<String>>) data.data.get("affects");
+				this.affects = (HashMap<String, com.badlogic.gdx.utils.Array<String>>) data.data.get("affects");
 			}
 		}
 	}
@@ -181,7 +181,7 @@ public class LivingObject extends PhysObject {
 	}
 
 	private void checkCollisionHelper(float t, String atype) {
-		if (this.affects.get(atype).contains("all")) {
+		if (this.affects.get(atype).contains("all", false)) {
 			for (ArrayList<LivingObject> typelist: world.instances.get(atype).values()) {
 				for (LivingObject entry: typelist) {
 					if ((this != entry) && (this.intersects(entry))) {

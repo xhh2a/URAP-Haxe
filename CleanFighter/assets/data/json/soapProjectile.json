@@ -1,0 +1,21 @@
+{
+    type : "soapProjectile",
+    floats : {
+        "damage" : 1,
+        "spawnSpeed" : 150,
+    },
+    strings : {
+        "imageFile" : "images/soap.png"
+    },
+    variations : {
+        "default" : { }
+    },
+    data: {
+        affects: {
+            class : java.util.HashMap,
+            poop : [
+                {class: java.lang.String, value:all}
+            ]
+        }
+    }
+}

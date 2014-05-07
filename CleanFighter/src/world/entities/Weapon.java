@@ -118,10 +118,10 @@ public class Weapon {
 		float angle = parent.sprite.getRotation();
 		Vector2 force;
 		if (this.projectileVariation != null) {
-			output = new Projectile(this.projectileVariation);
+			output = new Projectile(this.projectileVariation, this.parent.world);
 			force = new Vector2(output.spawnSpeed, 0).rotate(angle);
 		} else {
-			output = new Projectile(this.damage, this.fireType, this.fireVariation, this.projectileImage);
+			output = new Projectile(this.damage, this.fireType, this.fireVariation, this.projectileImage, this.parent.world);
 			force = new Vector2(this.projectileSpeed,0).rotate(angle);
 		}
 		output.receiveForce(force);

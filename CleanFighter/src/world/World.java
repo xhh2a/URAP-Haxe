@@ -36,11 +36,17 @@ public class World {
 		
 		this.installBehaviors();
 		Weapon.LOADEDDATA = new HashMap<String, loader.Type>();
-		Weapon.LOADEDDATA.put("soapWeapon", loadJSON("data/json/soap.json").update()); //TODO: Change this to a generic directory load.
-		
+		Weapon.LOADEDDATA.put("soapWeapon", loadJSON("data/json/soapWeapon.json").update()); //TODO: Change this to a generic directory load.
 		Player.LOADEDDATA = loadJSON("data/json/player.json").update();
 		Projectile.LOADEDDATA = new HashMap<String, loader.Type>();
-		
+		Projectile.LOADEDDATA.put("soapProjectile", loadJSON("data/json/soapProjectile.json").update());
+		//ArrayList<String> arg = new ArrayList<String>();
+		//arg.add("all");
+		//HashMap<String, ArrayList<String>> want = new HashMap<String, ArrayList<String>>();
+		//want.put("poop", arg);
+		//Projectile.LOADEDDATA.get("soapProjectile").data.put("affects", want);
+
+		//System.out.println(new Json().toJson(Projectile.LOADEDDATA.get("soapProjectile"), loader.Type.class));
 		Enemy.LOADEDDATA = new HashMap<String, loader.Type>();
 		Enemy.LOADEDDATA.put("poop", loadJSON("data/json/poop.json").update());
 		Enemy.LOADEDDATA.put("jar", loadJSON("data/json/jar.json").update());

@@ -18,7 +18,7 @@ public class GameScreen implements Screen, InputProcessor {
 	private WorldRenderer 	renderer;
 	private WorldController	controller;
 	
-	private int width, height;
+	protected int width, height;
 	
 	@Override
 	public void show() {
@@ -48,15 +48,6 @@ public class GameScreen implements Screen, InputProcessor {
 		renderer.setSize(width, height);
 		this.width = width;
 		this.height = height;
-	}
-
-	public int getWidth()
-	{
-		return this.width;
-	}
-	public int getHeight()
-	{
-		return this.height;
 	}
 	
 	@Override

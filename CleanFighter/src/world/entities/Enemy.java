@@ -22,8 +22,10 @@ public class Enemy extends LivingObject {
 	@Override
 	public void update(float delta){
 		super.update(delta); // Update Movement and damage check
-		if (this.weapon != null)
+		if (this.weapon != null) {
 			this.weapon.update(delta);
+		}
+		
 	}
 
 }

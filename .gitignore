@@ -2,3 +2,5 @@
 *.project
 */bin/*
 */.settings/*
+/CleanFighter-html/.gwt
+/CleanFighter-html/gwt-unitCache
