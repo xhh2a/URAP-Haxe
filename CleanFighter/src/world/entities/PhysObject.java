@@ -15,7 +15,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class PhysObject {
 	//TODO: Extend Sprite class and move velocity and acceleration into that or figure out how to avoid double track of x/y.
 	/** Current speed. */
-	protected Vector2 velocity;
+	public Vector2 velocity;
 	/** Queued acceleration on the object */
 	protected Vector2 acceleration;
 	//TODO: Potentially does not require a copy of the sprite per instance, investigate SpriteCache.
@@ -177,8 +177,8 @@ public class PhysObject {
 		//TODO: Fix this
 		Vector2 force1 = this.velocity.scl(-1).scl(this.mass);
 		Vector2 force2 = new Vector2(-other.velocity.x*other.mass, -other.velocity.y*other.mass);
-		System.out.println("Force1:\t" + force1);
-		System.out.println("Force2:\t" + force2);
+		//System.out.println("Force1:\t" + force1);
+		//System.out.println("Force2:\t" + force2);
 		//this.receiveForce(force1);
 		//other.receiveForce(force2.scl(-1));
 		other.receiveForce(force1.add(force2));

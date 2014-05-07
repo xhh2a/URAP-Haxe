@@ -1,0 +1,20 @@
+{
+    type : "jar",
+    floats : {
+        "damage" : 0,
+    },
+    strings : {
+        "imageFile" : "images/jar.png",
+        "spawnType" : "fly"
+    },
+
+    variations : {
+        "default" : { }
+    },
+
+    data: {
+        "behaviors" : ["GoLeft" , "MaintainHeightWobble"]
+    }
+
+
+}

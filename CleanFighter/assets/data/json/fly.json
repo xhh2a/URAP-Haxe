@@ -1,0 +1,17 @@
+{
+    type : "fly",
+    floats : {
+        "damage" : 100,
+    },
+    strings : {
+        "imageFile" : "images/fly.png"
+    },
+
+    variations : {
+        "default" : { }
+    },
+
+    data: {
+        "behaviors" : ["GoLeft" , "MaintainHeightWobble"]
+    }
+}

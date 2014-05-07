@@ -3,6 +3,8 @@ package world.entities;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import world.behavior.Behavior;
+
 
 /**
  * The base class for all objects.
@@ -12,7 +14,12 @@ public class LivingObject extends PhysObject {
 	 * Defaults to 20f.
 	 */
 	public float health = 20f;
-
+	
+	/**
+	 * The string representation of the type of LivingObject that this will spawn.
+	 * Used by the spawn behavior
+	 */
+	public String spawnType;
 	/**
 	 * Damage on the stack.
 	 */
@@ -44,6 +51,7 @@ public class LivingObject extends PhysObject {
 	 * A list of behaviors for this object.
 	 */
 	protected ArrayList<Behavior> behaviors = new ArrayList<Behavior>();
+
 
 	/**
 	 * This is the constructor that should be used!
@@ -79,6 +87,7 @@ public class LivingObject extends PhysObject {
 			}
 			if (data.data.containsKey("behaviors")) {
 				for (String b : (ArrayList<String>) data.data.get("behaviors")) {
+					
 					Behavior res = this.world.installedbehaviors.get(b);
 					if (res != null) {
 						this.behaviors.add(res);

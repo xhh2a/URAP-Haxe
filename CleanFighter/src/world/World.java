@@ -7,8 +7,10 @@ import java.util.Iterator;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Json;
 
+import world.behavior.Behavior;
 import world.entities.*;
 
 /**
@@ -33,8 +35,15 @@ public class World {
 	public World(){
 		Weapon.LOADEDDATA = new HashMap<String, loader.Type>();
 		Weapon.LOADEDDATA.put("soapWeapon", loadJSON("data/json/soap.json").update()); //TODO: Change this to a generic directory load.
+		
 		Player.LOADEDDATA = loadJSON("data/json/player.json").update();
 		Projectile.LOADEDDATA = new HashMap<String, loader.Type>();
+		
+		Enemy.LOADEDDATA = new HashMap<String, loader.Type>();
+		Enemy.LOADEDDATA.put("poop", loadJSON("data/json/poop.json").update());
+		Enemy.LOADEDDATA.put("jar", loadJSON("data/json/jar.json").update());
+		Enemy.LOADEDDATA.put("fly", loadJSON("data/json/fly.json").update());
+		
 		this.player = new Player(Player.LOADEDDATA.variations.get("default"), this);
 		this.player.world = this;
 	}
@@ -121,5 +130,9 @@ public class World {
 		}
 		//livingObject.world = this;
 		return false;
+	}
+	
+	public void create(String thing, Vector2 position){
+		
 	}
 }

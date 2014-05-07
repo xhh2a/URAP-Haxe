@@ -50,7 +50,7 @@ public class Player extends LivingObject {
 		}
 		if (isFalling)
 		{
-			System.out.println("here");
+			//System.out.println("here");
 			res.add(new Vector2(0,-this.speed));
 			this.setVelocity(res);
 		}

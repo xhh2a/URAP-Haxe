@@ -1,0 +1,16 @@
+{
+    type : "soapWeapon",
+    floats : {
+        "damage" : 100,
+        "projectileSpeed" : 50,
+        "reloadTime" : 1
+    },
+    strings : {
+        "fireType" : "lidProjectile",
+        "fireVariation" : "default",
+        "projectileImage" : "images/soap.png"
+    },
+    variations : {
+        "default" : { }
+    }
+}

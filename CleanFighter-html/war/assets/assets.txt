@@ -1,0 +1,16 @@
+d::0:application/unknown
+d:data:0:application/unknown
+i:data/libgdx.png:54931:image/png
+d:images:0:application/unknown
+i:images/fly.png:26653:image/png
+i:images/net.jpg:5899:image/jpeg
+i:images/null.png:13452:image/png
+i:images/Ondaboat.gif:1674:image/gif
+i:images/poop.png:615:image/png
+i:images/soap.png:285:image/png
+t:com/badlogic/gdx/graphics/g3d/shaders/default.fragment.glsl:5068:application/unknown
+t:com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl:8574:application/unknown
+t:com/badlogic/gdx/graphics/g3d/shaders/depth.fragment.glsl:549:application/unknown
+t:com/badlogic/gdx/graphics/g3d/shaders/depth.vertex.glsl:2687:application/unknown
+t:com/badlogic/gdx/utils/arial-15.fnt:21743:application/unknown
+i:com/badlogic/gdx/utils/arial-15.png:21814:image/png

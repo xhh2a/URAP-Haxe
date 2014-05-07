@@ -93,11 +93,11 @@ public class WorldController {
 		if (keys.get(Keys.UP)){
 			//res.add(new Vector2(0,this.player.speed));
 			//System.out.println("pressed up");
-			System.out.println(this.player.maxJumpHeight);
-			System.out.println("currJumpHeight is " + this.player.currJumpHeight);
+			//System.out.println(this.player.maxJumpHeight);
+			//System.out.println("currJumpHeight is " + this.player.currJumpHeight);
 			if ((this.player.currJumpHeight < this.player.maxJumpHeight) && !this.player.isFalling)
 			{
-				System.out.println("went in if for " + this.player.currJumpHeight);
+				//System.out.println("went in if for " + this.player.currJumpHeight);
 				res.add(new Vector2(0,this.player.speed));
 				this.player.currJumpHeight = this.player.position.y - this.player.myWorld.ground; //assuming jumping speed is walking speed
 				/*if (this.player.currJumpHeight > this.player.maxJumpHeight)
