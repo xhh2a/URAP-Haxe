@@ -13,7 +13,7 @@
     },
 
     data: {
-        "behaviors" : ["GoLeft" , "MaintainHeightWobble"]
+        "behaviors" : ["GoLeft" , "MaintainHeightWobble", "SpawnEnemy"]
     }
 
 

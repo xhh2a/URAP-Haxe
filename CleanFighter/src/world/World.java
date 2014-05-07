@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Json;
 
-import world.behavior.Behavior;
+import world.behavior.*;
 import world.entities.*;
 
 /**
@@ -33,6 +33,8 @@ public class World {
 	 * Constructor for a new world, creates a player object.
 	 */
 	public World(){
+		
+		this.installBehaviors();
 		Weapon.LOADEDDATA = new HashMap<String, loader.Type>();
 		Weapon.LOADEDDATA.put("soapWeapon", loadJSON("data/json/soap.json").update()); //TODO: Change this to a generic directory load.
 		
@@ -46,6 +48,18 @@ public class World {
 		
 		this.player = new Player(Player.LOADEDDATA.variations.get("default"), this);
 		this.player.world = this;
+		
+		
+		//HARDCODED TESTS
+		Enemy poop = this.createEnemy("poop");
+		poop.position = new Vector2(300,00);
+	}
+	
+	public void installBehaviors(){
+		this.installedbehaviors.put("SpawnEnemey", new SpawnEnemy());
+		this.installedbehaviors.put("GoLeft", new GoLeft());
+		this.installedbehaviors.put("MaintainHeightWobble", new MaintainHeightWobble());
+
 	}
 
 	/**
@@ -132,7 +146,14 @@ public class World {
 		return false;
 	}
 	
-	public void create(String thing, Vector2 position){
-		
+	/**
+	 * This method declares and initializes an Enemy object. It also adds that Enemy to the world via addInstance
+	 * @param this is the String representation of the enemy you are trying to make (e.g. "fly")
+	 * @return The created Enemy object
+	 */
+	public Enemy createEnemy(String query){
+		Enemy ans = new Enemy(Enemy.LOADEDDATA.get(query).variations.get("default"), this);
+		this.addInstance(ans);
+		return ans;
 	}
 }

@@ -3,6 +3,7 @@ package world.entities;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import world.World;
 import world.behavior.Behavior;
 
 
@@ -52,6 +53,8 @@ public class LivingObject extends PhysObject {
 	 */
 	protected ArrayList<Behavior> behaviors = new ArrayList<Behavior>();
 
+	public int spawnTime;
+
 
 	/**
 	 * This is the constructor that should be used!
@@ -60,8 +63,9 @@ public class LivingObject extends PhysObject {
 	 * when calculating if things will intercept and thus
 	 * we split the attributes off to avoid unnecessary overhead.
 	 */
-	public LivingObject(loader.Variation data){
+	public LivingObject(loader.Variation data, World world){
 		super();
+		this.world = world;
 		if (data != null) {
 			if (data.type != null) {
 				this.type = data.type;
@@ -75,6 +79,10 @@ public class LivingObject extends PhysObject {
 				System.err.println("[WARNING] Missing variation in JSON data. Stacktrace: ");
 				Thread.currentThread().dumpStack();
 			}
+			
+			if (data.integers.containsKey("spawnTime"))
+				this.spawnTime = data.integers.get("spawnTime");
+			
 			if (data.floats.containsKey("health")) {
 				this.health = data.floats.get("health");
 			}
@@ -82,16 +90,21 @@ public class LivingObject extends PhysObject {
 				this.imageFile = data.strings.get("imageFile");
 				this.loadSprite();
 			}
+			if (data.strings.containsKey("spawnType")) {
+				this.spawnType = data.strings.get("spawnType");
+			}
 			if (data.floats.containsKey("mass")) {
 				this.mass = data.floats.get("mass");
 			}
 			if (data.data.containsKey("behaviors")) {
-				for (String b : (ArrayList<String>) data.data.get("behaviors")) {
+				
+				for (String b : (com.badlogic.gdx.utils.Array<String>) data.data.get("behaviors")) {
 					
 					Behavior res = this.world.installedbehaviors.get(b);
 					if (res != null) {
 						this.behaviors.add(res);
 					} else {
+						System.out.println(b);
 						System.err.println("[WARNING] Behavior requested in object is not installed in the world. Stacktrace:");
 						Thread.currentThread().dumpStack();
 					}
@@ -101,6 +114,10 @@ public class LivingObject extends PhysObject {
 				this.affects = (HashMap<String, ArrayList<String>>) data.data.get("affects");
 			}
 		}
+	}
+	
+	public LivingObject(loader.Variation data){
+		this(data,null);
 	}
 
 	/**
