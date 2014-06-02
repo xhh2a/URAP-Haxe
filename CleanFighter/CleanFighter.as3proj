@@ -4,7 +4,7 @@
   <output>
     <movie outputType="Application" />
     <movie input="" />
-    <movie path="bin\2014Game4Real.swf" />
+    <movie path="bin\CleanFighter.swf" />
     <movie fps="30" />
     <movie width="800" />
     <movie height="600" />
@@ -73,7 +73,7 @@
   </library>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>
-    <compile path="src\Main.as" />
+    <compile path="src\cleanfighter\Main.as" />
   </compileTargets>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>

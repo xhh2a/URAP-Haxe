@@ -1,0 +1,8 @@
+<TextureAtlas imagePath="playerSheet.png">
+	<SubTexture name="idle" x="0" y="0" width="65" height="220" />
+	<SubTexture name="walk1" x="0" y="0" width="65" height="220" />
+	<SubTexture name="walk2" x="65" y="0" width="65" height="220" />
+	<SubTexture name="walk2" x="130" y="0" width="65" height="220" />
+	<SubTexture name="walk4" x="195" y="0" width="65" height="220" />
+	<SubTexture name="walk5" x="260" y="0" width="65" height="220" />
+</TextureAtlas>

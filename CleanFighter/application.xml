@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8" ?> 
 <application xmlns="http://ns.adobe.com/air/application/3.9">
 	
-	<id>2014Game4Real</id> 
+	<id>cleanfighter.CleanFighter</id> 
 	<versionNumber>1.0</versionNumber> 
-	<filename>2014Game4Real</filename> 
+	<filename>CleanFighter</filename> 
 	
-	<name>2014Game4Real</name> 
+	<name>CleanFighter</name> 
 	<description></description> 
 	<copyright></copyright> 
 	
 	<initialWindow> 
-		<title>The Game of Awesomeness</title> 
-		<content>2014Game4Real.swf</content> 
+		<title>CleanFighter</title> 
+		<content>CleanFighter.swf</content> 
 		<systemChrome>standard</systemChrome> 
 		<transparent>false</transparent> 
 		<visible>true</visible> 
 		<renderMode>direct</renderMode>
 		<minimizable>true</minimizable> 
 		<maximizable>false</maximizable> 
-		<resizable>false</resizable> 
+		<resizable>true</resizable> 
 	</initialWindow> 
 	
 	<!-- 
