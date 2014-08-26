@@ -80,6 +80,9 @@ package cleanfighter
 			keyboard.addKeyAction("jump", Keyboard.UP);
 			keyboard.addKeyAction("shoot", Keyboard.SPACE);
 			
+			//setting the "C" key to be the key that you press to switch weapon
+			keyboard.addKeyAction("switch weapon", Keyboard.C);
+			
 			//adding the background
 			add(new CitrusSprite("Background", { x: 0, y: -380, view: EmbeddedAssets.background } ));
 			
@@ -107,6 +110,8 @@ package cleanfighter
 			_score = 0;
 			_healthAndScoreText = new TextField(stage.stageWidth, 30, "Score: " + _score.toString() + ", Health: " + Player._currHealth);
 			addChild(_healthAndScoreText);
+			
+			addChild(new HeadsUpDisplay(10, 10, 50, 50, 3));
 			
 			_gameOver = false;
 

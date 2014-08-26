@@ -24,6 +24,12 @@ package cleanfighter
 		
 		[Embed(source = "/../assets/germ.png")]
 		public static const germ:Class;
+		
+		[Embed(source = "/../assets/bugsprayHUD.png")]
+		public static const bugSprayHUD:Class;
+		
+		[Embed(source = "/../assets/spraycloud.png")]
+		public static const sprayCloud:Class;
 	}
 
 }

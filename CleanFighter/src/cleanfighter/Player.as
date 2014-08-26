@@ -52,18 +52,10 @@ package cleanfighter
 
 			if (_inverted)
 			{
-				trace("inverted");
-				//edit this
 				bomb = new Bomb("bomb", { speed: -4, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: EmbeddedAssets.soap } );
 			}
 			else
 			{
-				trace("NOT inverted");
-
-				trace("_width = " + _width);
-				trace("width = " + width);
-				trace("height = " + height);
-				
 				bomb = new Bomb("bomb", { speed: 4, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: EmbeddedAssets.soap } );
 			}
 			
