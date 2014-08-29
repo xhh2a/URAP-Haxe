@@ -29,6 +29,9 @@ package cleanfighter
 	 */
 	public class Game extends StarlingState
 	{
+		//For the stuff that I made static: the reason I made them static is so we can "reuse" those things
+		//Later on, I'm planning on putting in a check in the initialize() function that checks to see
+		//if those static things have been initialized yet; if they're already initialized, we don't initialize them again
 		
 		protected var _engine:CitrusEngine;
 		protected var _playerSheetAtlas:TextureAtlas;
@@ -43,7 +46,9 @@ package cleanfighter
 		protected static var vb:VirtualButton;
 		protected static var keyboard:Keyboard;
 		
-		protected static var _gameOver:Boolean;
+		protected static var gameOver:Boolean;
+		
+		public static var headsUp:HeadsUpDisplay;
 		
 		public function Game() 
 		{
@@ -111,9 +116,10 @@ package cleanfighter
 			_healthAndScoreText = new TextField(stage.stageWidth, 30, "Score: " + _score.toString() + ", Health: " + Player._currHealth);
 			addChild(_healthAndScoreText);
 			
-			addChild(new HeadsUpDisplay(10, 10, 50, 50, 3));
+			headsUp = new HeadsUpDisplay(10, 10, 50, 50, 3);
+			addChild(headsUp);
 			
-			_gameOver = false;
+			gameOver = false;
 
 			gameTimer = new Timer(1000);
 			currentTime = 0;
@@ -121,7 +127,7 @@ package cleanfighter
 		}
 		public static function endGame():void
 		{
-			_gameOver = true;
+			gameOver = true;
 			
 			//removing the virtual joystick and button because we don't need them anymore
 			vj.destroy();
@@ -134,7 +140,7 @@ package cleanfighter
 		{
 			super.update(timeDelta);			
 			
-			if (_gameOver)
+			if (gameOver)
 			{
 				_healthAndScoreText.text = "GAME OVER!!! Your Final Score: " + _score.toString();
 			}

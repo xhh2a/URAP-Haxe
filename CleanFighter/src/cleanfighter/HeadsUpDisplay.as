@@ -2,7 +2,6 @@ package cleanfighter
 {
 	import starling.display.Image;
 	import starling.display.Sprite;
-	import flash.utils.Dictionary;
 	import starling.display.Quad;
 	
 	/**
@@ -11,9 +10,9 @@ package cleanfighter
 	 */
 	public class HeadsUpDisplay extends Sprite
 	{
-		protected var weaponToImageDict:Dictionary;
 		protected var weaponImg:Image;
 		protected var weaponArray:Array;
+		protected var currWeaponArrayIndex:Number;
 		protected var boxContainer:Sprite;
 		
 		//The HeadsUpDisplay will show the weapon the person is currently wielding, which will be determined by whatever is stored in
@@ -41,38 +40,49 @@ package cleanfighter
 			boxContainer.addChild(rightVertBoxLine);
 			addChild(boxContainer);
 			
-			//putting weapon images in our weaponToImageDict
-			//weaponToImageDict = new Dictionary();
-			//weaponToImageDict["soap"] = Image.fromBitmap(new EmbeddedAssets.soap());
-			//weaponToImageDict["soap"].width *= 0.35;
-			//weaponToImageDict["soap"].height *= 0.35;
-			//weaponToImageDict["bug spray"] = Image.fromBitmap(new EmbeddedAssets.bugSprayHUD());
-			
-			//TODO: instead of the above dict stuff, use indexed array below and store object
-			//that stores img and string (the name of the weapon)
 			
 			//initializing our weaponArray
-			weaponArray = new Array( { img: Image.fromBitmap(new EmbeddedAssets.soap()), name: "soap" } );
+			weaponArray = new Array( { img: Image.fromBitmap(new EmbeddedAssets.soap()), actualImg: Image.fromBitmap(new EmbeddedAssets.soap()), name: "soap" } );
 			weaponArray[0].img.width *= 0.35;
 			weaponArray[0].img.height *= 0.35;
-			weaponArray[1] = { img: Image.fromBitmap(new EmbeddedAssets.bugSprayHUD()), name: "bug spray" };
+			(weaponArray[0].img).x = xCoordinate + 5;
+			(weaponArray[0].img).y = xCoordinate + 10;
+			weaponArray[1] = { img: Image.fromBitmap(new EmbeddedAssets.bugSprayHUD()), actualImg: Image.fromBitmap(new EmbeddedAssets.sprayCloud), name: "bug spray" };
 			weaponArray[1].img.width *= 0.25;
 			weaponArray[1].img.height *= 0.25;
+			(weaponArray[1].img).x = xCoordinate + 5;
+			(weaponArray[1].img).y = xCoordinate + 10;
 			
 			//putting the image of the default weapon (the soap) into the box
 			weaponImg = weaponArray[0].img;
 			weaponImg.alpha = 0.5;
-			weaponImg.x = xCoordinate + 5; //making the weapon image be 5 pixels right of the top-left corner of the box
-			weaponImg.y = yCoordinate + 10; //making the weapon image be 10 pixels below the top-left corner of the box
 			boxContainer.addChild(weaponImg);
+			currWeaponArrayIndex = 0;
 		}
 		
 		//will change the displayed weapon in the box
 		public function changeDisplayedWeapon():void
 		{
+			var updatedIndex:Number = currWeaponArrayIndex + 1;
+
+			if (updatedIndex < weaponArray.length)
+			{
+				currWeaponArrayIndex = updatedIndex;				
+			}
+			else
+			{
+				currWeaponArrayIndex = 0;
+			}
 			
+			weaponImg = weaponArray[currWeaponArrayIndex].img;
+			boxContainer.removeChildAt(4);
+			boxContainer.addChild(weaponImg);
 		}
 		
+		public function getCurrWeaponArrayInfo():Object
+		{
+			return weaponArray[currWeaponArrayIndex];
+		}
 	}
 
 }

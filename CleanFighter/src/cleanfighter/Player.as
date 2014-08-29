@@ -13,6 +13,7 @@ package cleanfighter
 	import citrus.objects.Box2DPhysicsObject;
 	import flash.utils.setTimeout;
 	import flash.utils.clearTimeout;
+	import starling.display.Image;
 	
 	/**
 	 * ...
@@ -20,6 +21,10 @@ package cleanfighter
 	 */
 	public class Player extends Hero
 	{
+		//TODO: in the fire() function, the view should get the image of the ammo corresponding to the weapon being
+		//displayed in the HeadsUpDisplay
+		//TODO: make the player be able to change weapons
+		
 		protected const _reloadTime:uint = 1500;
 		protected var _canFire:Boolean;
 		
@@ -48,21 +53,49 @@ package cleanfighter
 		
 		protected function fire():void
 		{
-			var bomb:Bomb;
+			var currWeaponName:String = Game.headsUp.getCurrWeaponArrayInfo().name;
+			var currWeaponImg:Image = Game.headsUp.getCurrWeaponArrayInfo().actualImg;
+			
+			//bomb type weapons
+			if (currWeaponName == "soap")
+			{
+				var bomb:Bomb;
 
-			if (_inverted)
-			{
-				bomb = new Bomb("bomb", { speed: -4, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: EmbeddedAssets.soap } );
+				if (_inverted)
+				{
+					bomb = new Bomb("bomb", { speed: -4, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: currWeaponImg } );
+				}
+				else
+				{
+					bomb = new Bomb("bomb", { speed: 4, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: currWeaponImg } );
+				}
+				
+				_canFire = false;
+				setTimeout(canFire, _reloadTime);
+				_ce.state.add(bomb);
+				bomb.onExplode.addOnce(_damage);
 			}
-			else
+			//missile type weapons
+			else if (currWeaponName == "bug spray")
 			{
-				bomb = new Bomb("bomb", { speed: 4, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: EmbeddedAssets.soap } );
+				var missile:Missile;
+				
+				if (_inverted)
+				{
+					missile = new Missile("missile", { speed: -4, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: currWeaponImg } );
+				}
+				else
+				{
+					missile = new Missile("missile", { speed: 4, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: currWeaponImg } );
+				}
+				
+				_canFire = false;
+				setTimeout(canFire, _reloadTime);
+				_ce.state.add(missile);
+				missile.onExplode.addOnce(_damage);
 			}
 			
-			_canFire = false;
-			setTimeout(canFire, _reloadTime);
-			_ce.state.add(bomb);
-			bomb.onExplode.addOnce(_damage);
+			
 		}
 		
 		protected function canFire():void
@@ -123,6 +156,11 @@ package cleanfighter
 				{
 					velocity.Subtract(getSlopeBasedMoveAngle());
 					moveKeyPressed = true;
+				}
+				
+				if (_ce.input.justDid("switch weapon", inputChannel))
+				{
+					Game.headsUp.changeDisplayedWeapon();
 				}
 				
 				//If player just started moving the hero this tick.
