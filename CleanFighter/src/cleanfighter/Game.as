@@ -154,7 +154,7 @@ package cleanfighter
 				currentTime = gameTimer.currentCount;
 				if (currentTime % 3 == 0)
 				{
-					add(new AntiMarioEnemy("enemy", { x: 500, y: 110, width: 183, height: 183, view: EmbeddedAssets.germ } ));
+					add(new AntiMarioEnemy("germ", { x: 500, y: 110, width: 183, height: 183, view: EmbeddedAssets.germ } ));
 				}
 				//trace(currentTime);
 			}			

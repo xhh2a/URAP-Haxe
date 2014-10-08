@@ -13,6 +13,11 @@ package cleanfighter
 	 * ...
 	 * @author Kevin
 	 */
+	//What is an AntiMarioEnemy? It's basically an Enemy that you can't kill by jumping on it.
+	//Why is this necesary? Because by default, every Enemy in the Citrus Engine gets killed when you jump (or fall) on it.
+	//However, we only want an Enemy to die when the right type of ammo hits it.
+	//This AntiMarioEnemy class essentially a regular Enemy, but replaces the "die by getting jumped on" stuff with
+	//"die by getting hit with the right type of ammo" stuff
 	public class AntiMarioEnemy extends Enemy
 	{
 		
@@ -27,7 +32,7 @@ package cleanfighter
 		{
 			var collider:IBox2DPhysicsObject = Box2DUtils.CollisionGetOther(this, contact);
 
-			if (collider is _enemyClass)
+			if ((collider is _enemyClass) && (name == Game.headsUp.getCurrWeaponArrayInfo().kills))
 			{
 				hurt();
 				Game._score++;

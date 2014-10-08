@@ -21,9 +21,7 @@ package cleanfighter
 	 */
 	public class Player extends Hero
 	{
-		//TODO: in the fire() function, the view should get the image of the ammo corresponding to the weapon being
-		//displayed in the HeadsUpDisplay
-		//TODO: make the player be able to change weapons
+		//TODO: make spray cloud "go through" stuff instead of being "just a block"
 		
 		protected const _reloadTime:uint = 1500;
 		protected var _canFire:Boolean;

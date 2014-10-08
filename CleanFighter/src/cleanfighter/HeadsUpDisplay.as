@@ -42,12 +42,12 @@ package cleanfighter
 			
 			
 			//initializing our weaponArray
-			weaponArray = new Array( { img: Image.fromBitmap(new EmbeddedAssets.soap()), actualImg: Image.fromBitmap(new EmbeddedAssets.soap()), name: "soap" } );
+			weaponArray = new Array( { img: Image.fromBitmap(new EmbeddedAssets.soap()), actualImg: Image.fromBitmap(new EmbeddedAssets.soap()), name: "soap", kills: "germ" } );
 			weaponArray[0].img.width *= 0.35;
 			weaponArray[0].img.height *= 0.35;
 			(weaponArray[0].img).x = xCoordinate + 5;
 			(weaponArray[0].img).y = xCoordinate + 10;
-			weaponArray[1] = { img: Image.fromBitmap(new EmbeddedAssets.bugSprayHUD()), actualImg: Image.fromBitmap(new EmbeddedAssets.sprayCloud), name: "bug spray" };
+			weaponArray[1] = { img: Image.fromBitmap(new EmbeddedAssets.bugSprayHUD()), actualImg: Image.fromBitmap(new EmbeddedAssets.sprayCloud), name: "bug spray", kills: "mosquito" };
 			weaponArray[1].img.width *= 0.25;
 			weaponArray[1].img.height *= 0.25;
 			(weaponArray[1].img).x = xCoordinate + 5;
