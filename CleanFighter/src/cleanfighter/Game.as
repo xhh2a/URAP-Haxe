@@ -1,7 +1,9 @@
 package cleanfighter 
 {
+	import Box2D.Common.Math.b2Vec2;
 	import citrus.core.starling.StarlingState;
 	import citrus.core.CitrusEngine;
+	import citrus.view.starlingview.StarlingArt;
 	import citrus.input.controllers.Keyboard;
 	import citrus.objects.platformer.box2d.Enemy;
 	import citrus.objects.platformer.box2d.Hero;
@@ -82,8 +84,9 @@ package cleanfighter
 			//and then setting the space bar to be the button you press to shoot
 			keyboard = _engine.input.keyboard;
 			keyboard.removeKeyActions(Keyboard.SPACE);
-			keyboard.addKeyAction("jump", Keyboard.UP);
 			keyboard.addKeyAction("shoot", Keyboard.SPACE);
+			keyboard.addKeyAction("up", Keyboard.UP);
+			keyboard.addKeyAction("down", Keyboard.DOWN);
 			
 			//setting the "C" key to be the key that you press to switch weapon
 			keyboard.addKeyAction("switch weapon", Keyboard.C);
@@ -93,7 +96,9 @@ package cleanfighter
 			
 			//physics engine stuff for doing stuff like collisions, gravity, etc.
 			var box2D:Box2D = new Box2D("The Box2D physics stuff");
-			box2D.visible = false;
+			box2D.visible = false; //set to true to see collision bounds (for debugging use); set to false for not see these bounds
+			box2D.gravity = new b2Vec2(0, 0);
+			//box2D.world.ClearForces();
 			add(box2D);
 			
 			//adding ground to stand on top of
@@ -107,7 +112,9 @@ package cleanfighter
 
 			
 			var myPlayer:Player = new Player("myPlayer", { x: 200, y: 120, width: 65, height: 220  } );
-			myPlayer.view = new AnimationSequence(_playerSheetAtlas, ["idle", "walk"], "idle");
+			myPlayer.view = new AnimationSequence(_playerSheetAtlas, ["idleHoriz", "idleUp", "idleDown", "walkHoriz", "walkDown", "walkUp"], "idleHoriz");
+			delete StarlingArt.loopAnimation["walk"];
+			StarlingArt.setLoopAnimations(["walkHoriz", "walkDown", "walkUp"]);
 			add(myPlayer);
 			
 			view.camera.setUp(myPlayer, new Rectangle(0, 0, 2000, stage.stageHeight));
@@ -154,7 +161,7 @@ package cleanfighter
 				currentTime = gameTimer.currentCount;
 				if (currentTime % 3 == 0)
 				{
-					add(new AntiMarioEnemy("germ", { x: 500, y: 110, width: 183, height: 183, view: EmbeddedAssets.germ } ));
+					//add(new AntiMarioEnemy("germ", { x: 500, y: 110, width: 183, height: 183, view: EmbeddedAssets.germ } ));
 				}
 				//trace(currentTime);
 			}			

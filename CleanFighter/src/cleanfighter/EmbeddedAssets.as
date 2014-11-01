@@ -10,7 +10,7 @@ package cleanfighter
 		[Embed(source = "/../assets/circle.png")]
 		public static const circleImg:Class;
 		
-		[Embed(source = "/../assets/playerSheet.png")]
+		[Embed(source = "/../assets/thePlayerSheet.png")]
 		public static const playerSheet:Class;
 		
 		[Embed(source = "/../assets/playerSheet.xml", mimeType="application/octet-stream")]

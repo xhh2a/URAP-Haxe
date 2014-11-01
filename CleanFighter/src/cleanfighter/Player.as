@@ -1,5 +1,6 @@
 package cleanfighter 
 {
+	import Box2D.Dynamics.b2BodyDef;
 	import citrus.objects.platformer.box2d.Hero;
 	import citrus.physics.box2d.Box2DShapeMaker;
 	import Box2D.Collision.Shapes.b2PolygonShape;
@@ -39,10 +40,12 @@ package cleanfighter
 		{
 			super(name, params);
 			
+			maxVelocity = 3;
+			
 			_canFire = true;
 			
 			_currHealth = _origHealth;	
-			_shotHole = new Point(40, -30);
+			_shotHole = new Point(40, -30);		
 			
 			//set these to the width and height of the default ammo's view
 			_shotWidth = 128;
@@ -146,13 +149,25 @@ package cleanfighter
 				
 				if (_ce.input.isDoing("right", inputChannel))
 				{
-					velocity.Add(getSlopeBasedMoveAngle());
+					velocity.x += 1;
 					moveKeyPressed = true;
 				}
 				
 				if (_ce.input.isDoing("left", inputChannel))
 				{
-					velocity.Subtract(getSlopeBasedMoveAngle());
+					velocity.x -= 1;
+					moveKeyPressed = true;
+				}
+				
+				if (_ce.input.isDoing("down", inputChannel))
+				{
+					velocity.y += 1;
+					moveKeyPressed = true;
+				}
+				
+				if (_ce.input.isDoing("up", inputChannel))
+				{
+					velocity.y -= 1;
 					moveKeyPressed = true;
 				}
 				
@@ -161,17 +176,41 @@ package cleanfighter
 					Game.headsUp.changeDisplayedWeapon();
 				}
 				
-				//If player just started moving the hero this tick.
-				if (moveKeyPressed && !_playerMovingHero)
+				if (!_playerMovingHero && !moveKeyPressed)
 				{
-					_playerMovingHero = true;
-					_fixture.SetFriction(0); //Take away friction so he can accelerate.
-				}
-				//Player just stopped moving the hero this tick.
-				else if (!moveKeyPressed && _playerMovingHero)
-				{
-					_playerMovingHero = false;
-					_fixture.SetFriction(_friction); //Add friction so that he stops running
+					//TODO: Change this later! velocity stuff are floats!
+					if (velocity.x > 0)
+					{
+						velocity.x -= 1;
+						if (velocity.x < 0)
+						{
+							velocity.x = 0;
+						}
+					}
+					else if (velocity.x < 0)
+					{
+						velocity.x += 1;
+						if (velocity.x > 0)
+						{
+							velocity.x = 0;
+						}
+					}
+					if (velocity.y > 0)
+					{
+						velocity.y -= 1;
+						if (velocity.y < 0)
+						{
+							velocity.y = 0;
+						}
+					}
+					else if (velocity.y < 0)
+					{
+						velocity.y += 1;
+						if (velocity.y > 0)
+						{
+							velocity.y = 0;
+						}
+					}
 				}
 				
 				if (_onGround && _ce.input.justDid("jump", inputChannel))
@@ -202,6 +241,14 @@ package cleanfighter
 				else if (velocity.x < ( -maxVelocity))
 				{
 					velocity.x = -maxVelocity;
+				}
+				if (velocity.y > (maxVelocity))
+				{
+					velocity.y = maxVelocity;
+				}
+				else if (velocity.y < ( -maxVelocity))
+				{
+					velocity.y = -maxVelocity;
 				}
 			}
 			
@@ -247,25 +294,49 @@ package cleanfighter
 		
 		override protected function updateAnimation():void
 		{
-			//Everything here was from the Citrus Engine source code, except I took some stuff out
+			//Everything here was from the Citrus Engine source code, except I took some stuff out and changed a few things
 			
 			var prevAnimation:String = _animation;
 
 			var walkingSpeed:Number = getWalkingSpeed();
+			
+			var velocity:b2Vec2 = _body.GetLinearVelocity();
 
-			if (walkingSpeed < -acceleration)
+			if (velocity.x < -acceleration)
 			{
 				_inverted = true;
-				_animation = "walk";
+				_animation = "walkHoriz";
 			}
-			else if (walkingSpeed > acceleration)
+			else if (velocity.x > acceleration)
 			{
 				_inverted = false;
-				_animation = "walk";
+				_animation = "walkHoriz";
+			}
+
+			if (velocity.y < -acceleration)
+			{
+				_inverted = false;
+				_animation = "walkUp";
+			}
+			else if (velocity.y > acceleration)
+			{
+				_inverted = false;
+				_animation = "walkDown";
 			}
 			else
 			{
-				_animation = "idle";
+				if (prevAnimation == "walkHoriz")
+				{
+					_animation = "idleHoriz";
+				}
+				else if (prevAnimation == "walkUp")
+				{
+					_animation = "idleUp";
+				}
+				else if (prevAnimation == "walkDown")
+				{
+					_animation = "idleDown";
+				}
 			}
 
 			if (prevAnimation != _animation)
