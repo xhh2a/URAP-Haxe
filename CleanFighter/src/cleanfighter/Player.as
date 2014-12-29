@@ -1,8 +1,6 @@
 package cleanfighter 
 {
-	import Box2D.Dynamics.b2BodyDef;
 	import citrus.objects.platformer.box2d.Hero;
-	import citrus.physics.box2d.Box2DShapeMaker;
 	import Box2D.Collision.Shapes.b2PolygonShape;
 	import Box2D.Common.Math.b2Vec2;
 	import Box2D.Dynamics.Contacts.b2Contact;
@@ -32,68 +30,71 @@ package cleanfighter
 		
 		protected var _shotHole:Point;
 		
-		protected var _shotWidth:Number;
-		
+		protected var _shotWidth:Number;		
 		protected var _shotHeight:Number;
+		
+		protected var _currWeaponName:String;
 		
 		public function Player(name:String, params:Object = null)
 		{
 			super(name, params);
 			
 			maxVelocity = 3;
-			
 			_canFire = true;
 			
 			_currHealth = _origHealth;	
 			_shotHole = new Point(40, -30);		
 			
-			//set these to the width and height of the default ammo's view
-			_shotWidth = 128;
-			_shotHeight = 83;
+			//set these to the width and height of the ammo's view (for simplicity, for now, we'll have all ammo be the same size)
+			_shotWidth = 64;
+			_shotHeight = 41.5;
+			
+			_currWeaponName = Game.headsUp.getCurrWeaponArrayInfo().name;
 		}
 		
+		//TODO: make a "cloud" type for bug spray
+		//look up the maskbits filter
+		//http://www.aurelienribon.com/blog/2011/07/box2d-tutorial-collision-filtering/
 		protected function fire():void
-		{
-			var currWeaponName:String = Game.headsUp.getCurrWeaponArrayInfo().name;
-			var currWeaponImg:Image = Game.headsUp.getCurrWeaponArrayInfo().actualImg;
-			
-			//bomb type weapons
-			if (currWeaponName == "soap")
+		{			
+			//missile type weapons
+			if (_currWeaponName == "soap")
 			{
-				var bomb:Bomb;
+				var missile:Missile;
+
+				if (_inverted)
+				{					
+					missile = new Missile("Missile", { speed: -(maxVelocity + 2), x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
+				}
+				else
+				{					
+					missile = new Missile("Missile", { speed: maxVelocity + 2, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
+				}
+				
+				_canFire = false;
+				setTimeout(canFire, _reloadTime);
+				
+				_ce.state.add(missile);
+				missile.onExplode.addOnce(_damage);
+			}
+			//spray type weapons
+			else if (_currWeaponName == "bug spray")
+			{
+				var spray:Missile;
 
 				if (_inverted)
 				{
-					bomb = new Bomb("bomb", { speed: -4, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: currWeaponImg } );
+					spray = new Missile("Spray", { speed: -4, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
 				}
 				else
 				{
-					bomb = new Bomb("bomb", { speed: 4, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: currWeaponImg } );
+					spray = new Missile("Spray", { speed: 4, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
 				}
 				
 				_canFire = false;
 				setTimeout(canFire, _reloadTime);
-				_ce.state.add(bomb);
-				bomb.onExplode.addOnce(_damage);
-			}
-			//missile type weapons
-			else if (currWeaponName == "bug spray")
-			{
-				var missile:Missile;
-				
-				if (_inverted)
-				{
-					missile = new Missile("missile", { speed: -4, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: currWeaponImg } );
-				}
-				else
-				{
-					missile = new Missile("missile", { speed: 4, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: currWeaponImg } );
-				}
-				
-				_canFire = false;
-				setTimeout(canFire, _reloadTime);
-				_ce.state.add(missile);
-				missile.onExplode.addOnce(_damage);
+				_ce.state.add(spray);
+				spray.onExplode.addOnce(_damage);
 			}
 			
 			
@@ -144,72 +145,72 @@ package cleanfighter
 				{
 					fire();
 				}
-				
-				var moveKeyPressed:Boolean = false;
+
+				var leftPressed:Boolean = false;
+				var rightPressed:Boolean = false;
+				var upPressed:Boolean = false;
+				var downPressed:Boolean = false;
 				
 				if (_ce.input.isDoing("right", inputChannel))
 				{
 					velocity.x += 1;
-					moveKeyPressed = true;
+					rightPressed = true;
 				}
 				
 				if (_ce.input.isDoing("left", inputChannel))
 				{
 					velocity.x -= 1;
-					moveKeyPressed = true;
+					leftPressed = true;
 				}
 				
 				if (_ce.input.isDoing("down", inputChannel))
 				{
 					velocity.y += 1;
-					moveKeyPressed = true;
+					downPressed = true;
 				}
 				
 				if (_ce.input.isDoing("up", inputChannel))
 				{
 					velocity.y -= 1;
-					moveKeyPressed = true;
+					upPressed = true;
 				}
 				
 				if (_ce.input.justDid("switch weapon", inputChannel))
 				{
 					Game.headsUp.changeDisplayedWeapon();
+					_currWeaponName = Game.headsUp.getCurrWeaponArrayInfo().name;
 				}
 				
-				if (!_playerMovingHero && !moveKeyPressed)
+				if (!rightPressed && velocity.x > 0)
 				{
-					//TODO: Change this later! velocity stuff are floats!
+					velocity.x -= 1;
+					if (velocity.x < 0)
+					{
+						velocity.x = 0;
+					}
+				}
+				else if (!leftPressed && velocity.x < 0)
+				{
+					velocity.x += 1;
 					if (velocity.x > 0)
 					{
-						velocity.x -= 1;
-						if (velocity.x < 0)
-						{
-							velocity.x = 0;
-						}
+						velocity.x = 0;
 					}
-					else if (velocity.x < 0)
+				}
+				if (!downPressed && velocity.y > 0)
+				{
+					velocity.y -= 1;
+					if (velocity.y < 0)
 					{
-						velocity.x += 1;
-						if (velocity.x > 0)
-						{
-							velocity.x = 0;
-						}
+						velocity.y = 0;
 					}
+				}
+				else if (!upPressed && velocity.y < 0)
+				{
+					velocity.y += 1;
 					if (velocity.y > 0)
 					{
-						velocity.y -= 1;
-						if (velocity.y < 0)
-						{
-							velocity.y = 0;
-						}
-					}
-					else if (velocity.y < 0)
-					{
-						velocity.y += 1;
-						if (velocity.y > 0)
-						{
-							velocity.y = 0;
-						}
+						velocity.y = 0;
 					}
 				}
 				
@@ -250,7 +251,7 @@ package cleanfighter
 				{
 					velocity.y = -maxVelocity;
 				}
-			}
+			}					
 			
 			updateAnimation();
 		}
@@ -305,38 +306,20 @@ package cleanfighter
 			if (velocity.x < -acceleration)
 			{
 				_inverted = true;
-				_animation = "walkHoriz";
+				_animation = "walk";
 			}
 			else if (velocity.x > acceleration)
 			{
 				_inverted = false;
-				_animation = "walkHoriz";
+				_animation = "walk";
 			}
-
-			if (velocity.y < -acceleration)
+			else if ((velocity.y > acceleration) || (velocity.y < -acceleration))
 			{
-				_inverted = false;
-				_animation = "walkUp";
-			}
-			else if (velocity.y > acceleration)
-			{
-				_inverted = false;
-				_animation = "walkDown";
+				_animation = "walk";
 			}
 			else
 			{
-				if (prevAnimation == "walkHoriz")
-				{
-					_animation = "idleHoriz";
-				}
-				else if (prevAnimation == "walkUp")
-				{
-					_animation = "idleUp";
-				}
-				else if (prevAnimation == "walkDown")
-				{
-					_animation = "idleDown";
-				}
+				_animation = "idle";
 			}
 
 			if (prevAnimation != _animation)

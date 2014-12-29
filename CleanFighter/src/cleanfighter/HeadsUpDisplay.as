@@ -33,6 +33,7 @@ package cleanfighter
 			rightVertBoxLine.x = leftVertBoxLine.x + width;
 			rightVertBoxLine.y = leftVertBoxLine.y;
 			
+			//"groups" the four lines created above into a "container" that is then added to the screen for display
 			boxContainer = new Sprite();
 			boxContainer.addChild(upperHorizBoxLine);
 			boxContainer.addChild(lowerHorizBoxLine);
@@ -42,12 +43,12 @@ package cleanfighter
 			
 			
 			//initializing our weaponArray
-			weaponArray = new Array( { img: Image.fromBitmap(new EmbeddedAssets.soap()), actualImg: Image.fromBitmap(new EmbeddedAssets.soap()), name: "soap", kills: "germ" } );
+			weaponArray = new Array( { img: Image.fromBitmap(new EmbeddedAssets.soap()), embeddedActualImg: EmbeddedAssets.soap, name: "soap", kills: "germ" } );
 			weaponArray[0].img.width *= 0.35;
 			weaponArray[0].img.height *= 0.35;
 			(weaponArray[0].img).x = xCoordinate + 5;
 			(weaponArray[0].img).y = xCoordinate + 10;
-			weaponArray[1] = { img: Image.fromBitmap(new EmbeddedAssets.bugSprayHUD()), actualImg: Image.fromBitmap(new EmbeddedAssets.sprayCloud), name: "bug spray", kills: "mosquito" };
+			weaponArray[1] = { img: Image.fromBitmap(new EmbeddedAssets.bugSprayHUD()), embeddedActualImg: EmbeddedAssets.sprayCloud, name: "bug spray", kills: "mosquito" };
 			weaponArray[1].img.width *= 0.25;
 			weaponArray[1].img.height *= 0.25;
 			(weaponArray[1].img).x = xCoordinate + 5;
@@ -79,9 +80,37 @@ package cleanfighter
 			boxContainer.addChild(weaponImg);
 		}
 		
+		//returns to you necessary properties about the weapon that is currently selected
 		public function getCurrWeaponArrayInfo():Object
 		{
 			return weaponArray[currWeaponArrayIndex];
+		}
+		
+		//returns to you the index of the weapon that is currently selected
+		public function getCurrWeaponArrayIndex():Number
+		{
+			return currWeaponArrayIndex;
+		}
+		
+		public function createNewImgInstance(index:Number=NaN, width:Number=NaN, height:Number=NaN):Image
+		{
+			if (isNaN(index))
+			{
+				index = currWeaponArrayIndex;
+			}
+			var imgToReturn:Image = Image.fromBitmap(new weaponArray[index].embeddedActualImg());
+			
+			if (!isNaN(width))
+			{
+				imgToReturn.width = width;
+			}
+			
+			if (!isNaN(height))
+			{
+				imgToReturn.height = height;
+			}
+			
+			return imgToReturn;
 		}
 	}
 

@@ -1,14 +1,8 @@
 <TextureAtlas imagePath="thePlayerSheet.png">
-	<SubTexture name="idleHoriz" x="0" y="0" width="65" height="220" />
-	<SubTexture name="walkHoriz1" x="0" y="0" width="65" height="220" />
-	<SubTexture name="walkHoriz2" x="65" y="0" width="65" height="220" />
-	<SubTexture name="walkHoriz2" x="130" y="0" width="65" height="220" />
-	<SubTexture name="walkHoriz4" x="195" y="0" width="65" height="220" />
-	<SubTexture name="walkHoriz5" x="260" y="0" width="65" height="220" />
-	<SubTexture name="idleUp" x="325" y="0" width="65" height="220" />
-	<SubTexture name="walkUp1" x="325" y="0" width="65" height="220" />
-	<SubTexture name="walkUp2" x="390" y="0" width="65" height="220" />
-	<SubTexture name="idleDown" x="455" y="0" width="65" height="220" />
-	<SubTexture name="walkDown1" x="455" y="0" width="65" height="220" />
-	<SubTexture name="walkDown2" x="520" y="0" width="65" height="220" />
+	<SubTexture name="idle" x="0" y="0" width="65" height="220" />
+	<SubTexture name="walk1" x="0" y="0" width="65" height="220" />
+	<SubTexture name="walk2" x="65" y="0" width="65" height="220" />
+	<SubTexture name="walk2" x="130" y="0" width="65" height="220" />
+	<SubTexture name="walk4" x="195" y="0" width="65" height="220" />
+	<SubTexture name="walk5" x="260" y="0" width="65" height="220" />
 </TextureAtlas>

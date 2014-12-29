@@ -10,7 +10,7 @@ package cleanfighter
 		[Embed(source = "/../assets/circle.png")]
 		public static const circleImg:Class;
 		
-		[Embed(source = "/../assets/thePlayerSheet.png")]
+		[Embed(source = "/../assets/playerSheet.png")]
 		public static const playerSheet:Class;
 		
 		[Embed(source = "/../assets/playerSheet.xml", mimeType="application/octet-stream")]
@@ -18,6 +18,11 @@ package cleanfighter
 		
 		[Embed(source = "/../assets/lameBackground.png")]
 		public static const background:Class;
+		
+		[Embed(source = "/../assets/greenGrass.jpg")]
+		public static const grass:Class;
+		
+		public static const grassArr:Array = [[grass, grass, grass],[grass, grass, grass]];
 		
 		[Embed(source = "/../assets/soap.png")]
 		public static const soap:Class;

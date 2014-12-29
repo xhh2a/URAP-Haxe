@@ -8,6 +8,7 @@ package cleanfighter
 	import flash.geom.Point;
 	import citrus.objects.platformer.box2d.Platform;
 	import citrus.math.MathVector;
+	import Box2D.Common.Math.b2Vec2;
 	
 	/**
 	 * ...
@@ -26,6 +27,27 @@ package cleanfighter
 			super(name, params);
 			_enemyClass = Missile;
 			enemyKillVelocity = 1;
+		}
+		
+		//change this later to have enemy follow player
+		override public function update(timeDelta:Number):void
+		{
+			super.update(timeDelta);
+			
+			var position:b2Vec2 = _body.GetPosition();
+			
+			//Turn around when they pass their left/right bounds
+			if ((_inverted && position.x * _box2D.scale < leftBound) || (!_inverted && position.x * _box2D.scale > rightBound))
+				turnAround();
+			
+			var velocity:b2Vec2 = _body.GetLinearVelocity();
+			
+			if (!_hurt)
+				velocity.x = _inverted ? -speed : speed;
+			else
+				velocity.x = 0;
+			
+			updateAnimation();
 		}
 		
 		override public function handleBeginContact(contact:b2Contact):void
