@@ -20,9 +20,14 @@ package cleanfighter
 		public static const background:Class;
 		
 		[Embed(source = "/../assets/greenGrass.jpg")]
-		public static const grass:Class;
+		public static const grass:Class;		
+		public static const grassArr:Array = [[grass, grass, grass], [grass, grass, grass]];
 		
-		public static const grassArr:Array = [[grass, grass, grass],[grass, grass, grass]];
+		[Embed(source = "/../assets/coin.png")]
+		public static const coin:Class;
+		
+		[Embed(source = "/../assets/dirtyspot.png")]
+		public static const dirtySpot:Class;
 		
 		[Embed(source = "/../assets/soap.png")]
 		public static const soap:Class;

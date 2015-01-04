@@ -64,11 +64,11 @@ package cleanfighter
 
 				if (_inverted)
 				{					
-					missile = new Missile("Missile", { speed: -(maxVelocity + 2), x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
+					missile = new Missile("Missile", { speed: -(maxVelocity + 2), explodeDuration: 0, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
 				}
 				else
 				{					
-					missile = new Missile("Missile", { speed: maxVelocity + 2, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
+					missile = new Missile("Missile", { speed: maxVelocity + 2, explodeDuration: 0, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
 				}
 				
 				_canFire = false;
@@ -80,19 +80,21 @@ package cleanfighter
 			//spray type weapons
 			else if (_currWeaponName == "bug spray")
 			{
-				var spray:Missile;
+				//var spray:Missile;
+				var spray:Spray;
 
 				if (_inverted)
 				{
-					spray = new Missile("Spray", { speed: -4, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
+					spray = new Spray("Spray", { speed: -4, explodeDuration: 0, fuseDuration: 4000, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
 				}
 				else
 				{
-					spray = new Missile("Spray", { speed: 4, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
+					spray = new Spray("Spray", { speed: 4, explodeDuration: 0, fuseDuration: 4000, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
 				}
 				
 				_canFire = false;
 				setTimeout(canFire, _reloadTime);
+				
 				_ce.state.add(spray);
 				spray.onExplode.addOnce(_damage);
 			}
@@ -108,11 +110,6 @@ package cleanfighter
 		override public function destroy():void
 		{
 			clearTimeout(_reloadTime);
-			clearTimeout(_hurtTimeoutID);
-			onJump.removeAll();
-			onGiveDamage.removeAll();
-			onTakeDamage.removeAll();
-			onAnimationChange.removeAll();
 			view = null;
 			
 			super.destroy();
@@ -295,7 +292,7 @@ package cleanfighter
 		
 		override protected function updateAnimation():void
 		{
-			//Everything here was from the Citrus Engine source code, except I took some stuff out and changed a few things
+			//Everything here was from the Citrus Engine source code, except I took some stuff out
 			
 			var prevAnimation:String = _animation;
 

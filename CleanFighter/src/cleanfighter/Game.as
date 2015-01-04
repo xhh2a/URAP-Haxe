@@ -13,6 +13,7 @@ package cleanfighter
 	import feathers.display.TiledImage;
 	import flash.display.Bitmap;
 	import flash.display.MovieClip;
+	import starling.core.Starling;
 	import starling.display.Quad;
 	import starling.text.TextField;
 	import starling.display.Image;
@@ -81,14 +82,7 @@ package cleanfighter
 			//the engine is the thing that runs the game
 			_engine = CitrusEngine.getInstance();
 			
-			//adding in the sprite sheet for our player
-			//this will be used for displaying our player while showing the player's animated movements
-			var playerSheetBitmap:Bitmap = new EmbeddedAssets.playerSheet();			
-			var playerSheetTexture:Texture = Texture.fromBitmap(playerSheetBitmap, true, false, 2); //argument of 2 scales down by half
-			var playerSheetXml:XML = XML(new EmbeddedAssets.playerSheetXml());
-			_playerSheetAtlas = new TextureAtlas(playerSheetTexture, playerSheetXml);
-			trace("player sheet orig width is " + playerSheetBitmap.width);
-			trace("player sheet orig height is " + playerSheetBitmap.height);
+			
 			
 			//accessing the keyboard controls and changing the default jump button from the space bar to the up arrow key
 			//and then setting the space bar to be the button you press to shoot
@@ -138,9 +132,23 @@ package cleanfighter
 			headsUp = new HeadsUpDisplay(10, 10, 50, 50, 3);
 			addChild(headsUp);
 			
+			var testDirtySpot:DangerZone = new DangerZone("testDirtySpot", { x: 300, y: 400, width: 254, height: 233, view: EmbeddedAssets.dirtySpot } );
+			add(testDirtySpot);
+			
+			//adding in the sprite sheet for our player
+			//this will be used for displaying our player while showing the player's animated movements
+			var playerSheetBitmap:Bitmap = new EmbeddedAssets.playerSheet();			
+			var playerSheetTexture:Texture = Texture.fromBitmap(playerSheetBitmap, true, false, 2); //argument of 2 scales down by half
+			var playerSheetXml:XML = XML(new EmbeddedAssets.playerSheetXml());
+			_playerSheetAtlas = new TextureAtlas(playerSheetTexture, playerSheetXml);
+			
+			//creating and adding in the player
 			var myPlayer:Player = new Player("myPlayer", { x: 200, y: 150, width: 32.5, height: 110  } );
 			myPlayer.view = new AnimationSequence(_playerSheetAtlas, ["walk", "idle"], "idle");
 			add(myPlayer);
+			
+			var testCoin:GameCoin = new GameCoin("testCoin", { x: 300, y: 300, width: 50, height: 50, view: EmbeddedAssets.coin }, 150 );
+			add(testCoin);
 			
 			//setting up the "camera", which makes the "scrolling" of the screen happen
 			view.camera.setUp(myPlayer, new Rectangle(0, 0, 2 * stage.stageWidth, 2 * stage.stageHeight));
@@ -163,7 +171,7 @@ package cleanfighter
 			//removing the virtual joystick and button because we don't need them anymore
 			vj.destroy();
 			vb.destroy();
-			
+
 			//removing the shoot command because if we didn't do this, we would be able to "shoot while we're dead"
 			keyboard.removeAction("shoot");
 		}
@@ -174,6 +182,7 @@ package cleanfighter
 			if (gameOver)
 			{
 				_healthAndScoreText.text = "GAME OVER!!! Your Final Score: " + _score.toString();
+				gameTimer.stop();
 			}
 			else
 			{
