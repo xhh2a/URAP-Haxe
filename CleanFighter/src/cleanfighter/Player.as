@@ -1,5 +1,6 @@
 package cleanfighter 
 {
+	import citrus.core.CitrusObject;
 	import citrus.objects.platformer.box2d.Hero;
 	import Box2D.Collision.Shapes.b2PolygonShape;
 	import Box2D.Common.Math.b2Vec2;
@@ -7,23 +8,35 @@ package cleanfighter
 	import citrus.physics.box2d.Box2DUtils;
 	import citrus.objects.platformer.box2d.Sensor;
 	import citrus.physics.box2d.IBox2DPhysicsObject;
+	import citrus.view.starlingview.AnimationSequence;
+	import flash.display.Bitmap;
+	import flash.display.Sprite;
+	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import citrus.objects.platformer.box2d.Missile;
 	import citrus.objects.Box2DPhysicsObject;
 	import flash.utils.setTimeout;
 	import flash.utils.clearTimeout;
+	import flash.utils.Timer;
 	import starling.display.Image;
+	import starling.display.DisplayObject;
+	import starling.filters.BlurFilter;
+	import flash.display.MovieClip;
+	import Box2D.Dynamics.b2Body;
+	import Box2D.Collision.b2Manifold;
+	import Box2D.Dynamics.b2ContactImpulse;
 	
 	/**
 	 * ...
 	 * @author Kevin
 	 */
-	public class Player extends Hero
-	{
-		//TODO: make spray cloud "go through" stuff instead of being "just a block"
-		
+	public class Player extends Hero implements Person
+	{		
 		protected const _reloadTime:uint = 1500;
+		protected const _invincibilityAfterHurtTime:uint = 2000;
 		protected var _canFire:Boolean;
+		protected var _isInvincible:Boolean;
+		protected var _numberOfDangersTouching:Number;
 		
 		public static var _origHealth:Number = 100;
 		public static var _currHealth:Number;
@@ -41,9 +54,11 @@ package cleanfighter
 			
 			maxVelocity = 3;
 			_canFire = true;
-			
+			_isInvincible = false;
+			_numberOfDangersTouching = 0;
+
 			_currHealth = _origHealth;	
-			_shotHole = new Point(40, -30);		
+			_shotHole = new Point(40, -30);
 			
 			//set these to the width and height of the ammo's view (for simplicity, for now, we'll have all ammo be the same size)
 			_shotWidth = 64;
@@ -52,9 +67,12 @@ package cleanfighter
 			_currWeaponName = Game.headsUp.getCurrWeaponArrayInfo().name;
 		}
 		
-		//TODO: make a "cloud" type for bug spray
-		//look up the maskbits filter
-		//http://www.aurelienribon.com/blog/2011/07/box2d-tutorial-collision-filtering/
+		public function isInvincible():Boolean
+		{
+			return _isInvincible;
+		}
+		
+		//TODO: replace missiles
 		protected function fire():void
 		{			
 			//missile type weapons
@@ -80,7 +98,6 @@ package cleanfighter
 			//spray type weapons
 			else if (_currWeaponName == "bug spray")
 			{
-				//var spray:Missile;
 				var spray:Spray;
 
 				if (_inverted)
@@ -102,11 +119,15 @@ package cleanfighter
 			
 		}
 		
+		//Sets _canFire to true
+		//The only reason why we have this here is so that we can use it with the setTimeout function, since setTimeout
+		//requires that we pass in a function
 		protected function canFire():void
 		{
 			_canFire = true;
 		}
 		
+		//Essentially kills and removes this Player
 		override public function destroy():void
 		{
 			clearTimeout(_reloadTime);
@@ -115,11 +136,26 @@ package cleanfighter
 			super.destroy();
 		}
 		
+		//To be used when we shoot ammo; when ammo hits something, it deals damage (if any)
+		//And when I say "deals damage", I mean kill
+		//This is copied and pasted from Citrus Engine's built in Cannon class
 		protected function _damage(missile:Missile, contact:Box2DPhysicsObject):void
 		{
 			if (contact != null)
 			{
 				onGiveDamage.dispatch(contact);
+			}
+		}
+		
+		//To be passed into a setTimeout call
+		//Example usage: setTimeout(stopInvincibility, timeInMillisecondsThatInvincibilityLasts);
+		protected function stopInvincibility():void
+		{
+			_isInvincible = false;
+			
+			if (view)
+			{
+				DisplayObject(view).filter = null;
 			}
 		}
 		
@@ -131,6 +167,11 @@ package cleanfighter
 			{
 				Game.endGame();
 				destroy();
+			}
+			
+			if ((_numberOfDangersTouching < 1) && view)
+			{
+				DisplayObject(view).filter = null;
 			}
 			
 			// we get a reference to the actual velocity vector
@@ -211,26 +252,6 @@ package cleanfighter
 					}
 				}
 				
-				if (_onGround && _ce.input.justDid("jump", inputChannel))
-				{
-					velocity.y = -jumpHeight;
-					onJump.dispatch();
-					_onGround = false; // also removed in the handleEndContact. Useful here if permanent contact e.g. box on hero.
-				}
-				
-				if (_springOffEnemy != -1)
-				{
-					if (_ce.input.isDoing("jump", inputChannel))
-					{
-						velocity.y = -enemySpringJumpHeight;
-					}
-					else
-					{
-						velocity.y = -enemySpringHeight;
-					}
-					_springOffEnemy = -1;
-				}
-				
 				//Cap velocities
 				if (velocity.x > (maxVelocity))
 				{
@@ -248,46 +269,59 @@ package cleanfighter
 				{
 					velocity.y = -maxVelocity;
 				}
-			}					
+			}
+
+			
+			
 			
 			updateAnimation();
 		}
 		
-		override public function handleBeginContact(contact:b2Contact):void 
+		override public function handleBeginContact(contact:b2Contact):void
 		{
 			var collider:IBox2DPhysicsObject = Box2DUtils.CollisionGetOther(this, contact);
-
-			if (_enemyClass && collider is _enemyClass)
+			
+			//if we have a non-null _enemyClass (which, by default, is the case) AND if this Player collides with that whatever is
+			//defined to be the _enemyClass (which, by default, is an Enemy, which of course, includes GenericEnemy)
+			if (_enemyClass && (collider is _enemyClass))
 			{
-				hurt();
-
-				//fling the hero
-				var hurtVelocity:b2Vec2 = _body.GetLinearVelocity();
-				hurtVelocity.y = -hurtVelocityY;
-				hurtVelocity.x = hurtVelocityX;
-				if (collider.x > x)
-					hurtVelocity.x = -hurtVelocityX;
-				_body.SetLinearVelocity(hurtVelocity);
-			}
-
-			//Collision angle if we don't touch a Sensor.
-			if (contact.GetManifold().m_localPoint && !(collider is Sensor)) //The normal property doesn't come through all the time. I think doesn't come through against sensors.
-			{	
-				var collisionAngle:Number = Math.atan2(contact.normal.y, contact.normal.x);
-
-				if (collisionAngle >= Math.PI*.25 && collisionAngle <= 3*Math.PI*.25 ) // normal angle between pi/4 and 3pi/4
+				//if this Player is currently not invincible, then the Player gets hurt
+				if (!_isInvincible)
 				{
-					_groundContacts.push(collider.body.GetFixtureList());
-					_onGround = true;
-					updateCombinedGroundAngle();
+					_numberOfDangersTouching++;
+					if (view)
+					{
+						DisplayObject(view).filter = BlurFilter.createGlow(0xff0000);
+					}
+				}
+			}
+		}
+		
+		override public function handleEndContact(contact:b2Contact):void
+		{
+			var collider:IBox2DPhysicsObject = Box2DUtils.CollisionGetOther(this, contact);
+			
+			//if we have a non-null _enemyClass (which, by default, is the case) AND if this Player collides with that whatever is
+			//defined to be the _enemyClass (which, by default, is an Enemy, which of course, includes GenericEnemy)
+			if (_enemyClass && (collider is _enemyClass))
+			{
+				//if this Player is currently not invincible, then the Player gets hurt
+				if (!_isInvincible)
+				{
+					_numberOfDangersTouching--;
 				}
 			}
 		}
 		
 		override public function hurt():void
 		{
-			super.hurt();
-			_currHealth -= 10;
+			getHurt();
+		}		
+		
+		public function getHurt(hurtAmount:Number=1):void
+		{
+			_currHealth -= hurtAmount;
+			trace(hurtAmount);
 		}
 		
 		override protected function updateAnimation():void

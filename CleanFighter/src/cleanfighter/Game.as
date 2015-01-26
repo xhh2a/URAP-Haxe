@@ -14,6 +14,7 @@ package cleanfighter
 	import flash.display.Bitmap;
 	import flash.display.MovieClip;
 	import starling.core.Starling;
+	import starling.display.DisplayObject;
 	import starling.display.Quad;
 	import starling.text.TextField;
 	import starling.display.Image;
@@ -106,7 +107,7 @@ package cleanfighter
 			
 			//physics engine stuff for doing stuff like collisions, gravity, etc.
 			var box2D:Box2D = new Box2D("The Box2D physics stuff");
-			box2D.visible = true; //set to true to see collision bounds (for debugging use); set to false for not see these bounds
+			box2D.visible = false; //set to true to see collision bounds (for debugging use); set to false for not see these bounds
 			box2D.gravity = new b2Vec2(0, 0); //turning off gravity (because we don't want things to fall)
 			add(box2D);
 			
@@ -132,8 +133,11 @@ package cleanfighter
 			headsUp = new HeadsUpDisplay(10, 10, 50, 50, 3);
 			addChild(headsUp);
 			
-			var testDirtySpot:DangerZone = new DangerZone("testDirtySpot", { x: 300, y: 400, width: 254, height: 233, view: EmbeddedAssets.dirtySpot } );
+			var testDirtySpot:DangerZone = new DangerZone("testDirtySpot", { x: 300, y: 550, width: 254, height: 233, damageStrength: 2, view: EmbeddedAssets.dirtySpot } );
 			add(testDirtySpot);
+			
+			//var testDirtyZone:GenericEnemy = new GenericEnemy("testDirtyZone", { x: 300, y: 500, width: 254, height: 233, damageStrength: 2, view: EmbeddedAssets.dirtySpot } );
+			//add(testDirtyZone);
 			
 			//adding in the sprite sheet for our player
 			//this will be used for displaying our player while showing the player's animated movements
@@ -141,22 +145,19 @@ package cleanfighter
 			var playerSheetTexture:Texture = Texture.fromBitmap(playerSheetBitmap, true, false, 2); //argument of 2 scales down by half
 			var playerSheetXml:XML = XML(new EmbeddedAssets.playerSheetXml());
 			_playerSheetAtlas = new TextureAtlas(playerSheetTexture, playerSheetXml);
-			
+
 			//creating and adding in the player
-			var myPlayer:Player = new Player("myPlayer", { x: 200, y: 150, width: 32.5, height: 110  } );
-			myPlayer.view = new AnimationSequence(_playerSheetAtlas, ["walk", "idle"], "idle");
+			var myPlayer:Player = new Player("myPlayer", { x: 200, y: 150, width: 32.5, height: 110, view: new AnimationSequence(_playerSheetAtlas, ["walk", "idle"], "idle") } );
 			add(myPlayer);
 			
 			var testCoin:GameCoin = new GameCoin("testCoin", { x: 300, y: 300, width: 50, height: 50, view: EmbeddedAssets.coin }, 150 );
 			add(testCoin);
 			
+			add(new GenericEnemy("germ", { x: 500, y: 400, width: 183, height: 183, horizMovement: true, vertMovement: true, damageStrength: 10, view: EmbeddedAssets.germ } ));
+			
 			//setting up the "camera", which makes the "scrolling" of the screen happen
 			view.camera.setUp(myPlayer, new Rectangle(0, 0, 2 * stage.stageWidth, 2 * stage.stageHeight));
-			view.camera.easing = new Point(1, 1);			
-			
-			
-			
-			//add(new AntiMarioEnemy("germ", { x: 1000, y: 110, width: 183, height: 183, view: EmbeddedAssets.germ } )); //DELETE LATER
+			view.camera.easing = new Point(1, 1);
 			
 			gameOver = false;
 
@@ -164,6 +165,7 @@ package cleanfighter
 			currentTime = 0;
 			gameTimer.start();
 		}
+		
 		public static function endGame():void
 		{
 			gameOver = true;
@@ -174,6 +176,9 @@ package cleanfighter
 
 			//removing the shoot command because if we didn't do this, we would be able to "shoot while we're dead"
 			keyboard.removeAction("shoot");
+			
+			//doing the same for switch weapon command
+			keyboard.removeAction("switch weapon");
 		}
 		override public function update(timeDelta:Number):void
 		{
@@ -194,7 +199,7 @@ package cleanfighter
 				currentTime = gameTimer.currentCount;
 				if (currentTime % 3 == 0)
 				{
-					//add(new AntiMarioEnemy("germ", { x: 500, y: 110, width: 183, height: 183, view: EmbeddedAssets.germ } ));
+					//add(new GenericEnemy("germ", { x: 500, y: 400, width: 183, height: 183, horizMovement: true, vertMovement: true, view: EmbeddedAssets.germ } ));
 				}
 				//trace(currentTime);
 			}			
