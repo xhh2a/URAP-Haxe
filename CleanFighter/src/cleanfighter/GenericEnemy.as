@@ -18,6 +18,7 @@ package cleanfighter
 	import Box2D.Collision.b2Manifold;
 	import citrus.physics.PhysicsCollisionCategories;
 	import flash.utils.Timer;
+	import org.osflash.signals.Signal;
 	
 	/**
 	 * ...
@@ -43,8 +44,10 @@ package cleanfighter
 		[Inspectable(defaultValue="100000")]
 		public var downBound:Number = 100000;
 		
+		[Inspectable(defaultValue=true)]
 		public var horizMovement:Boolean = true;
 		
+		[Inspectable(defaultValue=false)]
 		public var vertMovement:Boolean = false;
 		
 		public var damageStrength:Number = 1;
@@ -54,10 +57,13 @@ package cleanfighter
 		
 		private var _victimList:SimpleLinkedList;
 		
-		public function GenericEnemy(name:String, params:Object=null) 
+		private var _whenDead:Signal;
+		private var _whichLevel:Level;
+		
+		public function GenericEnemy(name:String, passedInLevel:Level, params:Object=null) 
 		{
 			super(name, params);
-			_enemyClass = Missile; //TODO: replace this
+			_enemyClass = Missile;
 			
 			if (startingDirectionY == "up")
 			{
@@ -68,6 +74,11 @@ package cleanfighter
 			
 			_damageTicker = new Timer(1000);
 			_damageTicker.addEventListener(TimerEvent.TIMER, periodicDoDamage);
+			
+			_whenDead = new Signal();
+			_whichLevel = passedInLevel;
+			_whenDead.addOnce(_whichLevel.increaseKillCount);
+			_whenDead.addOnce(increaseGameScore);
 			
 			_endContactCallEnabled = true;
 		}
@@ -131,9 +142,17 @@ package cleanfighter
 				{
 					velocity.x = _inverted ? -speed : speed;
 				}
+				else
+				{
+					velocity.x = 0;
+				}
 				if (vertMovement)
 				{
 					velocity.y = _up ? -speed : speed;
+				}
+				else
+				{
+					velocity.y = 0;
 				}
 			}
 			else
@@ -163,6 +182,13 @@ package cleanfighter
 			_goodGuySensorFixture = body.CreateFixture(_goodGuySensorFixtureDef);
 		}
 		
+		override protected function endHurtState():void
+		{
+			_whenDead.dispatch();
+			
+			super.endHurtState();
+		}
+		
 		override public function handleBeginContact(contact:b2Contact):void
 		{
 			//To be used for checking collisions
@@ -175,7 +201,6 @@ package cleanfighter
 			if ((collider is _enemyClass) && (name == Game.headsUp.getCurrWeaponArrayInfo().kills))
 			{
 				hurt();
-				Game._score += 10;
 			}
 			
 			else if (collider is Person)
@@ -230,6 +255,11 @@ package cleanfighter
 			{
 				_victimList.removeData(collider);
 			}
+		}
+		
+		public function increaseGameScore():void
+		{
+			Game._score += 10;
 		}
 	}
 

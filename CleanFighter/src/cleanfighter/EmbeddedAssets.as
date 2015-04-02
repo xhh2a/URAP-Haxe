@@ -6,6 +6,7 @@ package cleanfighter
 	 */
 	public class EmbeddedAssets 
 	{
+		//everything here is a bunch of images (and later, maybe sounds) that the game will use
 		
 		[Embed(source = "/../assets/circle.png")]
 		public static const circleImg:Class;
@@ -34,6 +35,9 @@ package cleanfighter
 		
 		[Embed(source = "/../assets/germ.png")]
 		public static const germ:Class;
+		
+		[Embed(source = "/../assets/mosquito.png")]
+		public static const mosquito:Class;
 		
 		[Embed(source = "/../assets/bugsprayHUD.png")]
 		public static const bugSprayHUD:Class;

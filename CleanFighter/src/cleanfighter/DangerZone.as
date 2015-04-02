@@ -8,9 +8,9 @@ package cleanfighter
 	public class DangerZone extends GenericEnemy
 	{
 		
-		public function DangerZone(name:String, params:Object) 
+		public function DangerZone(name:String, passedInLevel:Level, params:Object) 
 		{
-			super(name, params);
+			super(name, passedInLevel, params);
 			
 			horizMovement = false;
 			vertMovement = false;

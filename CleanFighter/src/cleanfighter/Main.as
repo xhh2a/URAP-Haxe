@@ -1,8 +1,8 @@
 package cleanfighter
 {
 	import citrus.core.starling.StarlingCitrusEngine
+	import citrus.utils.LevelManager;
 	import starling.core.Starling;
-	
 	
 	/**
 	 * ...
@@ -26,7 +26,7 @@ package cleanfighter
 		
 		override public function handleStarlingReady():void
 		{
-			state = new Game();
+			state = new LevelOne();
 		}
 	}
 	

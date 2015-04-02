@@ -12,14 +12,15 @@ package cleanfighter
 		public function GameCoin(name:String, params:Object, value:Number=100) 
 		{
 			super(name, params);
-			_value = value;
-			collectorClass = "cleanfighter.Player";
+			_value = value; //how many points this coin will give
+			collectorClass = "cleanfighter.Player"; //tells us who can collect the coin
 		}
 		
+		//makes coin disappear on pick up
 		override public function destroy():void
 		{
 			super.destroy();
-			Game._score += _value;
+			Game._score += _value; //increase score on pick-up
 		}
 		
 	}

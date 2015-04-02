@@ -1,0 +1,6 @@
+<GameLevel name="Level 1">
+	<!--TODO: finish filling out all this stuff when done implementing XML-controlled levels-->
+	<genericEnemy type="germ" x="555" y="444" horizMovement="true" vertMovement="true" damageStrength="10" view="EmbeddedAssets.germ" />
+	<genericEnemy type="mosquito" x="634" y="628" horizMovement="true" vertMovement="false" damageStrength="7" view="EmbeddedAssets.mosquito" />
+	
+</GameLevel>

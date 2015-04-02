@@ -52,18 +52,25 @@ package cleanfighter
 		{
 			super(name, params);
 			
-			maxVelocity = 3;
-			_canFire = true;
-			_isInvincible = false;
-			_numberOfDangersTouching = 0;
+			maxVelocity = 3; //setting the maximum velocity we can travel at
+			_canFire = true; //initially, we can go ahead and fire if we want
+			_isInvincible = false; //setting ourselves to not be invincible
+			_numberOfDangersTouching = 0; //counter to see how many dangers we're touching
 
-			_currHealth = _origHealth;	
+			//if we have not already initialized health, initialized _currHealth to whatever _origHealth is
+			if (!_currHealth)
+			{
+				_currHealth = _origHealth;	
+			}
+			
+			//the location where our ammo comes out of (aka the location of the gun's barrel)
 			_shotHole = new Point(40, -30);
 			
 			//set these to the width and height of the ammo's view (for simplicity, for now, we'll have all ammo be the same size)
 			_shotWidth = 64;
 			_shotHeight = 41.5;
 			
+			//setting our current weapon to be whatever is the current weapon set in the headsUp
 			_currWeaponName = Game.headsUp.getCurrWeaponArrayInfo().name;
 		}
 		
@@ -162,7 +169,7 @@ package cleanfighter
 		override public function update(timeDelta:Number):void
 		{
 			super.update(timeDelta);
-			
+
 			if (_currHealth <= 0)
 			{
 				Game.endGame();
@@ -321,7 +328,6 @@ package cleanfighter
 		public function getHurt(hurtAmount:Number=1):void
 		{
 			_currHealth -= hurtAmount;
-			trace(hurtAmount);
 		}
 		
 		override protected function updateAnimation():void
