@@ -43,20 +43,20 @@ package cleanfighter
 			
 			
 			//initializing our weaponArray
-			weaponArray = new Array( { img: Image.fromBitmap(new EmbeddedAssets.soap()), embeddedActualImg: EmbeddedAssets.soap, name: "soap", kills: "germ" } );
-			weaponArray[0].img.width *= 0.35;
-			weaponArray[0].img.height *= 0.35;
+			weaponArray = new Array( { img: Image.fromBitmap(new EmbeddedAssets.soap()), embeddedActualImg: EmbeddedAssets.soap, name: "soap", kills: "dirty hand" } );
+			weaponArray[0].img.width *= 0.2;
+			weaponArray[0].img.height *= 0.2;
 			(weaponArray[0].img).x = xCoordinate + 5;
 			(weaponArray[0].img).y = xCoordinate + 10;
+			/*
 			weaponArray[1] = { img: Image.fromBitmap(new EmbeddedAssets.bugSprayHUD()), embeddedActualImg: EmbeddedAssets.sprayCloud, name: "bug spray", kills: "mosquito" };
 			weaponArray[1].img.width *= 0.25;
 			weaponArray[1].img.height *= 0.25;
 			(weaponArray[1].img).x = xCoordinate + 5;
-			(weaponArray[1].img).y = xCoordinate + 10;
+			(weaponArray[1].img).y = xCoordinate + 10;*/
 			
 			//putting the image of the default weapon (the soap) into the box
 			weaponImg = weaponArray[0].img;
-			weaponImg.alpha = 0.5;
 			boxContainer.addChild(weaponImg);
 			currWeaponArrayIndex = 0;
 		}

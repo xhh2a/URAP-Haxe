@@ -1,21 +1,19 @@
 package cleanfighter 
 {
-	import flash.geom.Rectangle;
-	import flash.geom.Point;
+	import flash.display.Bitmap;
 	import starling.textures.Texture;
 	import starling.textures.TextureAtlas;
 	import citrus.view.starlingview.AnimationSequence;
-	import flash.display.Bitmap;
-	
-	import citrus.input.controllers.Keyboard;
+	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	/**
 	 * ...
 	 * @author Kevin
 	 */
-	public class LevelTwo extends Level
+	public class TestLevel extends Level
 	{
 		
-		public function LevelTwo() 
+		public function TestLevel() 
 		{
 			super();
 		}
@@ -40,39 +38,15 @@ package cleanfighter
 			//setting up the "camera", which makes the "scrolling" of the screen happen
 			view.camera.setUp(myPlayer, new Rectangle(0, 0, 2 * stage.stageWidth, 2 * stage.stageHeight));
 			view.camera.easing = new Point(1, 1);
+			
+			var poopBitmap:Bitmap = new EmbeddedAssets.poop();
+			var poopTexture:Texture = Texture.fromBitmap(poopBitmap, true, false, 2);
+			add(new DangerSource("poop", this, new GenericEnemy("poop", this, { x: 100, y: 500, width: poopTexture.width, height: poopTexture.height, horizMovement: true, vertMovement: false, startingDirection: "right", view: poopTexture } ), { x: 100, y: 500, width: poopTexture.width, height: poopTexture.height, horizMovement: false, vertMovement: false, view: poopTexture }));
 
 			
-			_killsNeeded = 10;
-			_nextState = new CompletionScreen();
+			_killsNeeded = 1;
+			_nextState = new ShopScreen(new CompletionScreen());
 		}
-		
-		override public function update(timeDelta:Number):void
-		{
-			super.update(timeDelta);
-			
-			//if-statement that only allows stuff to be executed once every time tick
-			if (currentTime != gameTimer.currentCount)
-			{
-				currentTime = gameTimer.currentCount;
-				
-				//spawn dirty hand every 3 seconds
-				if (currentTime % 3 == 0)
-				{
-					var dirtyHandBitmap:Bitmap = new EmbeddedAssets.dirtyHand();
-					var dirtyHandTexture:Texture = Texture.fromBitmap(dirtyHandBitmap, true, false, 3);
-					add(new GenericEnemy("dirty hand", this, { x: 500, y: 400, width: dirtyHandTexture.width, height: dirtyHandTexture.height, horizMovement: true, vertMovement: true, damageStrength: 10, view: dirtyHandTexture } ));
-				}
-				
-				//spawn mosquito every 4 seconds
-				if (currentTime % 4 == 0)
-				{
-					var mosquitoBitmap:Bitmap = new EmbeddedAssets.mosquito();
-					var mosquitoTexture:Texture = Texture.fromBitmap(mosquitoBitmap, true, false, 4);
-					add(new GenericEnemy("mosquito", this, { x: 650, y: 900, width: mosquitoTexture.width, height: mosquitoTexture.height, horizMovement: true, vertMovement: true, view: mosquitoTexture } ));
-				}
-			}	
-		}
-		
 	}
 
 }

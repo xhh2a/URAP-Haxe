@@ -261,6 +261,23 @@ package cleanfighter
 		{
 			Game._score += 10;
 		}
+		
+		public function clone(newPosX:Number=NaN, newPosY:Number=NaN):void
+		{
+			var cloneParams:Object = _params;
+			
+			if (newPosX)
+			{
+				cloneParams.x = newPosX;
+			}
+			
+			if (newPosY)
+			{
+				cloneParams.y = newPosY;
+			}
+			
+			_whichLevel.add(new GenericEnemy(name, _whichLevel, cloneParams));
+		}
 	}
 
 }

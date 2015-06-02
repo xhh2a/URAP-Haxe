@@ -10,6 +10,7 @@ package cleanfighter
 	import flash.geom.Rectangle;
 	import flash.geom.Point;
 	import citrus.view.starlingview.AnimationSequence;
+	import starling.display.BlendMode;
 	/**
 	 * ...
 	 * @author Kevin
@@ -18,7 +19,7 @@ package cleanfighter
 	{
 		private var _levelKillCount:Number;
 		protected var _killsNeeded:Number;
-		protected var _nextLevel:StarlingState;
+		protected var _nextState:StarlingState;
 		
 		public function Level()
 		{
@@ -40,6 +41,7 @@ package cleanfighter
 			tileSystem.name = "tileSystem";
 			tileSystem.init();
 			tileSprite.view = tileSystem;
+			tileSystem.blendMode = BlendMode.AUTO;
 			add(tileSprite);
 			
 			//the "wall" that keeps our player from going off the bottom of the screen
@@ -63,7 +65,8 @@ package cleanfighter
 			
 			if (_levelKillCount >= _killsNeeded)
 			{
-				_engine.state = _nextLevel;
+				Game.removeVjAndVb();
+				_engine.state = _nextState;
 			}
 		}
 		

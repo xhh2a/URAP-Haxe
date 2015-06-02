@@ -42,22 +42,31 @@ package cleanfighter
 			var testCoin:GameCoin = new GameCoin("testCoin", { x: 300, y: 300, width: 50, height: 50, view: EmbeddedAssets.coin }, 150 );
 			add(testCoin);
 			
-			//creates and adds a germ
-			var germBitmap:Bitmap = new EmbeddedAssets.germ();
-			var germTexture:Texture = Texture.fromBitmap(germBitmap, true, false, 3);
-			add(new GenericEnemy("germ", this, { x: 500, y: 400, width: germTexture.width, height: germTexture.height, horizMovement: true, vertMovement: true, damageStrength: 10, view: germTexture } ));
-			
-			//creates and adds mosquito
-			var mosquitoBitmap:Bitmap = new EmbeddedAssets.mosquito();
-			var mosquitoTexture:Texture = Texture.fromBitmap(mosquitoBitmap, true, false, 4);
-			add(new GenericEnemy("mosquito", this, { x: 600, y: 600, width: mosquitoTexture.width, height: mosquitoTexture.height, horizMovement: true, vertMovement: false, view: mosquitoTexture } ));
-			
 			//setting up the "camera", which makes the "scrolling" of the screen happen
 			view.camera.setUp(myPlayer, new Rectangle(0, 0, 2 * stage.stageWidth, 2 * stage.stageHeight));
 			view.camera.easing = new Point(1, 1);
 			
-			_killsNeeded = 2;
-			_nextLevel = new LevelTwo();
+			_killsNeeded = 8;
+			_nextState = new ShopScreen(new LevelTwo());
+		}
+		
+		override public function update(timeDelta:Number):void
+		{
+			super.update(timeDelta);
+			
+			//if-statement that only allows stuff to be executed once every time tick
+			if (currentTime != gameTimer.currentCount)
+			{
+				currentTime = gameTimer.currentCount;
+				
+				//spawn dirty hand every 3 seconds
+				if (currentTime % 3 == 0)
+				{
+					var dirtyHandBitmap:Bitmap = new EmbeddedAssets.dirtyHand();
+					var dirtyHandTexture:Texture = Texture.fromBitmap(dirtyHandBitmap, true, false, 3);
+					add(new GenericEnemy("dirty hand", this, { x: 500, y: 400, width: dirtyHandTexture.width, height: dirtyHandTexture.height, horizMovement: true, vertMovement: true, damageStrength: 10, view: dirtyHandTexture } ));
+				}
+			}
 		}
 	}
 

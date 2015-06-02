@@ -149,14 +149,19 @@ package cleanfighter
 			gameTimer.start();
 		}
 		
+		public static function removeVjAndVb():void
+		{
+			vj.destroy();
+			vb.destroy();
+		}
+		
 		public static function endGame():void
 		{
 			//at this point, we set gameOver to true because the game is over
 			gameOver = true;
 			
 			//removing the virtual joystick and button because we don't need them anymore
-			vj.destroy();
-			vb.destroy();
+			removeVjAndVb();
 
 			//removing the shoot command because if we didn't do this, we would be able to "shoot while we're dead"
 			keyboard.removeAction("shoot");

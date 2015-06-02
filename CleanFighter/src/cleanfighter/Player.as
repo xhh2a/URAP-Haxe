@@ -85,15 +85,15 @@ package cleanfighter
 			//missile type weapons
 			if (_currWeaponName == "soap")
 			{
-				var missile:Missile;
+				var missile:NonPushMissile;
 
 				if (_inverted)
 				{					
-					missile = new Missile("Missile", { speed: -(maxVelocity + 2), explodeDuration: 0, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
+					missile = new NonPushMissile("Missile", { speed: -(maxVelocity + 2), explodeDuration: 0, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
 				}
 				else
 				{					
-					missile = new Missile("Missile", { speed: maxVelocity + 2, explodeDuration: 0, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
+					missile = new NonPushMissile("Missile", { speed: maxVelocity + 2, explodeDuration: 0, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
 				}
 				
 				_canFire = false;
@@ -277,9 +277,6 @@ package cleanfighter
 					velocity.y = -maxVelocity;
 				}
 			}
-
-			
-			
 			
 			updateAnimation();
 		}

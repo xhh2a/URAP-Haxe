@@ -1,6 +1,5 @@
 package cleanfighter 
 {
-	import citrus.objects.platformer.box2d.Missile;
 	import starling.display.Image;
 	import flash.utils.Timer;
 	
@@ -8,7 +7,7 @@ package cleanfighter
 	 * ...
 	 * @author Kevin
 	 */
-	public class Spray extends Missile
+	public class Spray extends NonPushMissile
 	{
 		protected var timer:Timer;
 		
