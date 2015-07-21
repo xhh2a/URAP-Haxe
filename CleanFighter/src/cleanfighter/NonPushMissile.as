@@ -9,6 +9,7 @@ package cleanfighter
 	 */
 	public class NonPushMissile extends Missile
 	{
+		public var kills:String;
 		
 		public function NonPushMissile(name:String, params:Object) 
 		{

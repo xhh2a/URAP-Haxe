@@ -47,6 +47,7 @@ package cleanfighter
 		protected var _shotHeight:Number;
 		
 		protected var _currWeaponName:String;
+		protected var _currWeaponKills:String;
 		
 		public function Player(name:String, params:Object = null)
 		{
@@ -72,56 +73,33 @@ package cleanfighter
 			
 			//setting our current weapon to be whatever is the current weapon set in the headsUp
 			_currWeaponName = Game.headsUp.getCurrWeaponArrayInfo().name;
+			
+			_currWeaponKills = Game.headsUp.getCurrWeaponArrayInfo().kills;
 		}
 		
 		public function isInvincible():Boolean
 		{
 			return _isInvincible;
 		}
-		
-		//TODO: replace missiles
+
 		protected function fire():void
 		{			
-			//missile type weapons
-			if (_currWeaponName == "soap")
-			{
-				var missile:NonPushMissile;
+			var missile:NonPushMissile;
 
-				if (_inverted)
-				{					
-					missile = new NonPushMissile("Missile", { speed: -(maxVelocity + 2), explodeDuration: 0, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
-				}
-				else
-				{					
-					missile = new NonPushMissile("Missile", { speed: maxVelocity + 2, explodeDuration: 0, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
-				}
-				
-				_canFire = false;
-				setTimeout(canFire, _reloadTime);
-				
-				_ce.state.add(missile);
-				missile.onExplode.addOnce(_damage);
+			if (_inverted)
+			{					
+				missile = new NonPushMissile(_currWeaponName, { speed: -(maxVelocity + 2), explodeDuration: 0, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight), kills: _currWeaponKills } );
 			}
-			//spray type weapons
-			else if (_currWeaponName == "bug spray")
-			{
-				var spray:Spray;
-
-				if (_inverted)
-				{
-					spray = new Spray("Spray", { speed: -4, explodeDuration: 0, fuseDuration: 4000, x: x - width - _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
-				}
-				else
-				{
-					spray = new Spray("Spray", { speed: 4, explodeDuration: 0, fuseDuration: 4000, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight) } );
-				}
-				
-				_canFire = false;
-				setTimeout(canFire, _reloadTime);
-				
-				_ce.state.add(spray);
-				spray.onExplode.addOnce(_damage);
+			else
+			{					
+				missile = new NonPushMissile(_currWeaponName, { speed: maxVelocity + 2, explodeDuration: 0, x: x + width + _shotHole.x, y: y + _shotHole.y, width: _shotWidth, height: _shotHeight, view: Game.headsUp.createNewImgInstance(NaN, _shotWidth, _shotHeight), kills: _currWeaponKills } );
 			}
+			
+			_canFire = false;
+			setTimeout(canFire, _reloadTime);
+			
+			_ce.state.add(missile);
+			missile.onExplode.addOnce(_damage);
 			
 			
 		}
@@ -224,6 +202,7 @@ package cleanfighter
 				{
 					Game.headsUp.changeDisplayedWeapon();
 					_currWeaponName = Game.headsUp.getCurrWeaponArrayInfo().name;
+					_currWeaponKills = Game.headsUp.getCurrWeaponArrayInfo().kills;
 				}
 				
 				if (!rightPressed && velocity.x > 0)

@@ -25,9 +25,10 @@ package cleanfighter
 		
 		override public function handleStarlingReady():void
 		{
-			state = new LevelOne();
+			//state = new LevelOne();
 			//state = new ShopScreen(new LevelOne());
-			//state = new TestLevel();
+			//state = new ShopScreen(new LevelTwo());
+			state = new TestLevel();
 		}
 	}
 	

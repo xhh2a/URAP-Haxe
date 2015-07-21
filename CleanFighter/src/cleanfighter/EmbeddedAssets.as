@@ -44,6 +44,9 @@ package cleanfighter
 		
 		[Embed(source = "/../assets/poop.png")]
 		public static const poop:Class;
+		
+		[Embed(source = "/../assets/latrine.png")]
+		public static const latrine:Class;
 	}
 
 }

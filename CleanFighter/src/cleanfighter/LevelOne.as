@@ -25,6 +25,7 @@ package cleanfighter
 			var testDirtySpot:DangerZone = new DangerZone("testDirtySpot", this, { x: 300, y: 550, width: 254, height: 233, damageStrength: 2, view: EmbeddedAssets.dirtySpot } );
 			add(testDirtySpot);
 			
+			//TODO: move in initialization for all the player stuff into Game; make myPlayer a public static var; keep in the add(myPlayer)
 			//adding in the sprite sheet for our player
 			//this will be used for displaying our player while showing the player's animated movements
 			var playerSheetBitmap:Bitmap = new EmbeddedAssets.playerSheet();			

@@ -77,24 +77,19 @@ package cleanfighter
 		{
 			//mandatory initializer
 			super.initialize();
+
+			//adding an on-screen joystick to the screen
+			vj = new VirtualJoystick("joystick",{radius:100, x: 100, y: stage.stageHeight - 100});
+			vj.circularBounds = true;
+			
+
+			//adding an on-screen "shoot" button to the screen
+			vb = new VirtualButton("button",{buttonradius:40, x: stage.stageWidth - 100, y: stage.stageHeight - 100});
+			vb.buttonAction = "shoot";
 			
 			//Note: for the following if-statements, when you see "if (!something)", where "something" is some object,
 			//that means "if something is not already initialized"
 			//the purpose of these if-statements is so that we don't initialize stuff we already have initialized
-			
-			if (!vj)
-			{
-				//adding an on-screen joystick to the screen
-				vj = new VirtualJoystick("joystick",{radius:100, x: 100, y: stage.stageHeight - 100});
-				vj.circularBounds = true;
-			}
-			
-			if (!vb)
-			{
-				//adding an on-screen "shoot" button to the screen
-				vb = new VirtualButton("button",{buttonradius:40, x: stage.stageWidth - 100, y: stage.stageHeight - 100});
-				vb.buttonAction = "shoot";
-			}
 			
 			if (!_engine)
 			{

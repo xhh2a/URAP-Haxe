@@ -12,8 +12,11 @@ package cleanfighter
 	 * ...
 	 * @author Kevin
 	 */
-	public class ShopScreen extends StarlingState
+	public class ShopScreen extends Game
 	{
+		[Inspectable(defaultValue = "0")]
+		public var inputChannel:uint = 0;
+		
 		protected var _nextState:StarlingState;
 		
 		public function ShopScreen(stateAfterLeaveShop:StarlingState) 
@@ -26,8 +29,10 @@ package cleanfighter
 		override public function initialize():void
 		{
 			super.initialize();
+
+			removeVjAndVb();
 			
-			addChild(new TextField(stage.stageWidth, 100, "Shop", "Verdana", 40));
+			addChild(new TextField(stage.stageWidth, 90, "Shop", "Verdana", 40));
 			
 			var items:Array = [new Sprite(), new Sprite(),
 				new Sprite(), new Sprite(),
@@ -89,6 +94,14 @@ package cleanfighter
 			exitShopButton.textBounds = newTextBound(exitShopButton.textBounds);
 			exitShopButton.addEventListener(Event.TRIGGERED, exitShopAction);
 			addChild(exitShopButton);
+		}
+		
+		override public function update(timeDelta:Number):void
+		{
+			if (_ce.input.justDid("switch weapon", inputChannel))
+			{
+				Game.headsUp.changeDisplayedWeapon();
+			}
 		}
 		
 		protected function newTextBound(textBound:Rectangle):Rectangle

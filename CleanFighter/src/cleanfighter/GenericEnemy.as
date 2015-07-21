@@ -50,6 +50,9 @@ package cleanfighter
 		[Inspectable(defaultValue=false)]
 		public var vertMovement:Boolean = false;
 		
+		[Inspectable(defaultValue=true)]
+		public var isDeadly:Boolean = true;
+		
 		public var damageStrength:Number = 1;
 		
 		private var _goodGuySensorFixtureDef:b2FixtureDef;
@@ -103,6 +106,11 @@ package cleanfighter
 		override public function update(timeDelta:Number):void
 		{
 			super.update(timeDelta);
+			
+			if (!isDeadly && _victimList.getLength() > 0)
+			{
+				_victimList = new SimpleLinkedList();
+			}
 			
 			if ((!_damageTicker.running) && (_victimList.getLength() != 0))
 			{
@@ -191,69 +199,75 @@ package cleanfighter
 		
 		override public function handleBeginContact(contact:b2Contact):void
 		{
-			//To be used for checking collisions
-			//collider refers to a thing that collides with this Enemy
-			var collider:IBox2DPhysicsObject = Box2DUtils.CollisionGetOther(this, contact);
-			
-			
-			//This if statement is somewhat copied and pasted from the orignal Enemy class, with the addition
-			//of a few extra things to handle score and being killed only when the correct ammo hits it
-			if ((collider is _enemyClass) && (name == Game.headsUp.getCurrWeaponArrayInfo().kills))
+			if (isDeadly)
 			{
-				hurt();
-			}
-			
-			else if (collider is Person)
-			{
-				if (!Person(collider).isInvincible())
+				//To be used for checking collisions
+				//collider refers to a thing that collides with this Enemy
+				var collider:IBox2DPhysicsObject = Box2DUtils.CollisionGetOther(this, contact);
+				
+				
+				//This if statement is somewhat copied and pasted from the orignal Enemy class, with the addition
+				//of a few extra things to handle score and being killed only when the correct ammo hits it
+				if ((collider is _enemyClass) && (name == (collider as NonPushMissile).kills))
 				{
-					Person(collider).getHurt(damageStrength);
+					hurt();
 				}
-				_victimList.append(collider);
-			}
-
-			//The following three if-statements are copied and pasted from the original Enemy class
-			//(except for the if-statement within the third if-statement)
-			//They handle the collisions that are NOT collisions with fired ammo
-			if (_body.GetLinearVelocity().x < 0 && (contact.GetFixtureA() == _rightSensorFixture || contact.GetFixtureB() == _rightSensorFixture))
-			{
-				return;
-			}
-
-			if (_body.GetLinearVelocity().x > 0 && (contact.GetFixtureA() == _leftSensorFixture || contact.GetFixtureB() == _leftSensorFixture))
-			{
-				return;
-			}
-
-			if (contact.GetManifold().m_localPoint)
-			{
-
-				var normalPoint:Point = new Point(contact.GetManifold().m_localPoint.x, contact.GetManifold().m_localPoint.y);
-				var collisionAngle:Number = new MathVector(normalPoint.x, normalPoint.y).angle * 180 / Math.PI;
-
-				if (collider is Platform)
+				
+				else if (collider is Person)
 				{
-					if (horizMovement && (collisionAngle == 0 || collisionAngle == 180))
+					if (!Person(collider).isInvincible())
 					{
-						_inverted = !_inverted;
+						Person(collider).getHurt(damageStrength);
 					}
-					if (vertMovement && (collisionAngle == 90 || collisionAngle == -90))
-					{
-						_up = !_up;
-					}
-
+					_victimList.append(collider);
 				}
 
+				//The following three if-statements are copied and pasted from the original Enemy class
+				//(except for the if-statement within the third if-statement)
+				//They handle the collisions that are NOT collisions with fired ammo
+				if (_body.GetLinearVelocity().x < 0 && (contact.GetFixtureA() == _rightSensorFixture || contact.GetFixtureB() == _rightSensorFixture))
+				{
+					return;
+				}
+
+				if (_body.GetLinearVelocity().x > 0 && (contact.GetFixtureA() == _leftSensorFixture || contact.GetFixtureB() == _leftSensorFixture))
+				{
+					return;
+				}
+
+				if (contact.GetManifold().m_localPoint)
+				{
+
+					var normalPoint:Point = new Point(contact.GetManifold().m_localPoint.x, contact.GetManifold().m_localPoint.y);
+					var collisionAngle:Number = new MathVector(normalPoint.x, normalPoint.y).angle * 180 / Math.PI;
+
+					if (collider is Platform)
+					{
+						if (horizMovement && (collisionAngle == 0 || collisionAngle == 180))
+						{
+							_inverted = !_inverted;
+						}
+						if (vertMovement && (collisionAngle == 90 || collisionAngle == -90))
+						{
+							_up = !_up;
+						}
+
+					}
+
+				}
 			}
 		}
 		
 		override public function handleEndContact(contact:b2Contact):void
 		{
-			var collider:IBox2DPhysicsObject = Box2DUtils.CollisionGetOther(this, contact);
-			
-			if (collider is Person)
+			if (isDeadly)
 			{
-				_victimList.removeData(collider);
+				var collider:IBox2DPhysicsObject = Box2DUtils.CollisionGetOther(this, contact);
+				
+				if (collider is Person)
+				{
+					_victimList.removeData(collider);
+				}
 			}
 		}
 		

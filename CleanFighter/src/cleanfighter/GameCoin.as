@@ -1,6 +1,10 @@
 package cleanfighter 
 {
 	import citrus.objects.platformer.box2d.Coin;
+	import Box2D.Dynamics.Contacts.b2Contact;
+	import citrus.physics.box2d.Box2DUtils;
+	import citrus.physics.box2d.IBox2DPhysicsObject;
+	
 	/**
 	 * ...
 	 * @author Kevin
@@ -16,11 +20,17 @@ package cleanfighter
 			collectorClass = "cleanfighter.Player"; //tells us who can collect the coin
 		}
 		
-		//makes coin disappear on pick up
-		override public function destroy():void
+		override public function handleBeginContact(contact:b2Contact):void
 		{
-			super.destroy();
-			Game._score += _value; //increase score on pick-up
+			super.handleBeginContact(contact);
+			
+			var collider:IBox2DPhysicsObject = Box2DUtils.CollisionGetOther(this, contact);
+			
+			if (_collectorClass && collider is _collectorClass)
+			{
+				kill = true;
+				Game._score += _value; //increase score on pick-up
+			}
 		}
 		
 	}

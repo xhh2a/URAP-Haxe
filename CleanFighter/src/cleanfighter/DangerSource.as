@@ -17,7 +17,7 @@ package cleanfighter
 		public function DangerSource(name:String, passedInLevel:Level, productThatGetsProduced:GenericEnemy, params:Object=null) 
 		{
 			super(name, passedInLevel, params);
-			//TODO: create cloneable interface for GenericEnemy and GenericProduct
+			
 			_productThatGetsProduced = productThatGetsProduced;
 			if (!productionDelayTime)
 			{
